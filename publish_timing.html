@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish Timing Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            padding: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            color: #374151; /* text-gray-700 */
+            margin-bottom: 0.25rem; /* mb-1 */
+        }
+        .required::after {
+            content: '*';
+            color: #ef4444; /* Red 500 */
+            margin-left: 2px;
+        }
+        .input-field {
+            display: block;
+            width: 100%;
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #d1d5db; /* border-gray-300 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+            padding: 0.75rem; /* p-3 */
+            font-size: 0.875rem; /* text-sm */
+            /* Focus styles */
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            outline: none;
+        }
+        .input-field:focus {
+             border-color: #3b82f6; /* focus:border-blue-500 */
+             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-blue-500 equivalent */
+        }
+        
+        /* Notification Styling */
+        #notification-box {
+            position: fixed; 
+            bottom: 1rem; 
+            right: 1rem; 
+            padding: 1rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            color: white;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .notification-success {
+            background-color: #10b981; /* bg-green-500 */
+        }
+        .notification-error {
+            background-color: #ef4444; /* bg-red-500 */
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+        <form id="post-submission-form">
+            <!-- Publish Timing section -->
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Publish Timing</h2>
+
+                <!-- Draft Option -->
+                <div class="mb-4 flex items-start space-x-3">
+                    <input id="draft-radio" type="radio" name="publish-option" value="draft" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                    <div>
+                        <label for="draft-radio" class="text-base font-medium text-gray-800">Draft</label>
+                        <p class="text-sm text-gray-600">Save for now</p>
+                    </div>
+                </div>
+
+                <!-- Publish Now Option -->
+                <div class="mb-4 flex items-start space-x-3">
+                    <input id="publish-now-radio" type="radio" name="publish-option" value="publish-now" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                    <div>
+                        <label for="publish-now-radio" class="text-base font-medium text-gray-800">Publish Now</label>
+                        <p class="text-sm text-gray-600">Post right away</p>
+                    </div>
+                </div>
+
+                <!-- Schedule for later Option (Updated Structure) -->
+                <div id="schedule-later-group" class="mb-4">
+                    <div class="flex items-start space-x-3">
+                        <input id="schedule-radio" type="radio" name="publish-option" value="schedule" checked class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <div>
+                            <label for="schedule-radio" class="text-base font-medium text-gray-800">Schedule for later</label>
+                            <p class="text-sm text-gray-600">Pick date and time to publish once automatically</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Base Date/Time Section - Nested under Schedule for later -->
+                    <div id="base-schedule-config" class="pl-6 pt-2">
+                        <!-- Scheduled Date/Time Row -->
+                        <div class="grid grid-cols-2 gap-4 sm:gap-6 pb-6">
+                            <div>
+                                <label for="schedule-date" class="form-label required">Date</label>
+                                <div class="relative">
+                                    <input id="schedule-date" name="schedule-date" type="text" placeholder="mm/dd/yyyy" class="input-field pr-10" required />
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <!-- Calendar Icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="schedule-time" class="form-label required">Time</label>
+                                <div class="relative">
+                                    <input id="schedule-time" name="schedule-time" type="text" value="12:00 AM" class="input-field pr-10" required />
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <!-- Clock Icon -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                <!-- Schedule Repeated Post Option -->
+                <div id="schedule-repeated-group" class="mb-4">
+                    <div class="flex items-start space-x-3">
+                        <input id="schedule-repeated-radio" type="radio" name="publish-option" value="schedule-repeated" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <div>
+                            <label for="schedule-repeated-radio" class="text-base font-medium text-gray-800">Schedule Repeated Post</label>
+                            <p class="text-sm text-gray-600">Set up a recurring schedule for this post</p>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <!-- Scheduled Details (Toggled by 'schedule-repeated-radio') -->
+                <div id="schedule-details" class="pl-6 pt-2 hidden">
+                    
+                    <!-- Conditional Repeat Options - Only visible for Schedule Repeated Post -->
+                    <div id="repeat-options" class="space-y-4 pt-4 border-t border-gray-200">
+                        
+                        <h3 id="repeat-options-title" class="text-sm font-semibold text-gray-800 mb-2">Configure Recurring Schedule</h3>
+
+                        <!-- Repeat Type -->
+                        <div>
+                            <label for="repeat-type" class="form-label">Repeat Type</label>
+                            <select id="repeat-type" name="repeat-type" class="input-field">
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="AllIndianFestivals">All Indian Festivals</option>
+                                <option value="AllInternationalDays">All International Days</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Container for dynamic repeat mode configuration -->
+                        <div id="repeat-mode-options">
+                            
+                            <!-- 1. Daily Config (Start Date / Multiple Times) -->
+                            <div id="daily-config" class="hidden space-y-4">
+                                <p class="text-sm text-gray-600 mb-4">Set the start date and time(s) for the daily recurring post.</p>
+                                
+                                <!-- Start Date AND Initial Daily Time Slot aligned horizontally -->
+                                <div class="grid grid-cols-2 gap-4 sm:gap-6">
+                                    <!-- Start Date -->
+                                    <div>
+                                        <label for="daily-start-date" class="form-label required">Start Date</label>
+                                        <div class="relative">
+                                            <input id="daily-start-date" name="daily-start-date" type="text" placeholder="mm/dd/yyyy" class="input-field pr-10" />
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <!-- Calendar Icon -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Initial Daily Time Slot -->
+                                    <div class="flex items-end">
+                                        <div class="relative flex-grow">
+                                            <label for="daily-time-0" class="form-label required">Daily Time Slot</label>
+                                            <input id="daily-time-0" name="daily-time-0" type="text" value="12:00 PM" class="input-field pr-10" />
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none mt-6">
+                                                <!-- Clock Icon -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="remove-daily-time-btn text-gray-400 hover:text-red-500 ml-3 p-2 transition duration-150 mt-6" data-row-id="0">
+                                            <!-- Trash Icon -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Daily Time Slot Container (for dynamically added slots) -->
+                                <div id="daily-schedule-container" class="space-y-4 pt-2">
+                                    <!-- Dynamic rows are appended here. Initial ID 0 is above. -->
+                                </div>
+                                
+                                <!-- Add More Daily Time Button -->
+                                <button id="add-more-daily-time" type="button" class="flex items-center text-sm font-medium text-red-600 hover:text-red-700 transition duration-150 mt-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    + Add Daily Time Slot
+                                </button>
+                            </div>
+                            
+                            <!-- 2. Weekly Config (Day/Multiple Times) -->
+                            <div id="weekly-config" class="hidden space-y-4">
+                                <p class="text-sm text-gray-600">Select one or more days, and multiple times, to post every week.</p>
+                                
+                                <div id="repeat-schedule-container" class="space-y-4">
+                                    <!-- Initial Schedule Row (ID 0) -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 weekly-repeat-row" data-row-id="0">
+                                        <div>
+                                            <label for="select-days-0" class="form-label required">Select Days (Multiple)</label>
+                                            <select id="select-days-0" name="select-days-0" multiple class="input-field h-24">
+                                                <option selected>Tuesday</option>
+                                                <option selected>Saturday</option>
+                                                <option>Sunday</option>
+                                                <option>Monday</option>
+                                                <option>Wednesday</option>
+                                                <option>Thursday</option>
+                                                <option>Friday</option>
+                                            </select>
+                                        </div>
+                                        <!-- Time input wrapper -->
+                                        <div class="flex items-end" id="time-row-0">
+                                            <div class="relative flex-grow">
+                                                <label for="select-time-0" class="form-label">Select Time(s)</label>
+                                                <input id="select-time-0" name="select-time-0" type="text" value="11:00 AM" class="input-field pr-10" />
+                                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none mt-6">
+                                                    <!-- Clock Icon -->
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="remove-time-btn text-gray-400 hover:text-red-500 ml-3 p-2 transition duration-150 mt-6" data-row-id="0">
+                                                <!-- Trash Icon -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Future rows will be appended here by JS -->
+                                </div>
+                                
+                                <!-- Add More Time Button -->
+                                <button id="add-more-time" type="button" class="flex items-center text-sm font-medium text-red-600 hover:text-red-700 transition duration-150 mt-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    + Add More Time
+                                </button>
+                            </div>
+                            
+                            <!-- 3. Monthly Config (Date of Month/Time) -->
+                            <div id="monthly-config" class="hidden">
+                                <p class="text-sm text-gray-600 mb-4">Select the day of the month and time for the post to repeat.</p>
+                                <div class="grid grid-cols-2 gap-4 sm:gap-6">
+                                    <div>
+                                        <label for="monthly-day-of-month" class="form-label required">Day of Month</label>
+                                        <input id="monthly-day-of-month" name="monthly-day-of-month" type="number" min="1" max="31" value="1" placeholder="1 - 31" class="input-field" />
+                                    </div>
+                                    <div>
+                                        <label for="monthly-time-config" class="form-label required">Time</label>
+                                        <div class="relative">
+                                            <input id="monthly-time-config" name="monthly-time-config" type="text" value="12:00 AM" class="input-field pr-10" />
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <!-- Clock Icon -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. All Indian Festivals Config (NEW) -->
+                            <div id="festival-config" class="hidden">
+                                <p class="text-sm text-gray-600 border border-yellow-200 bg-yellow-50 p-3 rounded-lg">
+                                    This post will be automatically scheduled for all major Indian Festivals based on the current calendar year.
+                                </p>
+                                <div class="mt-4 grid grid-cols-2 gap-4 sm:gap-6">
+                                    <div>
+                                        <label for="festival-post-time" class="form-label required">Default Post Time</label>
+                                        <div class="relative">
+                                            <input id="festival-post-time" name="festival-post-time" type="text" value="9:00 AM" class="input-field pr-10" />
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. All International Days Config (NEW) -->
+                            <div id="international-day-config" class="hidden">
+                                <p class="text-sm text-gray-600 border border-green-200 bg-green-50 p-3 rounded-lg">
+                                    This post will be automatically scheduled for major International Observation Days.
+                                </p>
+                                <div class="mt-4 grid grid-cols-2 gap-4 sm:gap-6">
+                                    <div>
+                                        <label for="international-day-post-time" class="form-label required">Default Post Time</label>
+                                        <div class="relative">
+                                            <input id="international-day-post-time" name="international-day-post-time" type="text" value="11:00 AM" class="input-field pr-10" />
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- NEW: Scheduled Events Preview Table Container -->
+                <div id="schedule-preview-table" class="pl-6 pt-4 hidden">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-2">Upcoming Schedule Preview (Mock Data)</h3>
+                    <div class="rounded-lg shadow overflow-hidden border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Post Title/Festival Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-preview-tbody" class="bg-white divide-y divide-gray-200">
+                                <!-- Dynamic rows go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Submission Action Area -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <button type="submit" id="submission-button" class="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 shadow-md">
+                        Click Here To Draft This Post
+                    </button>
+                    <p id="output" class="mt-4 text-sm text-gray-700 whitespace-pre-wrap"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Notification Box -->
+    <div id="notification-box" style="opacity: 0; pointer-events: none;"></div>
+
+    <script>
+        // Use a single counter to ensure all dynamically created fields (Daily and Weekly) have unique IDs/names.
+        let timeSlotCount = 1; 
+        
+        // FIX: Declare button variables outside DOMContentLoaded to prevent SyntaxError
+        let addMoreTimeButton;
+        let addMoreDailyTimeButton;
+
+
+        // Notification function (replaces alert/confirm)
+        const showNotification = (message, type = 'success', duration = 3000) => {
+            const box = document.getElementById('notification-box');
+            box.textContent = message;
+            box.classList.remove('notification-success', 'notification-error');
+            box.classList.add(type === 'error' ? 'notification-error' : 'notification-success');
+            box.style.opacity = '1';
+            box.style.pointerEvents = 'auto';
+
+            setTimeout(() => {
+                box.style.opacity = '0';
+                box.style.pointerEvents = 'none';
+            }, duration);
+        };
+
+        // --- MOCK DATA GENERATORS (Static/Placeholder data for demo) ---
+
+        const generateFestivalMockData = (postTime) => [
+            { date: "01/14/2026", name: "Makar Sankranti/Pongal", time: postTime },
+            { date: "01/26/2026", name: "Republic Day", time: postTime },
+            { date: "03/24/2026", name: "Holi", time: postTime },
+            { date: "04/05/2026", name: "Mahavir Jayanti", time: postTime },
+            { date: "08/15/2026", name: "Independence Day", time: postTime },
+            { date: "10/20/2026", name: "Dussehra", time: postTime },
+            { date: "11/08/2026", name: "Diwali (Laxmi Puja)", time: postTime },
+            { date: "12/25/2026", name: "Christmas Day", time: postTime },
+        ];
+
+        const generateInternationalDayMockData = (postTime) => [
+            { date: "01/01/2026", name: "New Year's Day", time: postTime },
+            { date: "03/08/2026", name: "International Women's Day", time: postTime },
+            { date: "04/22/2026", name: "Earth Day", time: postTime },
+            { date: "05/01/2026", name: "International Labour Day", time: postTime },
+            { date: "06/05/2026", name: "World Environment Day", time: postTime },
+            { date: "07/11/2026", name: "World Population Day", time: postTime },
+            { date: "10/24/2026", name: "United Nations Day", time: postTime },
+            { date: "12/10/2026", name: "Human Rights Day", time: postTime },
+        ];
+
+        const renderSchedulePreviewTable = (scheduleData) => {
+            const tbody = document.getElementById('schedule-preview-tbody');
+            const tableContainer = document.getElementById('schedule-preview-table');
+            
+            // Clear existing rows
+            if (tbody) tbody.innerHTML = '';
+            
+            if (!scheduleData || scheduleData.length === 0 || !tableContainer) {
+                if (tableContainer) tableContainer.classList.add('hidden');
+                return;
+            }
+
+            scheduleData.forEach(item => {
+                const row = tbody.insertRow();
+                row.insertCell().textContent = item.date;
+                row.insertCell().textContent = item.time;
+                row.insertCell().textContent = item.name;
+                row.className = 'hover:bg-gray-50';
+            });
+
+            tableContainer.classList.remove('hidden');
+        };
+        // --- END MOCK DATA ---
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- UI Elements ---
+            const submissionButton = document.getElementById('submission-button');
+            const dailyScheduleContainer = document.getElementById('daily-schedule-container');
+            const scheduleContainer = document.getElementById('repeat-schedule-container'); // Weekly container
+            const repeatTypeSelect = document.getElementById('repeat-type');
+            const form = document.getElementById('post-submission-form');
+            
+            // FIX: Assign button elements without redeclaring them
+            addMoreTimeButton = document.getElementById('add-more-time');
+            addMoreDailyTimeButton = document.getElementById('add-more-daily-time');
+
+            // --- Radio Buttons ---
+            const radioButtons = document.querySelectorAll('input[name="publish-option"]');
+            
+            // --- Input Fields (for required toggle) ---
+            const scheduleDateInput = document.getElementById('schedule-date');
+            const scheduleTimeInput = document.getElementById('schedule-time');
+            const dailyStartDateInput = document.getElementById('daily-start-date');
+            const monthlyDayInput = document.getElementById('monthly-day-of-month');
+            const monthlyTimeInput = document.getElementById('monthly-time-config');
+            const festivalPostTime = document.getElementById('festival-post-time'); 
+            const internationalDayPostTime = document.getElementById('international-day-post-time'); 
+
+            // --- Configuration Containers ---
+            const dailyConfig = document.getElementById('daily-config');
+            const weeklyConfig = document.getElementById('weekly-config');
+            const monthlyConfig = document.getElementById('monthly-config');
+            const festivalConfig = document.getElementById('festival-config'); 
+            const internationalDayConfig = document.getElementById('international-day-config'); 
+            const scheduleDetails = document.getElementById('schedule-details');
+            
+            // --- Functions ---
+            
+            const updateSubmissionButtonText = (option) => {
+                const button = submissionButton;
+                if (!button) return; // Safety check
+
+                const draftClasses = ['bg-gray-500', 'hover:bg-gray-600'];
+                const blueClasses = ['bg-blue-600', 'hover:bg-blue-700'];
+                const redClasses = ['bg-red-600', 'hover:bg-red-700'];
+
+                // Reset classes
+                button.classList.remove(...draftClasses, ...blueClasses, ...redClasses);
+
+                switch (option) {
+                    case 'draft':
+                        button.textContent = "Click Here To Draft This Post";
+                        button.classList.add(...draftClasses);
+                        break;
+                    case 'publish-now':
+                        button.textContent = "Publish Now";
+                        button.classList.add(...blueClasses);
+                        break;
+                    case 'schedule':
+                        button.textContent = "Schedule for later";
+                        button.classList.add(...blueClasses);
+                        break;
+                    case 'schedule-repeated':
+                        button.textContent = "Schedule Repeated Post";
+                        button.classList.add(...redClasses);
+                        break;
+                    default:
+                        button.textContent = "Submit Post";
+                        button.classList.add(...blueClasses);
+                }
+            };
+
+
+            const updateRepeatOptionsUI = () => {
+                const selectedType = repeatTypeSelect ? repeatTypeSelect.value : '';
+                const isRepeatedlyScheduled = document.getElementById('schedule-repeated-radio')?.checked || false;
+
+                // Hide all configurations and the preview table first
+                if (dailyConfig) dailyConfig.classList.add('hidden');
+                if (weeklyConfig) weeklyConfig.classList.add('hidden');
+                if (monthlyConfig) monthlyConfig.classList.add('hidden');
+                if (festivalConfig) festivalConfig.classList.add('hidden');
+                if (internationalDayConfig) internationalDayConfig.classList.add('hidden');
+                document.getElementById('schedule-preview-table')?.classList.add('hidden');
+                
+                // Clear and reset required attributes for all recurrence inputs
+                [dailyStartDateInput, monthlyDayInput, monthlyTimeInput, festivalPostTime, internationalDayPostTime].forEach(input => {
+                    if (input) input.removeAttribute('required'); 
+                });
+                document.querySelectorAll('.daily-repeat-row input, .weekly-repeat-row input').forEach(input => {
+                    input.removeAttribute('required');
+                });
+                document.querySelectorAll('#select-days-0').forEach(select => select.removeAttribute('required'));
+
+                if (!isRepeatedlyScheduled) return;
+
+                let mockData = null;
+
+                // Show the relevant configuration and set required attributes
+                switch (selectedType) {
+                    case 'Daily':
+                        if (dailyConfig) dailyConfig.classList.remove('hidden');
+                        if (dailyStartDateInput) dailyStartDateInput.setAttribute('required', 'required');
+                        const dailyTime0 = document.getElementById('daily-time-0');
+                        if(dailyTime0) dailyTime0.setAttribute('required', 'required');
+                        break;
+                    case 'Weekly':
+                        if (weeklyConfig) weeklyConfig.classList.remove('hidden');
+                        document.getElementById('select-days-0')?.setAttribute('required', 'required');
+                        const weeklyTime0 = document.getElementById('select-time-0');
+                        if(weeklyTime0) weeklyTime0.setAttribute('required', 'required');
+                        break;
+                    case 'Monthly':
+                        if (monthlyConfig) monthlyConfig.classList.remove('hidden');
+                        if(monthlyDayInput) monthlyDayInput.setAttribute('required', 'required');
+                        if(monthlyTimeInput) monthlyTimeInput.setAttribute('required', 'required');
+                        break;
+                    case 'AllIndianFestivals':
+                        if (festivalConfig) festivalConfig.classList.remove('hidden');
+                        if(festivalPostTime) festivalPostTime.setAttribute('required', 'required');
+                        mockData = generateFestivalMockData(festivalPostTime ? festivalPostTime.value : '9:00 AM');
+                        break;
+                    case 'AllInternationalDays':
+                        if (internationalDayConfig) internationalDayConfig.classList.remove('hidden');
+                        if(internationalDayPostTime) internationalDayPostTime.setAttribute('required', 'required');
+                        mockData = generateInternationalDayMockData(internationalDayPostTime ? internationalDayPostTime.value : '11:00 AM');
+                        break;
+                }
+                
+                if (mockData) {
+                    renderSchedulePreviewTable(mockData);
+                }
+            };
+            
+            const toggleScheduleVisibility = (selectedOption) => {
+                
+                const isSingleSchedule = selectedOption === 'schedule';
+                const isRepeatedSchedule = selectedOption === 'schedule-repeated';
+
+                // Toggle visibility of the nested inputs for 'Schedule for later'
+                const scheduleLaterGroup = document.getElementById('schedule-later-group');
+                const baseScheduleConfig = scheduleLaterGroup ? scheduleLaterGroup.querySelector('.pl-6.pt-2') : null;
+                
+                if (baseScheduleConfig) {
+                    baseScheduleConfig.classList.toggle('hidden', !isSingleSchedule);
+                }
+                
+                // Manage visibility of the 'Schedule Repeated Post' details
+                if (scheduleDetails) scheduleDetails.classList.toggle('hidden', !isRepeatedSchedule);
+
+                // Update submission button text
+                updateSubmissionButtonText(selectedOption);
+
+                // Set required attributes for single schedule
+                if(scheduleDateInput) scheduleDateInput.toggleAttribute('required', isSingleSchedule);
+                if(scheduleTimeInput) scheduleTimeInput.toggleAttribute('required', isSingleSchedule);
+
+
+                if (isRepeatedSchedule) {
+                    updateRepeatOptionsUI();
+                } else {
+                    updateRepeatOptionsUI();
+                }
+            };
+            
+            const validateData = (data) => {
+                // FIX: Check for the form element existence before calling checkValidity()
+                if (form && !form.checkValidity()) {
+                     return { valid: false, message: "Please fill out all required basic fields." };
+                }
+
+                if (data.publishOption === 'schedule-repeated') {
+                    const type = data.repeatType;
+                    
+                    // Specific checks for dynamic/complex fields not fully covered by simple required HTML attribute
+                    
+                    if ((type === 'Weekly' || type === 'Daily') && data.repeatTimes.length === 0) {
+                        return { valid: false, message: `Please add at least one time slot for the ${type} repeat schedule.` };
+                    }
+                    
+                    if (type === 'Weekly' && (!data.selectedDays || data.selectedDays.length === 0)) {
+                        return { valid: false, message: "Please select at least one day for the Weekly repeat schedule." };
+                    }
+                    
+                    if (type === 'Monthly') {
+                        const day = parseInt(data.dayOfMonth);
+                        if (isNaN(day) || day < 1 || day > 31) {
+                            return { valid: false, message: "Day of Month must be between 1 and 31." };
+                        }
+                    }
+                }
+                
+                return { valid: true };
+            };
+
+
+            const getFormData = () => {
+                const selectedOption = form.querySelector('input[name="publish-option"]:checked').value;
+                const repeatData = {
+                    publishOption: selectedOption,
+                    createdAt: new Date().toISOString(),
+                    userId: 'anonymous', 
+                    status: 'Draft'
+                };
+                
+                // Set final status
+                if (selectedOption === 'publish-now') {
+                    repeatData.status = 'Pending Publish';
+                } else if (selectedOption === 'schedule' || selectedOption === 'schedule-repeated') {
+                    repeatData.status = 'Scheduled';
+                }
+
+                if (selectedOption === 'schedule') {
+                    repeatData.schedule = {
+                        type: 'Once',
+                        date: scheduleDateInput ? scheduleDateInput.value : '',
+                        time: scheduleTimeInput ? scheduleTimeInput.value : '',
+                        repeat: false,
+                    };
+                } 
+                else if (selectedOption === 'schedule-repeated') {
+                    const repeatType = repeatTypeSelect ? repeatTypeSelect.value : '';
+                    repeatData.schedule = {
+                        type: 'Recurring',
+                        repeat: true,
+                        repeatType: repeatType
+                    };
+
+                    if (repeatType === 'Daily') {
+                        repeatData.schedule.startDate = dailyStartDateInput ? dailyStartDateInput.value : '';
+                        const timeInputs = document.querySelectorAll('#daily-schedule-container input[name^="daily-time-"]');
+                        const initialTime = document.getElementById('daily-time-0') ? document.getElementById('daily-time-0').value : '';
+                        repeatData.schedule.repeatTimes = [initialTime, ...Array.from(timeInputs).map(input => input.value)].filter(v => v.trim() !== "");
+                        
+                    } else if (repeatType === 'Weekly') {
+                        const daysSelect0 = document.getElementById(`select-days-0`);
+                        let selectedDays = daysSelect0 ? Array.from(daysSelect0.options).filter(option => option.selected).map(option => option.value) : [];
+                        repeatData.schedule.selectedDays = selectedDays;
+                        
+                        const timeInputs = document.querySelectorAll('#repeat-schedule-container input[name^="select-time-"]');
+                        const initialTime = document.getElementById('select-time-0') ? document.getElementById('select-time-0').value : '';
+                        repeatData.schedule.repeatTimes = [initialTime, ...Array.from(timeInputs).map(input => input.value)].filter(v => v.trim() !== "");
+
+                    } else if (repeatType === 'Monthly') {
+                        repeatData.schedule.dayOfMonth = monthlyDayInput ? monthlyDayInput.value : '';
+                        repeatData.schedule.monthlyTime = monthlyTimeInput ? monthlyTimeInput.value : '';
+                    } else if (repeatType === 'AllIndianFestivals') {
+                        repeatData.schedule.postTime = festivalPostTime ? festivalPostTime.value : '';
+                    } else if (repeatType === 'AllInternationalDays') {
+                        repeatData.schedule.postTime = internationalDayPostTime ? internationalDayPostTime.value : '';
+                    }
+                }
+                
+                return repeatData;
+            };
+
+            // --- Dynamic Time Slot Management Factory ---
+
+            const createTimeRow = (inputName, removeBtnClass, labelText, rowClass, isWeekly = false) => {
+                const id = timeSlotCount++;
+                const wrapper = document.createElement('div');
+                wrapper.className = `grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 ${rowClass}`;
+                wrapper.innerHTML = `
+                    <div class="${isWeekly ? '' : 'hidden sm:block'}"></div> 
+                    <div class="flex items-end" id="time-row-${id}">
+                        <div class="relative flex-grow">
+                            <label for="${inputName}-${id}" class="form-label">${labelText}</label>
+                            <input id="${inputName}-${id}" name="${inputName}-${id}" type="text" value="12:00 PM" class="input-field pr-10" />
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none mt-6">
+                                <!-- Clock Icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            </div>
+                        </div>
+                        <button type="button" class="${removeBtnClass} text-gray-400 hover:text-red-500 ml-3 p-2 transition duration-150 mt-6" data-row-id="${id}">
+                            <!-- Trash Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    </div>
+                `;
+                return wrapper;
+            };
+            
+            // Add More Time for WEEKLY schedule
+            if (addMoreTimeButton && scheduleContainer) {
+                addMoreTimeButton.addEventListener('click', () => {
+                    const newRow = createTimeRow('select-time', 'remove-time-btn', 'Select Time(s)', 'weekly-repeat-row', true);
+                    scheduleContainer.appendChild(newRow);
+                });
+            }
+
+            // Add More Time for DAILY schedule
+            if (addMoreDailyTimeButton && dailyScheduleContainer) {
+                addMoreDailyTimeButton.addEventListener('click', () => {
+                    const newRow = createTimeRow('daily-time', 'remove-daily-time-btn', 'Daily Time Slot', 'daily-repeat-row');
+                    dailyScheduleContainer.appendChild(newRow);
+                });
+            }
+
+            // --- Event Handlers ---
+            
+            const handleRemove = (event, rowClass) => {
+                if (event.target.closest(`.remove-time-btn`) || event.target.closest(`.remove-daily-time-btn`)) {
+                    const button = event.target.closest('button');
+                    const rowToRemove = button.closest(`.${rowClass}`); 
+                    if (rowToRemove) {
+                        rowToRemove.remove();
+                    }
+                }
+            };
+
+            // Delegate removal for Weekly container
+            if (scheduleContainer) {
+                scheduleContainer.addEventListener('click', (e) => handleRemove(e, 'weekly-repeat-row'));
+            }
+            
+            // Delegate removal for Daily container
+            if (dailyScheduleContainer) {
+                dailyScheduleContainer.addEventListener('click', (e) => handleRemove(e, 'daily-repeat-row'));
+            }
+            
+            // Listener for all radio buttons to update UI/Button text
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    toggleScheduleVisibility(event.target.value);
+                });
+            });
+
+            // Listener for Repeat Type changes (to manage required attributes)
+            if (repeatTypeSelect) {
+                repeatTypeSelect.addEventListener('change', updateRepeatOptionsUI);
+            }
+
+            // Attach the main form submission handler
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault(); 
+                    // NOTE: Skipping full getFormData and validation here for clean demo log
+                    const data = { publishOption: document.querySelector('input[name="publish-option"]:checked').value, status: 'Simulated' };
+                    
+                    const validation = validateData(getFormData());
+
+                    if (validation.valid) {
+                         console.log("Form submitted successfully (Simulated)");
+                         showNotification(`${submissionButton.textContent} action simulated.`, 'success');
+                    } else {
+                         showNotification(validation.message, 'error');
+                         console.error("Validation failed:", validation.message);
+                    }
+                });
+            }
+
+
+            // --- Initializer ---
+            
+            // Set initial state based on the checked radio button (Schedule for later is checked by default in HTML)
+            const initialCheckedOption = document.querySelector('input[name="publish-option"]:checked')?.value || 'draft';
+            toggleScheduleVisibility(initialCheckedOption); 
+        });
+    </script>
+</body>
+</html>
