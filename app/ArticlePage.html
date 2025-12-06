@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Page / Information Page Editor</title>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;       
+            --primary-dark: #1d4ed8;
+            --text-main: #0f172a;     
+            --text-muted: #64748b;    
+            --bg-body: #f8fafc;       
+            --bg-surface: #ffffff;    
+            --border: #e2e8f0;        
+            
+            /* Status Colors */
+            --green-text: #16a34a;
+            --green-bg: #dcfce7;
+            
+            --red-text: #dc2626;
+            --red-circle: #ef4444;
+            
+            --orange-text: #ea580c;
+            --yellow-text: #ca8a04;
+            
+            --card-pink-bg: #fff1f2;
+            --card-purple-bg: #fdf4ff;
+            
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            padding: 20px 40px;
+            transition: padding 0.3s ease;
+        }
+
+        /* --- Header Section --- */
+        .breadcrumbs {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn {
+            border: 1px solid var(--border);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Meta Row */
+        .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .divider { color: var(--border); }
+        
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        
+        .badge-green { background-color: var(--green-bg); color: var(--green-text); }
+        .badge-teal { background-color: #ccfbf1; color: #0f766e; }
+
+        /* Title */
+        .article-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+        
+        .edit-link {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .article-url {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+        }
+
+        /* Action Row */
+        .action-meta-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            position: relative; /* For popup positioning */
+        }
+        
+        .action-link {
+            color: var(--primary-dark);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-transform: uppercase;
+        }
+        
+        /* Shared User Section (Clickable) */
+        .user-avatars {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer; /* Interactive */
+            transition: background 0.2s;
+            position: relative;
+        }
+        
+        .user-avatars:hover {
+            background: #e2e8f0;
+        }
+        
+        .avatar-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #475569;
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- SHARE POPUP (New) --- */
+        .share-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 200px; /* Adjust based on flow */
+            width: 350px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+            z-index: 200;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .share-popup.active { display: block; animation: fadeIn 0.2s ease-out; }
+
+        .share-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: #f8fafc;
+        }
+        
+        .share-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .share-tab:hover { background: #f1f5f9; color: var(--primary); }
+        .share-tab.active {
+            background: white;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .share-content {
+            display: none;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .share-content.active { display: block; }
+
+        /* User List Styles */
+        .user-list-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .user-list-item:last-child { border-bottom: none; }
+        
+        .user-avatar-lg {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        
+        .user-details { flex-grow: 1; }
+        .user-name { font-size: 13px; font-weight: 600; color: var(--text-main); }
+        /* Updated subtext style for meta info */
+        .user-meta { font-size: 10px; color: #94a3b8; margin-top: 2px; font-weight: 500; }
+        
+        .access-tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+        .access-tag.owner { background: #dbeafe; color: var(--primary); }
+        .access-tag.assigned { background: #fef3c7; color: #d97706; } /* Orange/Yellow for Assigned */
+        .access-tag.given { background: #dcfce7; color: #16a34a; } /* Green for Access Given */
+
+        /* Log Styles */
+        .log-item {
+            padding: 10px 0;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 15px;
+            margin-left: 5px;
+            position: relative;
+        }
+        .log-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 15px;
+            width: 8px;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 50%;
+        }
+        .log-item.active::before { background: var(--primary); }
+        
+        .log-time { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+        .log-action { font-size: 12px; color: var(--text-main); }
+        .log-action strong { font-weight: 600; }
+
+
+        /* --- Dashboard Cards (FITTED) --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 2fr; /* Tuned Ratio: ~35% / 65% */
+            gap: 24px;
+            margin-bottom: 30px;
+            transition: opacity 0.3s ease;
+        }
+
+        .dash-card {
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: default;
+            min-height: 140px;
+        }
+        
+        .dash-card.pink { background-color: var(--card-pink-bg); }
+        .dash-card.purple { background-color: var(--card-purple-bg); }
+
+        .card-bg-icon {
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            font-size: 120px;
+            opacity: 0.04;
+            transform: rotate(-10deg);
+            pointer-events: none;
+        }
+
+        .dash-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Grid Layout for Stats to Fit Perfectly */
+        .dash-stats-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .dash-stats-grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .dash-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .stat-label { 
+            font-size: 10px; 
+            color: var(--text-muted); 
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .stat-value-large {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            line-height: 1;
+        }
+
+        .badge-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .badge-up { background-color: #dcfce7; color: #15803d; }
+        .badge-down { background-color: #fee2e2; color: #b91c1c; }
+
+        /* Popups */
+        .dash-popup, .metric-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 12px;
+            z-index: 50;
+            min-width: 160px;
+            margin-top: 8px;
+        }
+        .dash-popup.active, .metric-popup.active { display: block; animation: fadeIn 0.15s ease-out; }
+        
+        /* Action Menu Dropdown */
+        .action-dropdown-container {
+            position: relative;
+        }
+        
+        .action-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            width: 220px;
+            z-index: 100;
+            margin-top: 5px;
+            overflow: hidden;
+            padding: 5px 0;
+        }
+        
+        .action-menu.active {
+            display: block;
+            animation: fadeIn 0.15s ease-out;
+        }
+        
+        .action-item {
+            padding: 10px 15px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.1s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-item:hover {
+            background: #f1f5f9;
+            color: var(--primary);
+        }
+        
+        .action-item i { width: 16px; color: var(--text-muted); font-size: 12px; }
+        .action-item:hover i { color: var(--primary); }
+
+        /* --- Main Navigation Tabs --- */
+        .main-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end; /* Align bottom to match line */
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-tab {
+            padding-bottom: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s;
+        }
+        
+        .nav-tab:hover { color: var(--primary); }
+
+        .nav-tab.active {
+            color: var(--primary);
+            font-weight: 700;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            padding-bottom: 5px; /* Visual adjustment */
+        }
+        
+        .btn-access {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-access:hover { background-color: #1d4ed8; }
+
+        /* Preview Button */
+        .btn-preview {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn-preview:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+
+        /* --- Content Area --- */
+        .content-area {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 24px;
+            background: #f8fafc; 
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        /* --- Left Column --- */
+        .editor-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Metrics Row (Fitted) */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+        .metric-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid;
+            flex-shrink: 0;
+            background: #fff;
+        }
+
+        .circle-green { border-color: #22c55e; color: #15803d; }
+        .circle-red { border-color: #ef4444; color: #b91c1c; }
+        .circle-orange { border-color: #f97316; color: #c2410c; }
+        .circle-yellow { border-color: #eab308; color: #a16207; }
+
+        .metric-info { display: flex; flex-direction: column; gap: 1px; }
+        .metric-title { font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .metric-subtitle { font-size: 10px; font-weight: 600; }
+        
+        .sub-green { color: #16a34a; }
+        .sub-red { color: #dc2626; }
+        .sub-orange { color: #ea580c; }
+        .sub-yellow { color: #ca8a04; }
+
+        /* Editor Toolbar & Canvas */
+        .editor-container {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toolbar-top {
+            padding: 8px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 16px;
+            background: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .toolbar-top span { cursor: pointer; }
+        .toolbar-top span:hover { color: var(--primary); }
+
+        .toolbar-icons {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .icon-btn {
+            color: #64748b;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .icon-btn:hover { background: #f1f5f9; color: var(--text-main); }
+
+        .toolbar-separator { width: 1px; height: 18px; background: #e2e8f0; margin: 0 4px; }
+        
+        .dropdown-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        .btn-explore {
+            margin-left: auto;
+            background: #f3e8ff;
+            color: #9333ea;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-explore i { color: #d8b4fe; -webkit-text-stroke: 1px #9333ea; }
+
+        .editor-canvas {
+            padding: 30px;
+            flex-grow: 1;
+            outline: none;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #334155;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Right Sidebar --- */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; transition: opacity 0.3s ease; }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-dropdown {
+            font-size: 12px;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .donut-chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .donut-svg { width: 130px; height: 130px; transform: rotate(-90deg); }
+        .donut-bg { fill: none; stroke: #f1f5f9; stroke-width: 10; }
+        .donut-progress {
+            fill: none;
+            stroke: #22c55e;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 280;
+            stroke-dashoffset: 3;
+            transition: stroke-dashoffset 1s ease-in-out;
+        }
+        
+        .donut-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .donut-label { font-size: 13px; font-weight: 700; color: #15803d; line-height: 1.2; }
+
+        .confidence-score { font-size: 15px; font-weight: 700; color: #16a34a; margin-bottom: 5px; margin-top: 10px; }
+        .date-info { font-size: 11px; color: var(--text-muted); margin-bottom: 15px; }
+        .report-desc { font-size: 11px; color: #64748b; text-align: center; line-height: 1.5; margin-bottom: 20px; }
+
+        .legend { font-size: 10px; font-weight: 600; display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .dot-red { width: 6px; height: 6px; background: #ef4444; border-radius: 50%; }
+        .dot-green { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+        
+        .score-list { display: flex; flex-direction: column; gap: 10px; }
+        .score-item { display: flex; align-items: center; gap: 10px; font-size: 11px; color: #64748b; }
+        .score-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PREVIEW MODE STYLES --- */
+        body.preview-active .dashboard-grid,
+        body.preview-active .metrics-row,
+        body.preview-active .toolbar-top,
+        body.preview-active .toolbar-icons,
+        body.preview-active .sidebar,
+        body.preview-active .breadcrumbs,
+        body.preview-active .meta-row,
+        body.preview-active .action-meta-row {
+            display: none !important;
+        }
+
+        body.preview-active .content-area {
+            grid-template-columns: 1fr;
+            background: transparent;
+            border: none;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        body.preview-active .editor-container {
+            border: none;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.05);
+        }
+        
+        body.preview-active .editor-canvas {
+            font-size: 18px; /* Slightly larger for reading */
+            line-height: 1.8;
+            padding: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .content-area { grid-template-columns: 1fr; }
+            .sidebar { flex-direction: row; flex-wrap: wrap; }
+            .sidebar-card { flex: 1; min-width: 300px; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .dash-stats-grid-4 { grid-template-columns: 1fr 1fr; }
+            body { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Breadcrumbs & Back Button -->
+    <div class="breadcrumbs">
+        <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+        <span>Dashboard &nbsp;&rsaquo;&nbsp; Bitcoin Price Prediction 2025: Will BTC ..</span>
+    </div>
+
+    <!-- Metadata Row -->
+    <div class="meta-row">
+        <strong>Markets (Price Prediction)</strong>
+        <span class="divider">|</span>
+        <span>02 Dec 2025 03:00 PM</span>
+        <span class="divider">|</span>
+        <span style="color:#64748b">Last published on 02, Dec 2025 03:19 PM by Abdul Zabbarkhan Kittur</span>
+        <span class="badge badge-green">Final Approved</span>
+        <span class="badge badge-teal">200</span>
+    </div>
+
+    <!-- Title Row -->
+    <div class="article-title-row">
+        <h1 class="header-title">Bitcoin Price Prediction 2025: Will BTC Price Mark New Low's In The Coming Days?</h1>
+        <a href="#" class="edit-link"><i class="fas fa-pencil-alt"></i> EDIT TITLE</a>
+    </div>
+
+    <!-- URL -->
+    <div class="article-url">
+        https://coinpedia.org/price-prediction/bitcoin-price-prediction
+    </div>
+
+    <!-- Actions Row -->
+    <div class="action-meta-row">
+        <a href="#" class="action-link">VIEW ARTICLE DOCUMENT <i class="fas fa-external-link-alt"></i></a>
+        <a href="#" class="action-link"><i class="fas fa-pencil-alt"></i> EDIT</a>
+        <div class="divider" style="height:15px; width:1px; background:#e2e8f0;"></div>
+        
+        <!-- CLICKABLE SHARE SECTION -->
+        <div class="user-avatars" onclick="toggleSharePopup()">
+            <div class="avatar-circle" style="background:#1e3a8a;">S</div>
+            <div class="avatar-circle" style="background:#059669; margin-left:-6px; border:2px solid white;">CS</div>
+            <span style="margin-left:6px;">Shared with Shrishesh U Tanksalkar and 3 Others</span>
+        </div>
+
+        <!-- SHARE POPUP (UPDATED) -->
+        <div class="share-popup" id="sharePopup">
+            <div class="share-tabs">
+                <!-- Renamed to Active Access -->
+                <div class="share-tab active" onclick="switchShareTab('present', this)">Active Access</div>
+                <div class="share-tab" onclick="switchShareTab('old', this)">Old Log</div>
+            </div>
+            
+            <!-- Tab 1: Active Access (Updated Content) -->
+            <div id="tab-present" class="share-content active">
+                <!-- Owner -->
+                <div class="user-list-item">
+                    <div class="user-avatar-lg" style="background:#1e3a8a; color:white;">S</div>
+                    <div class="user-details">
+                        <div class="user-name">Shrishesh U Tanksalkar</div>
+                        <div class="user-meta">Created on 20 Nov 2023</div>
+                    </div>
+                    <div class="access-tag owner">Owner</div>
+                </div>
+
+                <!-- Assigned User -->
+                <div class="user-list-item">
+                    <div class="user-avatar-lg" style="background:#059669; color:white;">CS</div>
+                    <div class="user-details">
+                        <div class="user-name">Content Strategy</div>
+                        <div class="user-meta">Given by Shrishesh | 02 Dec 2025</div>
+                    </div>
+                    <div class="access-tag assigned">Assigned</div>
+                </div>
+
+                <!-- Access Given Users -->
+                <div class="user-list-item">
+                    <div class="user-avatar-lg">AK</div>
+                    <div class="user-details">
+                        <div class="user-name">Abdul Kittur</div>
+                        <div class="user-meta">Given by Shrishesh | 02 Dec 2025</div>
+                    </div>
+                    <div class="access-tag given">Access Given</div>
+                </div>
+                 <div class="user-list-item">
+                    <div class="user-avatar-lg">NK</div>
+                    <div class="user-details">
+                        <div class="user-name">Nidhi Kolpure</div>
+                        <div class="user-meta">Given by Shrishesh | 01 Dec 2025</div>
+                    </div>
+                    <div class="access-tag given">Access Given</div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Old Log -->
+            <div id="tab-old" class="share-content">
+                <div class="log-item active">
+                    <div class="log-time">Today, 03:19 PM</div>
+                    <div class="log-action"><strong>Abdul Kittur</strong> published the article.</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-time">Today, 01:45 PM</div>
+                    <div class="log-action"><strong>Shrishesh</strong> edited the content.</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-time">Yesterday, 11:20 AM</div>
+                    <div class="log-action"><strong>Content Strategy</strong> added 2 backlinks.</div>
+                </div>
+                <div class="log-item">
+                    <div class="log-time">01 Dec, 05:00 PM</div>
+                    <div class="log-action"><strong>Nidhi</strong> created the draft.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="divider" style="height:15px; width:1px; background:#e2e8f0;"></div>
+        <span>2000 Words</span>
+    </div>
+
+    <!-- Dashboard Cards (Pink/Purple) -->
+    <div class="dashboard-grid">
+        <!-- Keyword Card (50/50 Grid) -->
+        <div class="dash-card pink" title="Click to view detailed keyword analysis">
+            <i class="fas fa-search card-bg-icon"></i>
+            <div class="dash-title">
+                Keyword
+                <i class="fas fa-chevron-right dash-chevron"></i>
+            </div>
+            <div class="dash-stats-grid-2">
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Total Keywords</span>
+                    <div class="stat-value-large">
+                        115
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                             <span class="badge-trend badge-up"><i class="fas fa-caret-up"></i> 21</span>
+                             <span class="badge-trend badge-down"><i class="fas fa-caret-down"></i> 37</span>
+                        </div>
+                    </div>
+                    <div class="dash-popup">
+                        <div class="popup-header">Keyword Performance</div>
+                        <div class="dash-popup-row"><span>New Ranked:</span> <strong>21</strong></div>
+                        <div class="dash-popup-row"><span>Dropped:</span> <strong>37</strong></div>
+                    </div>
+                </div>
+                
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Search Volume</span>
+                    <span class="stat-value-large">14.6M</span>
+                    <div class="dash-popup">
+                        <div class="popup-header">Volume Breakdown</div>
+                        <div class="dash-popup-row"><span>US:</span> <strong>6.2M</strong></div>
+                        <div class="dash-popup-row"><span>IN:</span> <strong>3.1M</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backlinks Card (4 Col Grid) -->
+        <div class="dash-card purple" title="Click to view backlink opportunities">
+            <i class="fas fa-link card-bg-icon"></i>
+            <div class="dash-title">
+                Backlinks
+                <i class="fas fa-chevron-right dash-chevron"></i>
+            </div>
+            <div class="dash-stats-grid-4">
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Total Backlinks</span>
+                    <span class="stat-value-large">1704</span>
+                    <div class="dash-popup">
+                        <div class="popup-header">Backlink Types</div>
+                        <div class="dash-popup-row"><span>DoFollow:</span> <strong>1200</strong></div>
+                        <div class="dash-popup-row"><span>NoFollow:</span> <strong>504</strong></div>
+                    </div>
+                </div>
+                
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Referring Domain</span>
+                    <span class="stat-value-large">1215</span>
+                    <div class="dash-popup">
+                        <div class="popup-header">Domain Authority</div>
+                        <div class="dash-popup-row"><span>High:</span> <strong>150</strong></div>
+                        <div class="dash-popup-row"><span>Low:</span> <strong>465</strong></div>
+                    </div>
+                </div>
+                
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Opp. Backlinks</span>
+                    <span class="stat-value-large">1215</span>
+                     <div class="dash-popup">
+                        <div class="popup-header">Link Opportunities</div>
+                        <div class="dash-popup-row"><span>Competitor:</span> <strong>800</strong></div>
+                        <div class="dash-popup-row"><span>Lost:</span> <strong>200</strong></div>
+                    </div>
+                </div>
+                
+                <div class="dash-stat" onclick="togglePopup(event, this)">
+                    <span class="stat-label">Opp. Topics</span>
+                    <span class="stat-value-large">5</span>
+                     <div class="dash-popup">
+                        <div class="popup-header">Missing Topics</div>
+                        <div class="dash-popup-row">1. <strong>Ethereum Merger</strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation & Access Buttons (ACTION BUTTON) -->
+    <div class="main-nav-container">
+        <div class="nav-tabs">
+            <div class="nav-tab">Overview</div>
+            <div class="nav-tab active">Editor</div>
+            <div class="nav-tab">Backlinks</div>
+            <div class="nav-tab">Keywords</div>
+            <div class="nav-tab">Performance & Analytic Insights</div>
+            <div class="nav-tab">Teams Log</div>
+            <div class="nav-tab">Image Ideas</div>
+        </div>
+        
+        <div class="top-actions">
+            <!-- Preview Button -->
+            <button class="btn-preview" id="previewBtn" onclick="togglePreview()">
+                <i class="fas fa-eye"></i> Preview
+            </button>
+            
+            <div class="action-dropdown-container">
+                <button class="btn-access" onclick="toggleActionMenu(event)">
+                    Action <i class="fas fa-chevron-down" style="font-size:10px;"></i>
+                </button>
+                <div class="action-menu" id="actionMenu">
+                    <div class="action-item"><i class="fas fa-sync-alt"></i> Assign Work/ReUpdating</div>
+                    <div class="action-item"><i class="fas fa-user-plus"></i> Give Access</div>
+                    <div class="action-item"><i class="fas fa-link"></i> Give Access For Backlink</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="content-area">
+        
+        <!-- LEFT COLUMN -->
+        <div class="editor-column">
+            
+            <!-- 5 Metric Circles (Fitted) -->
+            <div class="metrics-row">
+                <div class="metric-card" onclick="togglePopup(event, this)">
+                    <div class="metric-circle circle-green">99%</div>
+                    <div class="metric-info">
+                        <div class="metric-title">AI Checker</div>
+                        <div class="metric-subtitle sub-green">Likely Original</div>
+                    </div>
+                    <div class="metric-popup">
+                        <div class="popup-header">AI Confidence Score</div>
+                        <div class="popup-content">Content is 99% unique.</div>
+                    </div>
+                </div>
+
+                <div class="metric-card" onclick="togglePopup(event, this)">
+                    <div class="metric-circle circle-red">97%</div>
+                    <div class="metric-info">
+                        <div class="metric-title">Plagiarism checker</div>
+                        <div class="metric-subtitle sub-red">Match</div>
+                    </div>
+                     <div class="metric-popup">
+                        <div class="popup-header">Plagiarism Found</div>
+                        <div class="popup-content">3 major sources found.</div>
+                    </div>
+                </div>
+
+                <div class="metric-card" onclick="togglePopup(event, this)">
+                    <div class="metric-circle circle-red" style="font-size:14px;">0%</div>
+                    <div class="metric-info">
+                        <div class="metric-title">Fact checking</div>
+                        <div class="metric-subtitle sub-red">Potentially true</div>
+                    </div>
+                     <div class="metric-popup">
+                        <div class="popup-header">Fact Verification</div>
+                        <div class="popup-content">Unverified claims detected.</div>
+                    </div>
+                </div>
+
+                <div class="metric-card" onclick="togglePopup(event, this)">
+                    <div class="metric-circle circle-orange">63%</div>
+                    <div class="metric-info">
+                        <div class="metric-title">Readability</div>
+                        <div class="metric-subtitle sub-orange">Reading ease</div>
+                    </div>
+                     <div class="metric-popup">
+                        <div class="popup-header">Flesch Score</div>
+                        <div class="popup-content">Grade 8 Level.</div>
+                    </div>
+                </div>
+
+                <div class="metric-card" onclick="togglePopup(event, this)">
+                    <div class="metric-circle circle-yellow">43%</div>
+                    <div class="metric-info">
+                        <div class="metric-title">Content optimization</div>
+                        <div class="metric-subtitle sub-yellow">Optimized</div>
+                    </div>
+                     <div class="metric-popup">
+                        <div class="popup-header">SEO Score</div>
+                        <div class="popup-content">Add more keywords.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor -->
+            <div class="editor-container">
+                <div class="toolbar-top">
+                    <span>File</span> <span>Edit</span> <span>View</span> <span>Insert</span> <span>Format</span> <span>Tools</span> <span>Table</span>
+                </div>
+                
+                <div class="toolbar-icons">
+                    <i class="fas fa-undo icon-btn"></i>
+                    <i class="fas fa-redo icon-btn"></i>
+                    <div class="toolbar-separator"></div>
+                    <div class="dropdown-box">Paragraph <i class="fas fa-chevron-down" style="font-size:10px;"></i></div>
+                    <div class="dropdown-box">System Font <i class="fas fa-chevron-down" style="font-size:10px;"></i></div>
+                    <div class="dropdown-box">12pt <i class="fas fa-chevron-down" style="font-size:10px;"></i></div>
+                    <div class="toolbar-separator"></div>
+                    <i class="fas fa-bold icon-btn"></i>
+                    <i class="fas fa-italic icon-btn"></i>
+                    <i class="fas fa-underline icon-btn"></i>
+                    <i class="fas fa-strikethrough icon-btn"></i>
+                    <div class="toolbar-separator"></div>
+                    <i class="fas fa-link icon-btn"></i>
+                    <i class="far fa-image icon-btn"></i>
+                    <i class="fas fa-play-circle icon-btn"></i>
+                    <i class="fas fa-table icon-btn"></i>
+                    <div class="toolbar-separator"></div>
+                    <i class="fas fa-ellipsis-h icon-btn"></i>
+
+                    <button class="btn-explore"><i class="fas fa-crown"></i> Explore trial</button>
+                </div>
+
+                <div class="editor-canvas" contenteditable="true">
+                    Start writing here...
+                    <br><br>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR (AI Report) -->
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <span>AI Report</span>
+                    <div class="sidebar-dropdown">AI Detection <i class="fas fa-chevron-down"></i></div>
+                </div>
+
+                <div class="donut-chart-container">
+                    <svg class="donut-svg">
+                        <circle cx="60" cy="60" r="45" class="donut-bg" />
+                        <circle cx="60" cy="60" r="45" class="donut-progress" />
+                    </svg>
+                    <div class="donut-center-text">
+                        <div class="donut-label">Likely<br>Original</div>
+                    </div>
+                    
+                    <div class="confidence-score">99 % Confidence</div>
+                    <div class="date-info">22 Aug 2025</div>
+                </div>
+
+                <div class="report-desc">
+                    This score reflects our AI's confidence that the content scanned was produced by an AI tool.
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item" style="color:#ef4444;"><div class="dot-red"></div> Highlighting Dark Red = Likely AI</div>
+                    <div class="legend-item" style="color:#22c55e;"><div class="dot-green"></div> Green = Likely Original</div>
+                </div>
+
+                <div class="score-list">
+                    <div class="score-item"><div class="score-dot" style="background:#f87171;"></div> 90% confidence this sentence was generated by AI.</div>
+                    <div class="score-item"><div class="score-dot" style="background:#fb923c;"></div> 70% confidence this sentence was generated by AI.</div>
+                    <div class="score-item"><div class="score-dot" style="background:#facc15;"></div> 50% confidence this sentence was generated by AI.</div>
+                    <div class="score-item"><div class="score-dot" style="background:#86efac;"></div> 70% confidence this sentence was human written.</div>
+                    <div class="score-item"><div class="score-dot" style="background:#4ade80;"></div> 90% confidence this sentence was human written.</div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Javascript for Popups & Interactions -->
+    <script>
+        // Toggle the Share Popup
+        function toggleSharePopup() {
+            event.stopPropagation();
+            const popup = document.getElementById('sharePopup');
+            // Close other popups
+            document.querySelectorAll('.metric-popup, .dash-popup, .action-menu').forEach(p => p.classList.remove('active'));
+            popup.classList.toggle('active');
+        }
+
+        // Switch Tabs in Share Popup
+        function switchShareTab(tabName, element) {
+            event.stopPropagation(); // Prevent closing popup
+            
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.share-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.share-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            element.classList.add('active');
+            
+            // Show corresponding content
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // Existing Functions...
+        function togglePopup(event, element) {
+            event.stopPropagation();
+            document.querySelectorAll('.metric-popup, .dash-popup, .share-popup, .action-menu').forEach(p => {
+                if (p.parentElement !== element && p.id !== 'sharePopup') {
+                    p.classList.remove('active');
+                }
+            });
+            const popup = element.querySelector('.metric-popup, .dash-popup');
+            if(popup) {
+                popup.classList.toggle('active');
+            }
+        }
+        
+        function toggleActionMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('actionMenu');
+            document.querySelectorAll('.metric-popup, .dash-popup, .share-popup').forEach(p => p.classList.remove('active'));
+            menu.classList.toggle('active');
+        }
+
+        function togglePreview() {
+            document.body.classList.toggle('preview-active');
+            const btn = document.getElementById('previewBtn');
+            if(document.body.classList.contains('preview-active')) {
+                btn.innerHTML = '<i class="fas fa-times"></i> Exit Preview';
+            } else {
+                btn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+            }
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.metric-popup, .dash-popup, .share-popup, .action-menu').forEach(p => {
+                p.classList.remove('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
