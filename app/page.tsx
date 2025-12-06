@@ -23,12 +23,14 @@ interface FundingMilestone {
   date: string;
   amount: number;
   label: string;
+  [key: string]: any; // <--- ADD THIS LINE (Fixes BarChart)
 }
 
 interface FundingSplit {
   name: string;
   value: number;
   color: string;
+  [key: string]: any; // <--- ADD THIS LINE (Fixes PieChart error)
 }
 
 interface FundingTableItem {
@@ -202,7 +204,7 @@ const MilestonesChartSection: React.FC<MilestonesChartSectionProps> = ({ timeRan
 
     <div className="h-[280px] w-full relative z-10">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={fundingMilestonesData} barSize={60}>
+        <BarChart data={fundingMilestonesData as any} barSize={60}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
           <XAxis 
             dataKey="date" 
@@ -265,7 +267,7 @@ const FundingSplitSection: React.FC = () => (
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
             <Pie
-              data={fundingSplitData}
+              data={fundingSplitData as any}
               cx="50%"
               cy="80%"
               startAngle={180}
