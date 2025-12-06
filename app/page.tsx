@@ -9,7 +9,7 @@ import {
   Search, ChevronDown, Info, Star, Scale, QrCode, Share2, 
   UserPlus, Building2, Layers, List, LucideIcon 
 } from 'lucide-react';
-import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+// import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
 
 import Link from 'next/link';
 
@@ -218,19 +218,19 @@ const MilestonesChartSection: React.FC<MilestonesChartSectionProps> = ({ timeRan
             tickFormatter={(value: number) => `$ ${value} M`}
           />
           <Tooltip 
-            cursor={{fill: 'transparent'}}
-            content={({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
-                if (active && payload && payload.length) {
-                return (
-                    <div className="bg-gray-900 text-white p-2 rounded text-xs">
-                        <p className="font-bold">{label}</p>
-                        <p>${payload[0].value} Million</p>
-                    </div>
-                );
-                }
-                return null;
-            }}
-          />
+  cursor={{fill: 'transparent'}}
+  content={({ active, payload, label }: any) => { // <--- FIXED: Changed to 'any'
+      if (active && payload && payload.length) {
+      return (
+          <div className="bg-gray-900 text-white p-2 rounded text-xs">
+              <p className="font-bold">{label}</p>
+              <p>${payload[0].value} Million</p>
+          </div>
+      );
+      }
+      return null;
+  }}
+/>
           <defs>
             <linearGradient id="colorBlue" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#3b82f6" stopOpacity={1}/>
