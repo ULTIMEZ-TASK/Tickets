@@ -1,26 +1,70 @@
+'use client';
+
 import React, { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { 
-  Search, Bell, ChevronDown, Info, 
-  Star, Scale, QrCode, Share2, UserPlus, Building2,
-  Globe, ArrowRight, Layers, List
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  PieChart, Pie, Cell, TooltipProps 
+} from 'recharts';
+import { 
+  Search, ChevronDown, Info, Star, Scale, QrCode, Share2, 
+  UserPlus, Building2, Layers, List, LucideIcon 
 } from 'lucide-react';
+import { NameType, ValueType } from 'recharts/types/component/DefaultTooltipContent';
+
+import Link from 'next/link';
+
+// Inside your return JSX:
+<Link href="/publish-timing" className="text-blue-600 underline">
+  Go to Publish Tool
+</Link>
+// --- Interfaces & Types ---
+
+interface FundingMilestone {
+  date: string;
+  amount: number;
+  label: string;
+}
+
+interface FundingSplit {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface FundingTableItem {
+  id: number;
+  name: string;
+  category: string;
+  date: string;
+  round: string;
+  investedBy: string;
+  raised: string;
+  logo: string;
+}
+
+interface SimilarCompany {
+  name: string;
+  type: string;
+  desc: string;
+  country: string;
+  color: string;
+  icon: string;
+}
 
 // --- Mock Data ---
 
-const fundingMilestonesData = [
+const fundingMilestonesData: FundingMilestone[] = [
   { date: 'Dec, 2022', amount: 0, label: 'Corp Round' },
   { date: 'Nov, 2023', amount: 11, label: 'Series B' },
   { date: 'Nov, 2024', amount: 0, label: 'Pre-Seed' },
   { date: 'Mar, 2025', amount: 0, label: 'Series D' },
 ];
 
-const fundingSplitData = [
+const fundingSplitData: FundingSplit[] = [
   { name: 'Vertex Ventures', value: 100, color: '#3b82f6' },
 ];
 
-// Added a few more entries to demonstrate the grouping effectively
-const fundingTableData = [
+const fundingTableData: FundingTableItem[] = [
   { id: 1, name: 'MGX. Inc', category: 'Venture Capitalists (VCs)', date: 'Mar 1, 2025', round: 'Series D', investedBy: 'Company', raised: 'Not Disclosed', logo: 'M' },
   { id: 2, name: 'Sequoia Capital', category: 'Venture Capitalists (VCs)', date: 'Feb 15, 2025', round: 'Series D', investedBy: 'Company', raised: '$ 50 M', logo: 'S' },
   { id: 3, name: 'Trustwallet', category: 'Corporate Venture', date: 'Nov 5, 2024', round: 'Pre-Seed Round', investedBy: 'Company', raised: 'Not Disclosed', logo: 'T' },
@@ -29,7 +73,7 @@ const fundingTableData = [
   { id: 6, name: 'Tokocrypto', category: 'Acquisition', date: 'Dec 13, 2022', round: 'Corporate Round', investedBy: 'Company', raised: 'Not Disclosed', logo: 'TC' },
 ];
 
-const similarCompaniesData = [
+const similarCompaniesData: SimilarCompany[] = [
   { name: 'BityPreco', type: 'Centralised Exchange', desc: "Bitypreco Is Latin America's First Cryptocurrency Marketplace", country: 'Brazil', color: 'bg-yellow-500', icon: 'B' },
   { name: 'Grinex', type: 'Centralised Exchange', desc: 'Grinex Is A New Cryptocurrency Exchange In Russia.', country: 'Russia', color: 'bg-orange-500', icon: 'G' },
   { name: 'Yellow Card', type: 'Centralised Exchange', desc: 'Yellow Card Is A Centralized Exchange In Africa.', country: 'United States', color: 'bg-yellow-400', icon: 'Y' },
@@ -38,7 +82,13 @@ const similarCompaniesData = [
 
 // --- Sub-Components ---
 
-const HeaderTab = ({ label, active, onClick }) => (
+interface HeaderTabProps {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+const HeaderTab: React.FC<HeaderTabProps> = ({ label, active, onClick }) => (
   <button
     onClick={onClick}
     className={`px-1 py-4 text-sm font-medium transition-colors border-b-2 mx-4 whitespace-nowrap ${
@@ -51,7 +101,12 @@ const HeaderTab = ({ label, active, onClick }) => (
   </button>
 );
 
-const FilterPill = ({ label, active }) => (
+interface FilterPillProps {
+  label: string;
+  active: boolean;
+}
+
+const FilterPill: React.FC<FilterPillProps> = ({ label, active }) => (
   <button
     className={`px-4 py-1.5 rounded-md text-sm font-medium border transition-colors ${
       active
@@ -63,19 +118,27 @@ const FilterPill = ({ label, active }) => (
   </button>
 );
 
-const StatBadge = ({ children }) => (
+interface StatBadgeProps {
+  children: React.ReactNode;
+}
+
+const StatBadge: React.FC<StatBadgeProps> = ({ children }) => (
   <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
     {children}
   </span>
 );
 
-const IconButton = ({ icon: Icon }) => (
+interface IconButtonProps {
+  icon: LucideIcon;
+}
+
+const IconButton: React.FC<IconButtonProps> = ({ icon: Icon }) => (
   <button className="p-2 text-gray-400 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors">
     <Icon size={18} />
   </button>
 );
 
-const CompanyHeader = () => (
+const CompanyHeader: React.FC = () => (
   <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
     <div className="flex gap-5">
       <div className="w-20 h-20 shrink-0 bg-[#1e2026] rounded-full flex items-center justify-center shadow-sm">
@@ -107,7 +170,12 @@ const CompanyHeader = () => (
   </div>
 );
 
-const MilestonesChartSection = ({ timeRange, setTimeRange }) => (
+interface MilestonesChartSectionProps {
+  timeRange: string;
+  setTimeRange: (range: string) => void;
+}
+
+const MilestonesChartSection: React.FC<MilestonesChartSectionProps> = ({ timeRange, setTimeRange }) => (
   <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] select-none">
       <span className="text-9xl font-black text-gray-900 tracking-tighter">Binance</span>
@@ -147,11 +215,11 @@ const MilestonesChartSection = ({ timeRange, setTimeRange }) => (
             axisLine={false} 
             tickLine={false} 
             tick={{fill: '#64748b', fontSize: 12}} 
-            tickFormatter={(value) => `$ ${value} M`}
+            tickFormatter={(value: number) => `$ ${value} M`}
           />
           <Tooltip 
             cursor={{fill: 'transparent'}}
-            content={({ active, payload, label }) => {
+            content={({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
                 if (active && payload && payload.length) {
                 return (
                     <div className="bg-gray-900 text-white p-2 rounded text-xs">
@@ -180,7 +248,7 @@ const MilestonesChartSection = ({ timeRange, setTimeRange }) => (
   </div>
 );
 
-const FundingSplitSection = () => (
+const FundingSplitSection: React.FC = () => (
   <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col h-full">
     <h2 className="text-lg font-bold text-gray-900 mb-6">Total Funding Split</h2>
     
@@ -223,8 +291,8 @@ const FundingSplitSection = () => (
   </div>
 );
 
-const FundingListTable = () => {
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'group'
+const FundingListTable: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'list' | 'group'>('list');
 
   // Function to group data by category
   const groupedData = useMemo(() => {
@@ -233,7 +301,7 @@ const FundingListTable = () => {
       if (!acc[category]) acc[category] = [];
       acc[category].push(item);
       return acc;
-    }, {});
+    }, {} as Record<string, FundingTableItem[]>);
   }, []);
 
   const categories = Object.keys(groupedData);
@@ -352,7 +420,7 @@ const FundingListTable = () => {
   );
 };
 
-const SimilarCompanies = () => (
+const SimilarCompanies: React.FC = () => (
   <div className="mb-8">
     <h2 className="text-xl font-bold text-gray-900 mb-6">Similar Companies</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -394,7 +462,7 @@ const SimilarCompanies = () => (
   </div>
 );
 
-const DisclaimerBox = () => (
+const DisclaimerBox: React.FC = () => (
   <div className="bg-[#f0f9ff] border border-blue-100 rounded-lg p-4 flex gap-3 items-start">
     <Info className="text-[#0052cc] shrink-0 mt-0.5" size={18} />
     <div className="text-sm text-[#172b4d]">
@@ -409,8 +477,8 @@ const DisclaimerBox = () => (
 );
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('Finance');
-  const [timeRange, setTimeRange] = useState('Overall');
+  const [activeTab, setActiveTab] = useState<string>('Finance');
+  const [timeRange, setTimeRange] = useState<string>('Overall');
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-20">
