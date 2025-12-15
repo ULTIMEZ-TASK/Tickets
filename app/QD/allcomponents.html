@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coinpedia - All Components</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#0052CC', hover: '#003ea1', active: '#002a6b', light: '#FAFAFA' }, 
+                        success: { DEFAULT: '#14B275', bg: '#14B2751A', hover: '#0f8a5a' },
+                        error: { DEFAULT: '#E0243D', bg: '#E0243D1A', hover: '#b51b30' },
+                        warning: { DEFAULT: '#E6AD3C', bg: '#E6AD3C1A' },
+                        info: { DEFAULT: '#0C99EB', bg: '#0C99EB1A' },
+                        neutral: { black: '#171717', gray: '#8C8C8C', border: '#E5E7EB', text: '#6B7280' }
+                    },
+                    fontFamily: { sans: ['Figtree', 'sans-serif'], inter: ['Inter', 'sans-serif'] },
+                    borderRadius: { DEFAULT: '2px', lg: '2px', full: '9999px' },
+                    boxShadow: { 
+                        card: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        dropdown: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        float: '0 6px 16px 0 rgba(0, 0, 0, 0.08)' 
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Figtree', sans-serif; background-color: #FAFAFA; color: #171717; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .cp-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; font-weight: 600; white-space: nowrap; gap: 8px; transition: all 0.15s ease; border: 1px solid transparent; cursor: pointer; }
+        .cp-btn-sq { padding: 0 !important; justify-content: center; }
+        
+        .cp-input { width: 100%; height: 36px; border-radius: 4px; border: 1px solid #E5E7EB; padding: 0 12px; outline: none; transition: all 0.2s; background: white; font-family: 'Figtree', sans-serif; font-size: 13px; color: #171717; }
+        .cp-input:focus { border-color: #0052CC; box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.1); }
+        
+        .cp-input-wrapper { position: relative; width: 100%; }
+        .cp-input-icon { position: absolute; top: 50%; transform: translateY(-50%); color: #6B7280; pointer-events: none; font-size: 16px; z-index: 2; }
+        .cp-input-icon--left { left: 12px; }
+        .cp-input--has-icon-left { padding-left: 34px; }
+
+        .cp-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 6px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+        .cp-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); transform: translateY(-2px); }
+
+        .cp-tag { display: inline-flex; align-items: center; padding: 0 8px; height: 22px; border-radius: 2px; font-size: 11px; font-weight: 600; gap: 4px; }
+        
+        /* Grid Layout Specifics */
+        .component-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        
+        .cp-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #E5E7EB; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #4B5563; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm">
+
+    <!-- SIDEBAR -->
+    <aside class="w-60 bg-white border-r border-neutral-border flex flex-col z-20 shadow-sm shrink-0">
+        <div class="h-[52px] flex items-center px-5 border-b border-neutral-border bg-white">
+            <div class="flex items-center gap-2 text-primary font-bold text-lg tracking-tight"><i class="ph-fill ph-polygon text-xl"></i> COINPEDIA</div>
+        </div>
+        <div class="p-3">
+            <div class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2">Management</div>
+            <nav class="space-y-0.5">
+                <a href="index.html" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-squares-four text-base"></i> Overview
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded">
+                    <i class="ph-bold ph-cube text-base"></i> All Components
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-users text-base"></i> Team Access
+                </a>
+            </nav>
+            
+            <div class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2 mt-5">Design System</div>
+            <nav class="space-y-0.5">
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-text-aa text-base"></i> Typography
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-toggle-left text-base"></i> Buttons & Inputs
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-cards text-base"></i> Cards & Tables
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto p-3 border-t border-neutral-border">
+            <div class="flex items-center gap-3">
+                <div class="cp-avatar bg-indigo-100 text-indigo-600">JD</div>
+                <div>
+                    <div class="text-xs font-bold text-neutral-black">Jane Doe</div>
+                    <div class="text-[10px] text-neutral-text">Lead Designer</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full relative bg-[#FAFAFA] overflow-hidden">
+        
+        <!-- TOP HEADER -->
+        <header class="h-[52px] bg-white border-b border-neutral-border flex items-center justify-between px-6 shadow-sm shrink-0 z-10">
+            <div>
+                <h1 class="font-bold text-base text-neutral-black">All Components</h1>
+                <p class="text-[10px] text-neutral-text">Library Inventory • 142 Items</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="cp-btn cp-btn-sq h-[30px] w-[30px] bg-white border border-neutral-border text-neutral-text hover:text-primary hover:border-primary"><i class="ph-bold ph-bell"></i></button>
+                <button onclick="alert('Open New Component Modal (Same as Overview)')" class="cp-btn h-[30px] px-3 bg-primary text-white text-xs hover:bg-primary-hover shadow-sm"><i class="ph-bold ph-plus"></i> New Component</button>
+            </div>
+        </header>
+
+        <!-- TOOLBAR & FILTERS -->
+        <div class="px-6 py-4 bg-white border-b border-neutral-border flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10">
+            <div class="w-full sm:w-auto flex items-center gap-3 flex-1">
+                <div class="cp-input-wrapper max-w-sm">
+                    <i class="ph-bold ph-magnifying-glass cp-input-icon cp-input-icon--left"></i>
+                    <input type="text" id="search-input" class="cp-input cp-input--has-icon-left" placeholder="Search components (e.g. Button, Modal)...">
+                </div>
+                
+                <div class="h-8 w-[1px] bg-gray-200 mx-1"></div>
+
+                <div class="relative group">
+                    <button class="cp-btn h-[36px] px-3 bg-white border border-neutral-border text-neutral-black text-xs hover:border-primary">
+                        <span id="filter-label">All Categories</span> <i class="ph-bold ph-caret-down"></i>
+                    </button>
+                    <div class="absolute top-full left-0 mt-1 w-40 bg-white border border-neutral-border shadow-lg rounded-md hidden group-hover:block z-20 py-1">
+                        <button onclick="filterGrid('all')" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700">All Categories</button>
+                        <button onclick="filterGrid('Atom')" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700">Atoms</button>
+                        <button onclick="filterGrid('Molecule')" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700">Molecules</button>
+                        <button onclick="filterGrid('Organism')" class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700">Organisms</button>
+                    </div>
+                </div>
+                
+                <div class="relative group">
+                    <button class="cp-btn h-[36px] px-3 bg-white border border-neutral-border text-neutral-black text-xs hover:border-primary">
+                        Status <i class="ph-bold ph-caret-down"></i>
+                    </button>
+                    <div class="absolute top-full left-0 mt-1 w-40 bg-white border border-neutral-border shadow-lg rounded-md hidden group-hover:block z-20 py-1">
+                        <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700">All Statuses</button>
+                        <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Stable</button>
+                        <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Beta</button>
+                        <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 text-gray-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-gray-400"></span> Draft</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-md">
+                <button class="p-1.5 bg-white shadow-sm rounded text-gray-800 hover:text-primary transition-colors"><i class="ph-bold ph-squares-four text-lg"></i></button>
+                <button class="p-1.5 text-gray-500 hover:text-gray-800 transition-colors"><i class="ph-bold ph-list-dashes text-lg"></i></button>
+            </div>
+        </div>
+
+        <!-- GRID CONTENT -->
+        <div class="flex-1 overflow-y-auto p-6 bg-gray-50/50">
+            <div id="component-grid" class="component-grid max-w-[1400px] mx-auto pb-10">
+                <!-- Javascript will populate this -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex flex-col items-center justify-center h-64 text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-3">
+                    <i class="ph-bold ph-magnifying-glass text-xl"></i>
+                </div>
+                <h3 class="text-sm font-bold text-gray-900">No components found</h3>
+                <p class="text-xs text-gray-500 mt-1">Try adjusting your filters or search query.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mock Data for All Components
+        const components = [
+            { name: "Primary Button", category: "Atom", status: "Stable", icon: "ph-hand-pointing", color: "text-blue-600 bg-blue-50", version: "2.1.0", updated: "2 days ago" },
+            { name: "Secondary Button", category: "Atom", status: "Stable", icon: "ph-hand-palm", color: "text-gray-600 bg-gray-100", version: "1.5.0", updated: "1 week ago" },
+            { name: "Input Field", category: "Atom", status: "Stable", icon: "ph-cursor-text", color: "text-indigo-600 bg-indigo-50", version: "1.2.0", updated: "3 days ago" },
+            { name: "Checkbox", category: "Atom", status: "Stable", icon: "ph-check-square", color: "text-green-600 bg-green-50", version: "1.0.0", updated: "1 month ago" },
+            { name: "Radio Group", category: "Atom", status: "Stable", icon: "ph-radio-button", color: "text-green-600 bg-green-50", version: "1.0.0", updated: "1 month ago" },
+            { name: "Switch Toggle", category: "Atom", status: "Stable", icon: "ph-toggle-left", color: "text-teal-600 bg-teal-50", version: "1.1.0", updated: "Oct 20" },
+            { name: "Badge", category: "Atom", status: "Stable", icon: "ph-tag", color: "text-purple-600 bg-purple-50", version: "2.0.0", updated: "Yesterday" },
+            { name: "Avatar", category: "Atom", status: "Stable", icon: "ph-user-circle", color: "text-pink-600 bg-pink-50", version: "1.3.0", updated: "2 weeks ago" },
+            { name: "Tooltip", category: "Molecule", status: "Beta", icon: "ph-chat-teardrop-text", color: "text-orange-600 bg-orange-50", version: "0.9.0", updated: "Yesterday" },
+            { name: "Page Header", category: "Molecule", status: "Draft", icon: "ph-text-t", color: "text-gray-600 bg-gray-100", version: "0.1.0", updated: "Today" },
+            { name: "Data Table", category: "Organism", status: "Stable", icon: "ph-table", color: "text-purple-600 bg-purple-50", version: "3.0.0", updated: "4 days ago" },
+            { name: "Modal Dialog", category: "Molecule", status: "Deprecated", icon: "ph-browsers", color: "text-red-600 bg-red-50", version: "0.5.0", updated: "1 month ago" },
+            { name: "Sidebar Nav", category: "Organism", status: "Stable", icon: "ph-sidebar", color: "text-blue-600 bg-blue-50", version: "2.2.0", updated: "1 week ago" },
+            { name: "Card", category: "Molecule", status: "Stable", icon: "ph-cards", color: "text-indigo-600 bg-indigo-50", version: "1.4.0", updated: "3 weeks ago" },
+            { name: "Alert Toast", category: "Molecule", status: "Stable", icon: "ph-warning", color: "text-yellow-600 bg-yellow-50", version: "1.1.0", updated: "5 days ago" },
+            { name: "Dropdown Menu", category: "Molecule", status: "Beta", icon: "ph-caret-circle-down", color: "text-gray-600 bg-gray-100", version: "0.8.0", updated: "Yesterday" },
+        ];
+
+        const gridContainer = document.getElementById('component-grid');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('search-input');
+
+        function renderGrid(filterCategory = 'all', searchQuery = '') {
+            gridContainer.innerHTML = '';
+            
+            const filtered = components.filter(comp => {
+                const matchCat = filterCategory === 'all' || comp.category === filterCategory;
+                const matchSearch = comp.name.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filtered.forEach(comp => {
+                    const statusClass = comp.status === 'Stable' ? 'bg-green-100 text-green-700 border-green-200' : 
+                                      comp.status === 'Deprecated' ? 'bg-red-100 text-red-700 border-red-200' : 
+                                      comp.status === 'Beta' ? 'bg-orange-100 text-orange-700 border-orange-200' : 
+                                      'bg-gray-100 text-gray-600 border-gray-200';
+
+                    const card = document.createElement('div');
+                    card.className = 'cp-card p-4 flex flex-col cursor-pointer group';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-lg ${comp.color} flex items-center justify-center text-xl border border-black/5">
+                                <i class="ph-bold ${comp.icon}"></i>
+                            </div>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold border ${statusClass}">
+                                ${comp.status}
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-sm text-neutral-black group-hover:text-primary transition-colors mb-1">${comp.name}</h3>
+                        <p class="text-[11px] text-gray-500 mb-4 flex-1">Standard UI component used for ${comp.category.toLowerCase()} level interactions.</p>
+                        
+                        <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-[10px] text-gray-400">
+                            <span class="bg-gray-100 px-1.5 py-0.5 rounded font-medium text-gray-600">${comp.category}</span>
+                            <span>v${comp.version} • ${comp.updated}</span>
+                        </div>
+                    `;
+                    gridContainer.appendChild(card);
+                });
+            }
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => {
+            renderGrid(window.currentCategory || 'all', e.target.value);
+        });
+
+        function filterGrid(category) {
+            window.currentCategory = category;
+            document.getElementById('filter-label').innerText = category === 'all' ? 'All Categories' : category + 's';
+            renderGrid(category, searchInput.value);
+        }
+
+        // Initial Render
+        renderGrid();
+
+    </script>
+</body>
+</html>
