@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coinpedia - Component Overview</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#0052CC', hover: '#003ea1', active: '#002a6b', light: '#FAFAFA' }, 
+                        success: { DEFAULT: '#14B275', bg: '#14B2751A', hover: '#0f8a5a' },
+                        error: { DEFAULT: '#E0243D', bg: '#E0243D1A', hover: '#b51b30' },
+                        warning: { DEFAULT: '#E6AD3C', bg: '#E6AD3C1A' },
+                        info: { DEFAULT: '#0C99EB', bg: '#0C99EB1A' },
+                        neutral: { black: '#171717', gray: '#8C8C8C', border: '#E5E7EB', text: '#6B7280' }
+                    },
+                    fontFamily: { sans: ['Figtree', 'sans-serif'], inter: ['Inter', 'sans-serif'] },
+                    borderRadius: { DEFAULT: '2px', lg: '2px', full: '9999px' },
+                    boxShadow: { 
+                        card: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        dropdown: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        float: '0 6px 16px 0 rgba(0, 0, 0, 0.08)' 
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Figtree', sans-serif; background-color: #FAFAFA; color: #171717; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .btn-interactive:active { transform: scale(0.96); transition: 0.1s; }
+
+        /* Reusing Core Component Classes from Design System */
+        .cp-btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 2px; font-weight: 700; white-space: nowrap; gap: 8px; transition: all 0.15s ease; border: 1px solid transparent; cursor: pointer; }
+        .cp-btn-sq { padding: 0 !important; justify-content: center; }
+        
+        /* Reduced font size for input */
+        .cp-input { width: 100%; height: 36px; border-radius: 2px; border: 1px solid #E5E7EB; padding: 0 12px; outline: none; transition: all 0.2s; background: white; font-family: 'Figtree', sans-serif; font-size: 13px; color: #171717; }
+        .cp-input:focus { border-color: #0052CC; box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.1); }
+        
+        .cp-input-wrapper { position: relative; width: 100%; }
+        .cp-input-icon { position: absolute; top: 50%; transform: translateY(-50%); color: #6B7280; pointer-events: none; font-size: 16px; z-index: 2; }
+        .cp-input-icon--left { left: 12px; }
+        .cp-input--has-icon-left { padding-left: 34px; }
+
+        .cp-card { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 2px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden; }
+        
+        .cp-table-container { 
+            border: 1px solid #E2E8F0; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            background: white; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); 
+        }
+
+        .cp-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; } 
+        /* Reduced Header Font Size */
+        .cp-table th { 
+            background-color: #F8FAFC; 
+            padding: 12px 20px; 
+            font-size: 10px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em;
+            color: #64748B; 
+            border-bottom: 2px solid #E2E8F0; 
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            cursor: pointer; 
+            transition: background-color 0.15s;
+        }
+        .cp-table th:hover {
+            background-color: #F1F5F9;
+            color: #0F172A;
+        }
+        /* Reduced Cell Font Size */
+        .cp-table td { 
+            padding: 12px 20px; 
+            border-bottom: 1px solid #F1F5F9; 
+            color: #1E293B; 
+            font-size: 13px; 
+            vertical-align: middle; 
+            transition: background-color 0.2s;
+        }
+        .cp-table tr:last-child td { border-bottom: none; }
+        
+        .cp-table tbody tr:hover td { background-color: #F1F5F9 !important; }
+        .cp-table tbody tr:nth-child(even) td { background-color: #FAFAFA; }
+        
+        .cp-tag { display: inline-flex; align-items: center; padding: 0 8px; height: 22px; border-radius: 2px; font-size: 11px; font-weight: 600; gap: 4px; }
+        .cp-tag.is-primary { background: rgba(0, 82, 204, 0.1); color: #0052CC; }
+        .cp-tag.is-neutral { background: #F3F4F6; color: #4B5563; }
+        
+        .cp-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #E5E7EB; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #4B5563; }
+        
+        /* Dashboard Specifics - Reduced Sizes */
+        .stat-card { padding: 20px; display: flex; flex-direction: column; justify-content: space-between; height: 120px; }
+        .stat-label { font-size: 12px; font-weight: 600; color: #6B7280; margin-bottom: 6px; }
+        .stat-value { font-size: 26px; font-weight: 700; color: #171717; letter-spacing: -0.5px; }
+        .stat-trend { font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 2px; width: fit-content; }
+        .stat-trend.is-up { background: rgba(20, 178, 117, 0.1); color: #14B275; }
+        .stat-trend.is-down { background: rgba(224, 36, 61, 0.1); color: #E0243D; }
+
+        .search-bar { max-width: 300px; }
+
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 0.2s ease-out, transform 0.2s ease-out; }
+        .modal-exit { opacity: 1; transform: scale(1); }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 0.15s ease-in, transform 0.15s ease-in; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm">
+
+    <!-- SIDEBAR -->
+    <aside class="w-60 bg-white border-r border-neutral-border flex flex-col z-20 shadow-sm shrink-0">
+        <div class="h-[52px] flex items-center px-5 border-b border-neutral-border bg-white">
+            <div class="flex items-center gap-2 text-primary font-bold text-lg tracking-tight"><i class="ph-fill ph-polygon text-xl"></i> COINPEDIA</div>
+        </div>
+        <div class="p-3">
+            <div class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2">Management</div>
+            <nav class="space-y-0.5">
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded">
+                    <i class="ph-bold ph-squares-four text-base"></i> Overview
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-cube text-base"></i> All Components
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-users text-base"></i> Team Access
+                </a>
+            </nav>
+            
+            <div class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2 mt-5">Design System</div>
+            <nav class="space-y-0.5">
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-text-aa text-base"></i> Typography
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-toggle-left text-base"></i> Buttons & Inputs
+                </a>
+                <a href="#" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-cards text-base"></i> Cards & Tables
+                </a>
+            </nav>
+        </div>
+        <div class="mt-auto p-3 border-t border-neutral-border">
+            <div class="flex items-center gap-3">
+                <div class="cp-avatar bg-indigo-100 text-indigo-600">JD</div>
+                <div>
+                    <div class="text-xs font-bold text-neutral-black">Jane Doe</div>
+                    <div class="text-[10px] text-neutral-text">Lead Designer</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full relative bg-[#FAFAFA] overflow-hidden">
+        
+        <!-- TOP HEADER -->
+        <header class="h-[52px] bg-white border-b border-neutral-border flex items-center justify-between px-6 shadow-sm shrink-0 z-10">
+            <div>
+                <h1 class="font-bold text-base text-neutral-black">Dashboard</h1>
+                <p class="text-[10px] text-neutral-text">System Version 2.7.0</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button class="cp-btn cp-btn-sq h-[30px] w-[30px] bg-white border border-neutral-border text-neutral-text hover:text-primary hover:border-primary"><i class="ph-bold ph-bell"></i></button>
+                <!-- Added onclick handler here -->
+                <button onclick="openNewComponentModal()" class="cp-btn h-[30px] px-3 bg-primary text-white text-xs hover:bg-primary-hover shadow-sm"><i class="ph-bold ph-plus"></i> New Component</button>
+            </div>
+        </header>
+
+        <!-- SCROLLABLE AREA -->
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-[1400px] mx-auto">
+                
+                <!-- SECTION 1: OVERVIEW CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+                    <!-- Total Components -->
+                    <div class="cp-card stat-card cp-card-hover">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div class="stat-label">Total Components</div>
+                                <i class="ph-fill ph-cube text-primary text-lg"></i>
+                            </div>
+                            <div class="stat-value">142</div>
+                        </div>
+                        <div class="stat-trend is-up"><i class="ph-bold ph-arrow-up-right"></i> +12 this month</div>
+                    </div>
+
+                    <!-- In Production -->
+                    <div class="cp-card stat-card cp-card-hover">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div class="stat-label">Pages Utilizing</div>
+                                <i class="ph-fill ph-browsers text-info text-lg"></i>
+                            </div>
+                            <div class="stat-value">86%</div>
+                        </div>
+                        <div class="text-[11px] text-neutral-text mt-1">Coverage across all app pages</div>
+                    </div>
+
+                    <!-- Deprecated -->
+                    <div class="cp-card stat-card cp-card-hover">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div class="stat-label">Deprecated</div>
+                                <i class="ph-fill ph-warning-circle text-warning text-lg"></i>
+                            </div>
+                            <div class="stat-value">8</div>
+                        </div>
+                        <div class="text-[11px] text-neutral-text mt-1 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span> Needs migration</div>
+                    </div>
+
+                    <!-- Critical Issues -->
+                    <div class="cp-card stat-card cp-card-hover">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <div class="stat-label">Critical Issues</div>
+                                <i class="ph-fill ph-bug text-error text-lg"></i>
+                            </div>
+                            <div class="stat-value">3</div>
+                        </div>
+                        <div class="stat-trend is-down"><i class="ph-bold ph-arrow-down-right"></i> -2 from last week</div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: HEALTH & ACTIVITY -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+                    
+                    <!-- System Health -->
+                    <div class="cp-card p-5">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="font-bold text-sm text-neutral-black">System Health</h3>
+                            <button class="text-neutral-text hover:text-primary"><i class="ph-bold ph-info"></i></button>
+                        </div>
+                        <div class="flex items-center gap-5">
+                            <!-- Circular Gauge (CSS based SVG) -->
+                            <div class="relative w-20 h-20 rounded-full flex items-center justify-center bg-blue-50 shrink-0">
+                                <svg class="w-full h-full transform -rotate-90">
+                                    <circle cx="40" cy="40" r="32" stroke="#E5E7EB" stroke-width="6" fill="transparent" />
+                                    <!-- Dasharray 201 is circumference (2*pi*32) -->
+                                    <circle cx="40" cy="40" r="32" stroke="#0052CC" stroke-width="6" fill="transparent" stroke-dasharray="201" stroke-dashoffset="20.1" stroke-linecap="round" />
+                                </svg>
+                                <span class="absolute text-xl font-bold text-primary">90%</span>
+                            </div>
+                            <!-- Metrics -->
+                            <div class="flex-1 space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="font-medium text-neutral-text">Accessibility (a11y)</span>
+                                        <span class="font-bold text-neutral-black">100%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-success w-full rounded-full"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="font-medium text-neutral-text">Documentation</span>
+                                        <span class="font-bold text-neutral-black">85%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-warning w-[85%] rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adoption Trends -->
+                    <div class="cp-card p-5">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="font-bold text-sm text-neutral-black">Adoption Trends</h3>
+                            <div class="flex gap-2">
+                                <span class="text-[10px] font-bold text-primary bg-blue-50 px-2 py-0.5 rounded cursor-pointer">30d</span>
+                                <span class="text-[10px] font-medium text-neutral-text hover:bg-gray-100 px-2 py-0.5 rounded cursor-pointer">90d</span>
+                            </div>
+                        </div>
+                        <div class="flex items-end justify-between h-[80px] gap-2 pt-2">
+                            <!-- Bars with Tooltips -->
+                            <div class="w-full bg-blue-100 rounded-t-sm h-[40%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">40</div></div>
+                            <div class="w-full bg-blue-200 rounded-t-sm h-[55%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">55</div></div>
+                            <div class="w-full bg-blue-300 rounded-t-sm h-[45%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">45</div></div>
+                            <div class="w-full bg-blue-400 rounded-t-sm h-[70%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">70</div></div>
+                            <div class="w-full bg-blue-500 rounded-t-sm h-[60%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">60</div></div>
+                            <div class="w-full bg-blue-600 rounded-t-sm h-[85%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">85</div></div>
+                            <div class="w-full bg-primary rounded-t-sm h-[95%] relative group cursor-help"><div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-neutral-black text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">95</div></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-[10px] text-neutral-text uppercase font-bold">
+                            <span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>Cur</span>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="cp-card flex flex-col h-[200px] lg:h-auto">
+                        <div class="p-4 border-b border-neutral-border flex justify-between items-center shrink-0 bg-white z-10">
+                            <h3 class="font-bold text-sm text-neutral-black">Activity Feed</h3>
+                            <a href="#" class="text-[10px] font-bold text-primary hover:underline">View All</a>
+                        </div>
+                        <div class="flex-1 overflow-y-auto no-scrollbar">
+                            <!-- Item 1 -->
+                            <div class="flex gap-3 p-3 border-b border-neutral-border hover:bg-gray-50 transition-colors">
+                                <div class="cp-avatar bg-indigo-100 text-indigo-600 w-7 h-7 text-[10px]">JD</div>
+                                <div>
+                                    <div class="text-[11px] text-neutral-black"><span class="font-bold">Jane Doe</span> published <span class="font-bold">Button v2.1</span></div>
+                                    <div class="text-[10px] text-neutral-text mt-0.5">10 mins ago</div>
+                                </div>
+                            </div>
+                            <!-- Item 2 -->
+                            <div class="flex gap-3 p-3 border-b border-neutral-border hover:bg-gray-50 transition-colors">
+                                <div class="cp-avatar bg-pink-100 text-pink-600 w-7 h-7 text-[10px]">SJ</div>
+                                <div>
+                                    <div class="text-[11px] text-neutral-black"><span class="font-bold">Sarah J.</span> deprecated <span class="font-bold">Modal v1</span></div>
+                                    <div class="text-[10px] text-neutral-text mt-0.5">2 hours ago</div>
+                                </div>
+                            </div>
+                            <!-- Item 3 -->
+                            <div class="flex gap-3 p-3 border-b border-neutral-border hover:bg-gray-50 transition-colors">
+                                <div class="cp-avatar bg-green-100 text-green-600 w-7 h-7 text-[10px]">MT</div>
+                                <div>
+                                    <div class="text-[11px] text-neutral-black"><span class="font-bold">Mike T.</span> fixed a11y on <span class="font-bold">Input</span></div>
+                                    <div class="text-[10px] text-neutral-text mt-0.5">Yesterday</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: FILTERS & TABLE -->
+                <div class="flex flex-col gap-4">
+                    
+                    <!-- Filters Toolbar -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-3 border border-neutral-border rounded-lg shadow-sm">
+                        <div class="flex items-center gap-3 w-full sm:w-auto">
+                            <div class="cp-input-wrapper search-bar">
+                                <i class="ph-bold ph-magnifying-glass cp-input-icon cp-input-icon--left"></i>
+                                <input type="text" class="cp-input cp-input--has-icon-left" placeholder="Search components...">
+                            </div>
+                            
+                            <!-- Category Dropdown Trigger -->
+                            <div class="relative group">
+                                <button class="cp-btn h-[36px] px-3 bg-white border border-neutral-border text-neutral-black text-xs hover:border-primary">
+                                    <i class="ph-bold ph-funnel"></i> Filter
+                                </button>
+                                <!-- Dropdown (Hidden by default, shown on group hover for demo) -->
+                                <div class="absolute top-full left-0 mt-2 w-48 bg-white border border-neutral-border shadow-dropdown rounded-lg hidden group-hover:block z-50 p-1">
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase px-3 py-2">Category</div>
+                                    <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 rounded flex items-center justify-between">Atoms <i class="ph-bold ph-check text-primary"></i></button>
+                                    <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 rounded flex items-center justify-between text-gray-500">Molecules</button>
+                                    <button class="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 rounded flex items-center justify-between text-gray-500">Organisms</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-neutral-text font-medium">Last synced: 2 mins ago</span>
+                            <button class="cp-btn cp-btn-sq h-[30px] w-[30px] bg-transparent text-neutral-text hover:text-primary"><i class="ph-bold ph-arrows-clockwise"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Management Table -->
+                    <div class="cp-table-container shadow-md">
+                        <div class="overflow-x-auto">
+                            <table class="cp-table min-w-full">
+                                <thead>
+                                    <tr>
+                                        <th style="min-width: 260px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Component Name 
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="min-width: 120px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Status
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="min-width: 180px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Usage
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="min-width: 120px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Category
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="min-width: 160px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Last Modified
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="min-width: 140px;">
+                                            <div class="flex items-center gap-1.5 cursor-pointer hover:text-neutral-black group">
+                                                Modified By
+                                                <i class="ph-bold ph-caret-up-down text-gray-300 group-hover:text-primary transition-colors"></i>
+                                            </div>
+                                        </th>
+                                        <th style="text-align: right; min-width: 120px;">
+                                            <div class="flex items-center justify-end gap-1.5">
+                                                Action
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Row 1 -->
+                                    <tr class="group hover:bg-blue-50/30 transition-colors">
+                                        <td>
+                                            <div class="flex items-center gap-3 cursor-pointer group/name" onclick="openPreview('Primary Button', 'cp-btn-primary', 'Stable', 'primary', '42', 'Oct 24, 10:30 AM (2 days ago)')">
+                                                <div class="w-8 h-8 rounded bg-blue-50 text-primary flex items-center justify-center border border-blue-100 group-hover:border-primary group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
+                                                    <i class="ph-bold ph-hand-pointing text-base"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-xs text-neutral-black group-hover/name:text-primary transition-colors underline decoration-dotted underline-offset-4 decoration-gray-300 group-hover/name:decoration-primary">Primary Button</div>
+                                                    <div class="text-[10px] text-neutral-text font-mono bg-gray-100 px-1.5 rounded mt-0.5 inline-block group-hover:bg-white group-hover:shadow-sm">cp-btn-primary</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="cp-tag is-primary border border-transparent hover:border-blue-200 hover:bg-blue-50 cursor-pointer transition-all">
+                                                <i class="ph-fill ph-check-circle"></i> Stable <i class="ph-bold ph-caret-down ml-1 text-[10px] opacity-60"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3 group/progress" title="Used in: Home, Login, Dashboard, +39 others">
+                                                <span class="font-bold text-neutral-black w-6 text-right text-xs">42</span>
+                                                <div class="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                                                    <div class="h-full bg-primary w-[70%] rounded-full relative"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[10px] font-bold text-gray-600 border border-gray-200 bg-gray-50 px-2 py-0.5 rounded">Atom</span></td>
+                                        <td>
+                                            <div class="text-xs font-medium text-neutral-black">Oct 24, 2024</div>
+                                            <div class="text-[10px] text-neutral-text">10:30 AM</div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="cp-avatar bg-pink-100 text-pink-600 border border-pink-200">SJ</div>
+                                                <span class="text-xs text-neutral-black font-medium">Sarah J.</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openPreview('Primary Button', 'cp-btn-primary', 'Stable', 'primary', '42', 'Oct 24, 10:30 AM (2 days ago)')" class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded border border-indigo-100 transition-all shadow-sm" title="Preview Component">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-white text-gray-500 hover:text-primary hover:border-primary rounded border border-gray-200 transition-all" title="Edit Component">
+                                                    <i class="ph-bold ph-pencil-simple"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-transparent text-gray-400 hover:text-neutral-black hover:bg-gray-100 rounded transition-all">
+                                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Row 2 -->
+                                    <tr class="group hover:bg-blue-50/30 transition-colors">
+                                        <td>
+                                            <div class="flex items-center gap-3 cursor-pointer group/name" onclick="openPreview('Data Table', 'cp-table-adv', 'Stable', 'purple', '15', 'Oct 22, 04:15 PM (4 days ago)')">
+                                                <div class="w-8 h-8 rounded bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 group-hover:border-purple-500 group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm">
+                                                    <i class="ph-bold ph-table text-base"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-xs text-neutral-black group-hover/name:text-primary transition-colors underline decoration-dotted underline-offset-4 decoration-gray-300 group-hover/name:decoration-primary">Data Table</div>
+                                                    <div class="text-[10px] text-neutral-text font-mono bg-gray-100 px-1.5 rounded mt-0.5 inline-block group-hover:bg-white group-hover:shadow-sm">cp-table-adv</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="cp-tag is-primary border border-transparent hover:border-blue-200 hover:bg-blue-50 cursor-pointer transition-all">
+                                                <i class="ph-fill ph-check-circle"></i> Stable <i class="ph-bold ph-caret-down ml-1 text-[10px] opacity-60"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3" title="Used in: Reports, Analytics">
+                                                <span class="font-bold text-neutral-black w-6 text-right text-xs">15</span>
+                                                <div class="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                                                    <div class="h-full bg-primary w-[40%] rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[10px] font-bold text-gray-600 border border-gray-200 bg-gray-50 px-2 py-0.5 rounded">Organism</span></td>
+                                        <td>
+                                            <div class="text-xs font-medium text-neutral-black">Oct 22, 2024</div>
+                                            <div class="text-[10px] text-neutral-text">04:15 PM</div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="cp-avatar bg-indigo-100 text-indigo-600 border border-indigo-200">JD</div>
+                                                <span class="text-xs text-neutral-black font-medium">Jane Doe</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openPreview('Data Table', 'cp-table-adv', 'Stable', 'purple', '15', 'Oct 22, 04:15 PM (4 days ago)')" class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded border border-indigo-100 transition-all shadow-sm" title="Preview Component">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-white text-gray-500 hover:text-primary hover:border-primary rounded border border-gray-200 transition-all" title="Edit Component">
+                                                    <i class="ph-bold ph-pencil-simple"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-transparent text-gray-400 hover:text-neutral-black hover:bg-gray-100 rounded transition-all">
+                                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Row 3 -->
+                                    <tr class="group hover:bg-blue-50/30 transition-colors">
+                                        <td>
+                                            <div class="flex items-center gap-3 cursor-pointer group/name" onclick="openPreview('Legacy Modal', 'cp-modal-v1', 'Deprecated', 'orange', '3', 'Sep 10, 09:00 AM (1 month ago)')">
+                                                <div class="w-8 h-8 rounded bg-orange-50 text-orange-600 flex items-center justify-center border border-orange-100 group-hover:border-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-all shadow-sm">
+                                                    <i class="ph-bold ph-warning text-base"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-xs text-neutral-black group-hover/name:text-primary transition-colors underline decoration-dotted underline-offset-4 decoration-gray-300 group-hover/name:decoration-primary">Legacy Modal</div>
+                                                    <div class="text-[10px] text-neutral-text font-mono bg-gray-100 px-1.5 rounded mt-0.5 inline-block group-hover:bg-white group-hover:shadow-sm">cp-modal-v1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="cp-tag border border-transparent hover:border-orange-200 hover:bg-orange-50 cursor-pointer transition-all" style="background:#FFF4E5; color:#E6AD3C">
+                                                <i class="ph-fill ph-warning-circle"></i> Deprecated <i class="ph-bold ph-caret-down ml-1 text-[10px] opacity-60"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3" title="Used in: Old Settings Page">
+                                                <span class="font-bold text-neutral-black w-6 text-right text-xs">3</span>
+                                                <div class="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                                                    <div class="h-full bg-warning w-[10%] rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[10px] font-bold text-gray-600 border border-gray-200 bg-gray-50 px-2 py-0.5 rounded">Molecule</span></td>
+                                        <td>
+                                            <div class="text-xs font-medium text-neutral-black">Sep 10, 2024</div>
+                                            <div class="text-[10px] text-neutral-text">09:00 AM</div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="cp-avatar bg-gray-100 text-gray-600 border border-gray-200">Sys</div>
+                                                <span class="text-xs text-neutral-black font-medium">System</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openPreview('Legacy Modal', 'cp-modal-v1', 'Deprecated', 'orange', '3', 'Sep 10, 09:00 AM (1 month ago)')" class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded border border-indigo-100 transition-all shadow-sm" title="Preview Component">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-white text-gray-500 hover:text-primary hover:border-primary rounded border border-gray-200 transition-all" title="Edit Component">
+                                                    <i class="ph-bold ph-pencil-simple"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-transparent text-gray-400 hover:text-neutral-black hover:bg-gray-100 rounded transition-all">
+                                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Row 4 -->
+                                    <tr class="group hover:bg-blue-50/30 transition-colors">
+                                        <td>
+                                            <div class="flex items-center gap-3 cursor-pointer group/name" onclick="openPreview('Switch Toggle', 'cp-switch', 'Stable', 'teal', '28', 'Oct 20, 02:20 PM (6 days ago)')">
+                                                <div class="w-8 h-8 rounded bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100 group-hover:border-teal-500 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-sm">
+                                                    <i class="ph-bold ph-toggle-left text-base"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-xs text-neutral-black group-hover/name:text-primary transition-colors underline decoration-dotted underline-offset-4 decoration-gray-300 group-hover/name:decoration-primary">Switch Toggle</div>
+                                                    <div class="text-[10px] text-neutral-text font-mono bg-gray-100 px-1.5 rounded mt-0.5 inline-block group-hover:bg-white group-hover:shadow-sm">cp-switch</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="cp-tag is-primary border border-transparent hover:border-blue-200 hover:bg-blue-50 cursor-pointer transition-all">
+                                                <i class="ph-fill ph-check-circle"></i> Stable <i class="ph-bold ph-caret-down ml-1 text-[10px] opacity-60"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3">
+                                                <span class="font-bold text-neutral-black w-6 text-right text-xs">28</span>
+                                                <div class="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                                                    <div class="h-full bg-primary w-[55%] rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[10px] font-bold text-gray-600 border border-gray-200 bg-gray-50 px-2 py-0.5 rounded">Atom</span></td>
+                                        <td>
+                                            <div class="text-xs font-medium text-neutral-black">Oct 20, 2024</div>
+                                            <div class="text-[10px] text-neutral-text">02:20 PM</div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="cp-avatar bg-green-100 text-green-600 border border-green-200">MT</div>
+                                                <span class="text-xs text-neutral-black font-medium">Mike T.</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openPreview('Switch Toggle', 'cp-switch', 'Stable', 'teal', '28', 'Oct 20, 02:20 PM (6 days ago)')" class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded border border-indigo-100 transition-all shadow-sm" title="Preview Component">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-white text-gray-500 hover:text-primary hover:border-primary rounded border border-gray-200 transition-all" title="Edit Component">
+                                                    <i class="ph-bold ph-pencil-simple"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-transparent text-gray-400 hover:text-neutral-black hover:bg-gray-100 rounded transition-all">
+                                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Row 5 -->
+                                    <tr class="group hover:bg-blue-50/30 transition-colors">
+                                        <td>
+                                            <div class="flex items-center gap-3 cursor-pointer group/name" onclick="openPreview('Page Header', 'cp-header-lg', 'Draft', 'gray', '0', 'Today, 11:05 AM (2 hrs ago)')">
+                                                <div class="w-8 h-8 rounded bg-gray-50 text-gray-600 flex items-center justify-center border border-gray-200 group-hover:border-gray-500 group-hover:bg-gray-600 group-hover:text-white transition-all shadow-sm">
+                                                    <i class="ph-bold ph-text-t text-base"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-bold text-xs text-neutral-black group-hover/name:text-primary transition-colors underline decoration-dotted underline-offset-4 decoration-gray-300 group-hover/name:decoration-primary">Page Header</div>
+                                                    <div class="text-[10px] text-neutral-text font-mono bg-gray-100 px-1.5 rounded mt-0.5 inline-block group-hover:bg-white group-hover:shadow-sm">cp-header-lg</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button class="cp-tag is-neutral border border-transparent hover:border-gray-300 hover:bg-gray-100 cursor-pointer transition-all">
+                                                <i class="ph-fill ph-pencil"></i> Draft <i class="ph-bold ph-caret-down ml-1 text-[10px] opacity-60"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-3">
+                                                <span class="font-bold text-neutral-black w-6 text-right text-xs">0</span>
+                                                <div class="h-1.5 w-16 bg-gray-100 rounded-full overflow-hidden border border-gray-100">
+                                                    <div class="h-full bg-gray-300 w-[0%] rounded-full"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[10px] font-bold text-gray-600 border border-gray-200 bg-gray-50 px-2 py-0.5 rounded">Molecule</span></td>
+                                        <td>
+                                            <div class="text-xs font-medium text-neutral-black">Today</div>
+                                            <div class="text-[10px] text-neutral-text">11:05 AM</div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="cp-avatar bg-indigo-100 text-indigo-600 border border-indigo-200">JD</div>
+                                                <span class="text-xs text-neutral-black font-medium">Jane Doe</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align: right;">
+                                            <div class="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                <button onclick="openPreview('Page Header', 'cp-header-lg', 'Draft', 'gray', '0', 'Today, 11:05 AM (2 hrs ago)')" class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded border border-indigo-100 transition-all shadow-sm" title="Preview Component">
+                                                    <i class="ph-bold ph-eye"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-white text-gray-500 hover:text-primary hover:border-primary rounded border border-gray-200 transition-all" title="Edit Component">
+                                                    <i class="ph-bold ph-pencil-simple"></i>
+                                                </button>
+                                                <button class="cp-btn cp-btn-sq h-[28px] w-[28px] bg-transparent text-gray-400 hover:text-neutral-black hover:bg-gray-100 rounded transition-all">
+                                                    <i class="ph-bold ph-dots-three-vertical"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="p-4 border-t border-neutral-border flex items-center justify-between bg-white">
+                            <span class="text-xs text-neutral-text">Showing <strong>1-5</strong> of <strong>142</strong></span>
+                            <div class="flex gap-2">
+                                <button class="cp-btn h-[30px] px-3 bg-white border border-neutral-border text-neutral-black text-xs hover:border-primary hover:text-primary" disabled>Previous</button>
+                                <button class="cp-btn h-[30px] px-3 bg-white border border-neutral-border text-neutral-black text-xs hover:border-primary hover:text-primary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- PREVIEW MODAL -->
+    <div id="preview-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modal-backdrop" onclick="closePreview()"></div>
+        
+        <!-- Modal Panel -->
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-xl transform transition-all scale-95 opacity-0 relative overflow-hidden flex flex-col max-h-[90vh]" id="modal-panel">
+                
+                <!-- Header -->
+                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900" id="preview-title">Component Name</h3>
+                        <p class="text-[10px] text-gray-500 font-mono mt-1" id="preview-id">cp-component-id</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <!-- Overview Metrics (Moved Here) -->
+                        <div class="hidden sm:flex items-center gap-4 text-[10px] text-gray-500 border-r border-gray-200 pr-4 mr-1">
+                            <div class="flex items-center gap-1.5" title="Number of Pages">
+                                <i class="ph-bold ph-browsers text-primary"></i>
+                                <span id="preview-usage-header" class="font-medium text-gray-700">-</span>
+                            </div>
+                            <div class="flex items-center gap-1.5" title="Last Modified">
+                                <i class="ph-bold ph-clock text-orange-500"></i>
+                                <span id="preview-date-header" class="font-medium text-gray-700">-</span>
+                            </div>
+                        </div>
+
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-600 border border-gray-200" id="preview-status">Status</span>
+                        <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100">
+                            <i class="ph-bold ph-x text-base"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="px-5 border-b border-gray-100 flex gap-4 bg-white shrink-0 overflow-x-auto no-scrollbar">
+                    <button onclick="switchTab('preview')" id="tab-btn-preview" class="py-3 text-xs font-medium border-b-2 border-primary text-primary transition-colors whitespace-nowrap">Preview</button>
+                    <button onclick="switchTab('usage')" id="tab-btn-usage" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors whitespace-nowrap">Components Used Pages</button>
+                    <button onclick="switchTab('log')" id="tab-btn-log" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors whitespace-nowrap">Modified Log</button>
+                    <button onclick="switchTab('conditions')" id="tab-btn-conditions" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors whitespace-nowrap">Component Conditions</button>
+                </div>
+
+                <!-- Body (Scrollable) -->
+                <div class="p-5 overflow-y-auto flex-1 h-[400px]">
+                    
+                    <!-- Tab 1: Preview -->
+                    <div id="tab-preview">
+                        
+                        <!-- Preview Canvas -->
+                        <div class="mb-5">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Preview</span>
+                                <div class="flex gap-2 text-gray-400 text-sm">
+                                    <i class="ph-bold ph-desktop text-gray-800"></i>
+                                    <i class="ph-bold ph-device-tablet hover:text-gray-800 cursor-pointer"></i>
+                                    <i class="ph-bold ph-device-mobile hover:text-gray-800 cursor-pointer"></i>
+                                </div>
+                            </div>
+                            <div class="h-40 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex items-center justify-center relative pattern-grid-lg">
+                                <div id="preview-canvas" class="p-8 flex justify-center items-center w-full h-full">
+                                    <!-- Dynamic Component Preview will go here -->
+                                    <button class="px-4 py-2 bg-blue-600 text-white rounded font-medium shadow-sm hover:bg-blue-700 transition-colors text-xs">Primary Button</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Code Snippet -->
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Usage</span>
+                                <button class="text-[10px] text-primary font-medium hover:underline flex items-center gap-1"><i class="ph-bold ph-copy"></i> Copy</button>
+                            </div>
+                            <div class="bg-gray-900 rounded-md p-3 overflow-x-auto">
+                                <code class="text-xs font-mono text-gray-300" id="preview-code">
+                                    &lt;Button variant="primary"&gt;Click Me&lt;/Button&gt;
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Used Pages -->
+                    <div id="tab-usage" class="hidden">
+                         <h4 class="text-xs font-bold text-gray-900 mb-3">Pages Using This Component (42)</h4>
+                         <div class="space-y-2">
+                            <!-- Mock List -->
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-bold ph-browsers text-gray-400"></i>
+                                    <span class="text-xs font-medium text-gray-700">/dashboard/analytics</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Auth Required</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-bold ph-browsers text-gray-400"></i>
+                                    <span class="text-xs font-medium text-gray-700">/settings/profile</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Auth Required</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-bold ph-browsers text-gray-400"></i>
+                                    <span class="text-xs font-medium text-gray-700">/login</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Public</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-bold ph-browsers text-gray-400"></i>
+                                    <span class="text-xs font-medium text-gray-700">/signup</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Public</span>
+                            </div>
+                             <div class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <i class="ph-bold ph-browsers text-gray-400"></i>
+                                    <span class="text-xs font-medium text-gray-700">/checkout/payment</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400">Secure</span>
+                            </div>
+                         </div>
+                         <button class="w-full text-center py-2 text-xs text-primary font-medium mt-2 hover:bg-gray-50 rounded">View All 42 Pages</button>
+                    </div>
+
+                    <!-- Tab 3: Modified Log -->
+                    <div id="tab-log" class="hidden">
+                        <h4 class="text-xs font-bold text-gray-900 mb-3">Change History</h4>
+                        <div class="relative border-l border-gray-200 ml-2 space-y-6">
+                            <!-- Item 1 -->
+                            <div class="ml-4 relative">
+                                <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></div>
+                                <p class="text-[10px] text-gray-400 mb-0.5">Oct 24, 2024 • 10:30 AM</p>
+                                <p class="text-xs font-bold text-gray-900">v2.1.0 Released</p>
+                                <p class="text-xs text-gray-600 mt-1">Updated shadow opacity and added new `ghost` variant.</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <div class="cp-avatar w-5 h-5 bg-pink-100 text-pink-600 text-[9px]">SJ</div>
+                                    <span class="text-[10px] text-gray-500">Sarah J.</span>
+                                </div>
+                            </div>
+                            <!-- Item 2 -->
+                            <div class="ml-4 relative">
+                                <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white"></div>
+                                <p class="text-[10px] text-gray-400 mb-0.5">Oct 10, 2024 • 02:15 PM</p>
+                                <p class="text-xs font-bold text-gray-900">Accessibility Fix</p>
+                                <p class="text-xs text-gray-600 mt-1">Fixed contrast ratio on disabled state to meet WCAG AA standards.</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <div class="cp-avatar w-5 h-5 bg-green-100 text-green-600 text-[9px]">MT</div>
+                                    <span class="text-[10px] text-gray-500">Mike T.</span>
+                                </div>
+                            </div>
+                             <!-- Item 3 -->
+                            <div class="ml-4 relative">
+                                <div class="absolute -left-[21px] top-1 w-2.5 h-2.5 bg-gray-300 rounded-full border-2 border-white"></div>
+                                <p class="text-[10px] text-gray-400 mb-0.5">Sep 01, 2024 • 09:00 AM</p>
+                                <p class="text-xs font-bold text-gray-900">Initial Release (v1.0)</p>
+                                <p class="text-xs text-gray-600 mt-1">Component published to the library.</p>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <div class="cp-avatar w-5 h-5 bg-indigo-100 text-indigo-600 text-[9px]">JD</div>
+                                    <span class="text-[10px] text-gray-500">Jane Doe</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 4: Component Conditions -->
+                    <div id="tab-conditions" class="hidden">
+                        <div class="grid grid-cols-1 gap-4">
+                            <!-- Technical Prerequisites -->
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="ph-bold ph-code text-primary"></i>
+                                    <h4 class="text-xs font-bold text-gray-900">Technical Prerequisites</h4>
+                                </div>
+                                <ul class="space-y-1.5 ml-1">
+                                    <li class="flex items-start gap-2 text-[11px] text-gray-600">
+                                        <i class="ph-fill ph-check-circle text-green-500 mt-0.5"></i>
+                                        <span>Requires <strong>React v18.0+</strong></span>
+                                    </li>
+                                    <li class="flex items-start gap-2 text-[11px] text-gray-600">
+                                        <i class="ph-fill ph-check-circle text-green-500 mt-0.5"></i>
+                                        <span>Must be wrapped in <code>ThemeProvider</code></span>
+                                    </li>
+                                    <li class="flex items-start gap-2 text-[11px] text-gray-600">
+                                        <i class="ph-fill ph-check-circle text-green-500 mt-0.5"></i>
+                                        <span>Uses <code>@headlessui/react</code> internally</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Accessibility -->
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="ph-bold ph-person-arms-spread text-purple-600"></i>
+                                    <h4 class="text-xs font-bold text-gray-900">Accessibility (A11y)</h4>
+                                </div>
+                                <div class="flex gap-2 mb-2">
+                                    <span class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded text-[10px] font-bold border border-green-200">WCAG 2.1 AA</span>
+                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-bold border border-blue-200">Keyboard Navigable</span>
+                                </div>
+                                <p class="text-[11px] text-gray-600">This component supports full keyboard navigation (Tab, Enter, Space) and includes appropriate ARIA labels for screen readers.</p>
+                            </div>
+
+                            <!-- Responsive Rules -->
+                            <div class="p-3 bg-gray-50 rounded border border-gray-100">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i class="ph-bold ph-devices text-orange-500"></i>
+                                    <h4 class="text-xs font-bold text-gray-900">Responsive Behavior</h4>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center text-[11px] border-b border-gray-200 pb-1">
+                                        <span class="text-gray-500">Mobile (&lt;640px)</span>
+                                        <span class="text-gray-900 font-medium">Full width (100%)</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-[11px] border-b border-gray-200 pb-1">
+                                        <span class="text-gray-500">Tablet (640px-1024px)</span>
+                                        <span class="text-gray-900 font-medium">Grid Layout (2 cols)</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-[11px]">
+                                        <span class="text-gray-500">Desktop (&gt;1024px)</span>
+                                        <span class="text-gray-900 font-medium">Grid Layout (4 cols)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer -->
+                <div class="px-5 py-3 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 shrink-0">
+                    <button onclick="closePreview()" class="px-3 py-1.5 bg-white border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50">Close</button>
+                    <button class="px-3 py-1.5 bg-primary text-white rounded text-xs font-medium hover:bg-primary-hover shadow-sm">View Full Documentation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD NEW COMPONENT MODAL -->
+    <div id="new-component-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0" id="new-modal-backdrop" onclick="closeNewComponentModal()"></div>
+        
+        <!-- Modal Panel -->
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0 relative overflow-hidden flex flex-col" id="new-modal-panel">
+                
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                    <h3 class="text-sm font-bold text-gray-900">Create New Component</h3>
+                    <button onclick="closeNewComponentModal()" class="text-gray-400 hover:text-gray-600"><i class="ph-bold ph-x text-base"></i></button>
+                </div>
+
+                <div class="p-5 space-y-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-700 mb-1.5 uppercase">Component Name</label>
+                        <div class="cp-input-wrapper">
+                            <input type="text" class="cp-input" placeholder="e.g. User Card">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1.5 uppercase">Category</label>
+                            <div class="relative">
+                                <select class="cp-input appearance-none bg-white">
+                                    <option>Atom</option>
+                                    <option>Molecule</option>
+                                    <option>Organism</option>
+                                    <option>Template</option>
+                                </select>
+                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-gray-700 mb-1.5 uppercase">Status</label>
+                            <div class="relative">
+                                <select class="cp-input appearance-none bg-white">
+                                    <option>Draft</option>
+                                    <option>In Review</option>
+                                    <option>Beta</option>
+                                    <option>Stable</option>
+                                </select>
+                                <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-700 mb-1.5 uppercase">Description</label>
+                        <textarea class="w-full border border-neutral-border rounded p-3 text-xs text-gray-700 focus:border-primary focus:outline-none resize-none bg-white" rows="3" placeholder="Briefly describe what this component does..."></textarea>
+                    </div>
+                </div>
+
+                <div class="px-5 py-3 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                    <button onclick="closeNewComponentModal()" class="px-3 py-1.5 bg-white border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
+                    <button onclick="closeNewComponentModal(); alert('Component created successfully!');" class="px-3 py-1.5 bg-primary text-white rounded text-xs font-medium hover:bg-primary-hover shadow-sm">Create Component</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            // Hide all tab contents
+            ['preview', 'usage', 'log', 'conditions'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                
+                // Reset button styles
+                const btn = document.getElementById(`tab-btn-${t}`);
+                btn.classList.remove('border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected content
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            
+            // Set active button styles
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-primary', 'text-primary');
+        }
+
+        function openPreview(name, id, status, themeColor, usageCount, lastEdited) {
+            const modal = document.getElementById('preview-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const panel = document.getElementById('modal-panel');
+            
+            // Reset to first tab
+            switchTab('preview');
+
+            // Populate Data
+            document.getElementById('preview-title').textContent = name;
+            document.getElementById('preview-id').textContent = id;
+            
+            // Update Header Metrics
+            document.getElementById('preview-usage-header').textContent = usageCount + ' Pages';
+            document.getElementById('preview-date-header').textContent = lastEdited.split('(')[1].replace(')', ''); // Shows relative time only for cleaner header
+            
+            const statusBadge = document.getElementById('preview-status');
+            statusBadge.textContent = status;
+            
+            // Generate Mock Preview Content
+            const canvas = document.getElementById('preview-canvas');
+            const code = document.getElementById('preview-code');
+            
+            // Simple visual switching based on component name
+            if(name.includes('Button')) {
+                canvas.innerHTML = `<button class="px-5 py-2.5 bg-blue-600 text-white rounded font-bold shadow-md hover:bg-blue-700 transition-all flex items-center gap-2 text-xs"><i class="ph-bold ph-hand-pointing"></i> ${name}</button>`;
+                code.textContent = `<Button variant="primary" icon="hand-pointing">${name}</Button>`;
+            } else if (name.includes('Table')) {
+                canvas.innerHTML = `
+                    <div class="w-full max-w-sm border border-gray-200 rounded-md bg-white text-[10px] overflow-hidden shadow-sm">
+                        <div class="bg-gray-50 p-2 border-b border-gray-200 font-bold flex justify-between"><span>Name</span><span>Role</span></div>
+                        <div class="p-2 border-b border-gray-100 flex justify-between"><span>Alice</span><span class="text-gray-500">Admin</span></div>
+                        <div class="p-2 flex justify-between"><span>Bob</span><span class="text-gray-500">Editor</span></div>
+                    </div>`;
+                code.textContent = `<DataTable data={users} columns={['Name', 'Role']} />`;
+            } else if (name.includes('Modal')) {
+                canvas.innerHTML = `
+                    <div class="bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-48 text-center">
+                        <h4 class="font-bold mb-2 text-xs">Confirm Action?</h4>
+                        <div class="flex gap-2 justify-center"><button class="px-2 py-1 bg-gray-100 rounded text-[10px]">Cancel</button><button class="px-2 py-1 bg-red-600 text-white rounded text-[10px]">Delete</button></div>
+                    </div>`;
+                code.textContent = `<Modal title="Confirm Action" onConfirm={handleDelete} />`;
+            } else if (name.includes('Toggle')) {
+                canvas.innerHTML = `
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                        <input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
+                        <label for="toggle" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>`;
+                code.textContent = `<Switch checked={isEnabled} onChange={toggle} />`;
+            } else {
+                 canvas.innerHTML = `<div class="text-gray-400 font-mono text-xs border border-dashed border-gray-300 p-4 rounded bg-white">No visual preview available for ${name}</div>`;
+                 code.textContent = `<${name.replace(/\s/g, '')} />`;
+            }
+
+            // Show Modal
+            modal.classList.remove('hidden');
+            // Slight delay for animation classes
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('scale-95', 'opacity-0');
+                panel.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closePreview() {
+            const modal = document.getElementById('preview-modal');
+            const backdrop = document.getElementById('modal-backdrop');
+            const panel = document.getElementById('modal-panel');
+
+            // Animation out
+            backdrop.classList.add('opacity-0');
+            panel.classList.remove('scale-100', 'opacity-100');
+            panel.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // New Component Modal Logic
+        function openNewComponentModal() {
+            const modal = document.getElementById('new-component-modal');
+            const backdrop = document.getElementById('new-modal-backdrop');
+            const panel = document.getElementById('new-modal-panel');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('scale-95', 'opacity-0');
+                panel.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeNewComponentModal() {
+            const modal = document.getElementById('new-component-modal');
+            const backdrop = document.getElementById('new-modal-backdrop');
+            const panel = document.getElementById('new-modal-panel');
+
+            backdrop.classList.add('opacity-0');
+            panel.classList.remove('scale-100', 'opacity-100');
+            panel.classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+    </script>
+</body>
+</html>
