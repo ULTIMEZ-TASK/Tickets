@@ -1,8 +1,30 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent, KeyboardEvent } from 'react';
+
+// --- TYPES ---
+type LimitConfig = {
+  min: number;
+  max: number;
+  absoluteMax?: number;
+  maxChar?: number;
+};
+
+type LimitsType = {
+  [key: string]: LimitConfig;
+};
+
+type HeaderTemplateConfig = {
+  h1: string;
+  structure: string;
+  tip: string;
+};
+
+type HeaderTemplatesType = {
+  [key: string]: HeaderTemplateConfig;
+};
 
 // --- CONSTANTS & DATA ---
-const LIMITS = {
+const LIMITS: LimitsType = {
   title: { min: 30, max: 60, absoluteMax: 70 },
   desc: { min: 110, max: 160, absoluteMax: 300 },
   ogTitle: { min: 30, max: 95 },
@@ -10,7 +32,7 @@ const LIMITS = {
   keywords: { min: 3, max: 10, maxChar: 40 }
 };
 
-const HEADER_TEMPLATES = {
+const HEADER_TEMPLATES: HeaderTemplatesType = {
   "News Article": {
     h1: "Bitcoin Surpasses $100k: What This Means for Investors",
     structure: "## Why is the Price Rising Now?\n## Expert Opinions\n### Quote from BlackRock CEO\n## Future Outlook\n### Technical Analysis: Next Support Levels",
@@ -39,7 +61,7 @@ const HEADER_TEMPLATES = {
 };
 
 // --- HELPER FUNCTIONS ---
-const getValidation = (text, type) => {
+const getValidation = (text: string, type: string) => {
   const len = text ? text.length : 0;
   const limit = LIMITS[type];
   if (!limit) return { status: 'neutral', msg: '' };
@@ -51,15 +73,15 @@ const getValidation = (text, type) => {
   return { status: 'success', msg: 'Optimal' };
 };
 
-const isValidUrl = (str) => {
+const isValidUrl = (str: string): boolean => {
   try { new URL(str); return true; } catch (_) { return false; }
 };
 
-const getHostname = (url) => {
+const getHostname = (url: string): string => {
   try { return new URL(url).hostname; } catch { return "example.com"; }
 };
 
-const getStatusColor = (status) => {
+const getStatusColor = (status: string): string => {
   switch(status) {
     case 'error': return 'border-red-500 focus:ring-red-100 bg-red-50 text-red-700';
     case 'warning': return 'border-yellow-500 focus:ring-yellow-100 bg-yellow-50 text-yellow-700';
@@ -68,7 +90,7 @@ const getStatusColor = (status) => {
   }
 };
 
-const analyzeHeaderStructure = (structure) => {
+const analyzeHeaderStructure = (structure: string) => {
   const lines = structure.split('\n');
   const headers = lines.filter(l => l.trim().startsWith('#'));
   
@@ -76,7 +98,7 @@ const analyzeHeaderStructure = (structure) => {
   const h3Count = headers.filter(h => h.match(/^###\s/)).length;
   const hasQuestion = headers.some(h => h.includes('?'));
   
-  let tips = [];
+  let tips: { type: string, msg: string }[] = [];
   if (h2Count < 2) tips.push({ type: 'warning', msg: "Thin structure. Add more H2s for depth." });
   if (!hasQuestion) tips.push({ type: 'info', msg: "AI Tip: Use question-based H2s to rank in AI Overviews." });
   if (headers.some(h => h.match(/^#\s/))) tips.push({ type: 'error', msg: "Do not use single # (H1) here." });
@@ -87,7 +109,11 @@ const analyzeHeaderStructure = (structure) => {
 
 // --- COMPONENTS ---
 
-const InfoTooltip = ({ content }) => (
+interface InfoTooltipProps {
+  content: string | string[];
+}
+
+const InfoTooltip: React.FC<InfoTooltipProps> = ({ content }) => (
   <div className="group relative inline-flex ml-1.5 cursor-help align-middle">
     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 hover:text-blue-600 transition-colors">
       <circle cx="12" cy="12" r="10"></circle>
@@ -105,7 +131,16 @@ const InfoTooltip = ({ content }) => (
   </div>
 );
 
-const FacebookPreview = ({ title, description, image, url, imageValid }) => (
+interface SocialPreviewProps {
+  title: string;
+  description?: string;
+  image: string;
+  url: string;
+  imageValid: boolean;
+  twitterHandle?: string;
+}
+
+const FacebookPreview: React.FC<SocialPreviewProps> = ({ title, description, image, url, imageValid }) => (
   <div className="bg-[#f0f2f5] p-3 rounded-md w-full max-w-[375px] mx-auto font-sans">
     <div className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
       <div className="p-3 flex items-center gap-2 mb-1">
@@ -128,12 +163,12 @@ const FacebookPreview = ({ title, description, image, url, imageValid }) => (
   </div>
 );
 
-const TwitterPreview = ({ title, description, image, url, twitterHandle, imageValid }) => (
+const TwitterPreview: React.FC<SocialPreviewProps> = ({ title, description, image, url, twitterHandle, imageValid }) => (
   <div className="bg-white p-3 w-full max-w-[375px] mx-auto font-sans">
     <div className="flex gap-2 mb-1">
        <div className="w-9 h-9 rounded-full bg-slate-200"></div>
        <div className="flex flex-col">
-          <span className="text-[13px] font-bold text-slate-900">Name <span className="font-normal text-slate-500">@{twitterHandle.replace('@','')} · 1h</span></span>
+          <span className="text-[13px] font-bold text-slate-900">Name <span className="font-normal text-slate-500">@{twitterHandle?.replace('@','') || 'handle'} · 1h</span></span>
           <span className="text-[13px] text-slate-900">Just posted a new update! 👇</span>
        </div>
     </div>
@@ -150,7 +185,7 @@ const TwitterPreview = ({ title, description, image, url, twitterHandle, imageVa
   </div>
 );
 
-const LinkedInPreview = ({ title, url, image, imageValid }) => (
+const LinkedInPreview: React.FC<SocialPreviewProps> = ({ title, url, image, imageValid }) => (
   <div className="bg-[#f3f2ef] p-3 rounded-md w-full max-w-[375px] mx-auto font-sans">
      <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden">
         <div className="p-3 flex gap-2">
@@ -181,7 +216,7 @@ const SeoDetails = () => {
   const [description, setDescription] = useState("Niparz Technologies is a blockchain and Web3 innovation company delivering powerful decentralized solutions, crypto tools, and digital products");
   const [canonicalUrl, setCanonicalUrl] = useState("https://niparz.com/solutions/blockchain");
   const [keywordInput, setKeywordInput] = useState("");
-  const [keywords, setKeywords] = useState(["Niparz Technologies", "Web3 Development"]);
+  const [keywords, setKeywords] = useState<string[]>(["Niparz Technologies", "Web3 Development"]);
   const [h1Tag, setH1Tag] = useState("Blockchain Innovation Partner");
   const [headerStructure, setHeaderStructure] = useState("## Our Solutions\n### DeFi Development\n### NFT Marketplaces\n## Why Choose Us?\n### Expertise & Experience");
   const [activeTemplate, setActiveTemplate] = useState("");
@@ -192,7 +227,7 @@ const SeoDetails = () => {
   const [authorName] = useState("Coinpedia Editor");
   const [publishDate] = useState(""); 
   const [availableSchema, setAvailableSchema] = useState("Organization"); 
-  const [selectedSchemas, setSelectedSchemas] = useState(["NewsArticle", "Organization"]); 
+  const [selectedSchemas, setSelectedSchemas] = useState<string[]>(["NewsArticle", "Organization"]); 
   const [ogTitle, setOgTitle] = useState("");
   const [ogDescription, setOgDescription] = useState("");
   const [ogImage, setOgImage] = useState("https://niparz.com/assets/og-main.jpg");
@@ -210,17 +245,17 @@ const SeoDetails = () => {
   const ogImageValid = isValidUrl(ogImage) && (ogImage.match(/\.(jpeg|jpg|gif|png|webp)$/) != null);
   const keywordCountStatus = keywords.length < LIMITS.keywords.min ? 'warning' : 'success';
   const currentKeywordLen = keywordInput.length;
-  const isKeywordTooLong = currentKeywordLen > LIMITS.keywords.maxChar;
+  const isKeywordTooLong = currentKeywordLen > (LIMITS.keywords.maxChar || 40);
   const ogTitleVal = getValidation(ogTitle || title, 'ogTitle');
   const ogDescVal = getValidation(ogDescription || description, 'ogDesc');
   const headerStats = analyzeHeaderStructure(headerStructure);
 
-  const checkRelevance = (tag) => {
+  const checkRelevance = (tag: string) => {
     const content = `${title} ${description} ${h1Tag}`.toLowerCase();
     return content.includes(tag.toLowerCase());
   };
 
-  const handleTemplateChange = (e) => {
+  const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const type = e.target.value;
     setActiveTemplate(type);
     if (HEADER_TEMPLATES[type]) {
@@ -232,18 +267,18 @@ const SeoDetails = () => {
   const handleAddKeyword = () => {
     const trimmed = keywordInput.trim();
     if (trimmed === "") return;
-    if (trimmed.length > LIMITS.keywords.maxChar) return;
+    if (trimmed.length > (LIMITS.keywords.maxChar || 40)) return;
     if (!keywords.includes(trimmed) && keywords.length < LIMITS.keywords.max) {
       setKeywords([...keywords, trimmed]);
       setKeywordInput("");
     }
   };
 
-  const handleRemoveKeyword = (tagToRemove) => {
+  const handleRemoveKeyword = (tagToRemove: string) => {
     setKeywords(keywords.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddKeyword();
@@ -261,14 +296,14 @@ const SeoDetails = () => {
     }
   };
 
-  const handleRemoveSchema = (schemaToRemove) => {
+  const handleRemoveSchema = (schemaToRemove: string) => {
     setSelectedSchemas(selectedSchemas.filter((s) => s !== schemaToRemove));
   };
 
-  const generateSchemaObject = (type) => {
+  const generateSchemaObject = (type: string) => {
     const baseUrl = isValidUrl(canonicalUrl) ? new URL(canonicalUrl).origin : "https://example.com";
     const finalDate = publishDate ? new Date(publishDate).toISOString() : new Date().toISOString();
-    let schemaObj = { "@type": type };
+    let schemaObj: any = { "@type": type };
     schemaObj.inLanguage = language;
 
     switch (type) {
@@ -357,7 +392,7 @@ const SeoDetails = () => {
                                 <span className={`text-xs ${description.length > LIMITS.desc.max ? 'text-red-500 font-bold' : 'text-slate-400'}`}>{description.length}/{LIMITS.desc.max}</span>
                             </div>
                         </div>
-                        <textarea rows="4" value={description} onChange={(e) => setDescription(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 outline-none transition-all resize-none ${getStatusColor(descVal.status)}`} placeholder="Summarize content..." />
+                        <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 outline-none transition-all resize-none ${getStatusColor(descVal.status)}`} placeholder="Summarize content..." />
                     </div>
 
                     {/* KEYWORDS */}
@@ -425,7 +460,7 @@ const SeoDetails = () => {
                              <label className="flex items-center text-sm font-bold text-slate-700">Header Structure <InfoTooltip content={["Hierarchy: H1 -> H2 -> H3.", "No skipped levels.", "Use questions in H2s.", "Start with ## (H2)."]} /></label>
                              <div className="flex gap-2"><span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">H2: {headerStats.h2Count}</span><span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">H3: {headerStats.h3Count}</span></div>
                         </div>
-                        <textarea rows="6" value={headerStructure} onChange={(e) => setHeaderStructure(e.target.value)} className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-slate-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none" placeholder="## H2 Title..." />
+                        <textarea rows={6} value={headerStructure} onChange={(e) => setHeaderStructure(e.target.value)} className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-slate-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none" placeholder="## H2 Title..." />
                         <div className="mt-2 space-y-1">
                             {headerStats.tips.map((tip, idx) => (
                                 <div key={idx} className={`text-[10px] flex items-start gap-1.5 px-2 py-1 rounded ${tip.type === 'error' ? 'bg-red-50 text-red-600' : tip.type === 'warning' ? 'bg-yellow-50 text-yellow-700' : 'bg-blue-50 text-blue-700'}`}>
@@ -562,7 +597,7 @@ const SeoDetails = () => {
                         <span className={`text-xs ${ogDescription.length > LIMITS.ogDesc.max ? 'text-red-500' : 'text-slate-400'}`}>{ogDescription.length}/{LIMITS.ogDesc.max}</span>
                     </div>
                  </div>
-                 <textarea rows="3" value={ogDescription || description} onChange={(e) => setOgDescription(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 resize-none ${getStatusColor(ogDescVal.status)}`} />
+                 <textarea rows={3} value={ogDescription || description} onChange={(e) => setOgDescription(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 resize-none ${getStatusColor(ogDescVal.status)}`} />
               </div>
               <div>
                  <label className="flex items-center text-sm font-bold text-slate-700 mb-2">OG Image URL <InfoTooltip content={["Absolute URL.", "1200x630px.", "JPG/PNG."]} /></label>
