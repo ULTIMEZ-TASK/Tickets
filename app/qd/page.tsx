@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
@@ -334,7 +335,7 @@ const SeoDetails = () => {
                         <div className="flex justify-between items-center mb-2">
                             <label className="flex items-center text-sm font-bold text-slate-700">
                                 Meta Title <span className="text-red-500 ml-1">*</span>
-                                <InfoTooltip content={["Optimal: 30-60 chars.", "Include keyword.", "Avoid duplication."]} />
+                                <InfoTooltip content={["Optimal length: 30-60 chars.", "Must include primary keyword.", "Avoid duplication.", "Avoid keyword stuffing."]} />
                             </label>
                             <div className="flex items-center gap-2">
                                 {titleVal.msg && <span className={`text-[10px] uppercase font-bold px-1.5 rounded ${titleVal.status === 'success' ? 'bg-green-100 text-green-700' : titleVal.status === 'warning' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{titleVal.msg}</span>}
@@ -342,6 +343,7 @@ const SeoDetails = () => {
                             </div>
                         </div>
                         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 outline-none transition-all ${getStatusColor(titleVal.status)}`} placeholder="Page title..." />
+                        <p className="text-[10px] text-slate-400 mt-1">AI Tools Priority: Keep under 60 chars to avoid rewrite by Google.</p>
                     </div>
 
                     {/* DESC */}
@@ -349,7 +351,7 @@ const SeoDetails = () => {
                         <div className="flex justify-between items-center mb-2">
                             <label className="flex items-center text-sm font-bold text-slate-700">
                                 Meta Description <span className="text-red-500 ml-1">*</span>
-                                <InfoTooltip content={["Optimal: 110-160 chars.", "Summarize content.", "Include CTA."]} />
+                                <InfoTooltip content={["Optimal length: 110-160 chars.", "Summarize page content.", "Include a call-to-action.", "Unique per page."]} />
                             </label>
                             <div className="flex items-center gap-2">
                                 {descVal.msg && <span className={`text-[10px] uppercase font-bold px-1.5 rounded ${descVal.status === 'success' ? 'bg-green-100 text-green-700' : descVal.status === 'warning' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{descVal.msg}</span>}
@@ -364,7 +366,7 @@ const SeoDetails = () => {
                         <div className="flex justify-between items-center mb-2">
                             <label className="flex items-center text-sm font-bold text-slate-700">
                                 Keywords <span className="text-slate-400 font-normal text-xs ml-1">(Max 10)</span>
-                                <InfoTooltip content={["3-10 keywords.", "Green = Found.", "Max 40 chars."]} />
+                                <InfoTooltip content={["Add 3-10 focused keywords.", "Green = Found in content.", "Gray = Not found.", "Max 40 chars per keyword."]} />
                             </label>
                             <span className={`text-xs font-bold ${keywordCountStatus === 'warning' ? 'text-yellow-600' : 'text-green-600'}`}>{keywords.length}/{LIMITS.keywords.max}</span>
                         </div>
@@ -373,12 +375,13 @@ const SeoDetails = () => {
                                 <input type="text" value={keywordInput} onChange={(e) => setKeywordInput(e.target.value)} onKeyDown={handleKeyDown} disabled={keywords.length >= LIMITS.keywords.max} className={`flex-1 border rounded-md px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 disabled:bg-gray-100 ${isKeywordTooLong ? 'border-red-500 focus:ring-red-100' : 'border-gray-300 focus:ring-blue-100'}`} placeholder="Add keyword..." />
                                 <button onClick={handleAddKeyword} disabled={keywords.length >= LIMITS.keywords.max || isKeywordTooLong || !keywordInput.trim()} className="bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-50 px-3 py-2 rounded-md text-sm font-medium transition-colors">Add</button>
                             </div>
+                            {isKeywordTooLong && <span className="absolute -bottom-5 left-0 text-[10px] text-red-500 font-bold">Keyword too long</span>}
                         </div>
                         <div className="flex flex-wrap gap-2 mt-3">
                             {keywords.map((tag, i) => {
                                 const isRelevant = checkRelevance(tag);
                                 return (
-                                    <span key={i} className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 border ${isRelevant ? 'bg-green-50 border-green-200 text-green-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`} title={isRelevant ? "Found" : "Not found"}>
+                                    <span key={i} className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 border ${isRelevant ? 'bg-green-50 border-green-200 text-green-700' : 'bg-slate-50 border-slate-200 text-slate-500'}`} title={isRelevant ? "Found in content" : "Not found"}>
                                         {tag}
                                         {isRelevant && <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                         <button onClick={() => handleRemoveKeyword(tag)} className="hover:text-red-500 ml-1">×</button>
@@ -390,12 +393,15 @@ const SeoDetails = () => {
 
                     {/* CANONICAL */}
                     <div>
-                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2">Canonical URL <InfoTooltip content={["Self-referencing.", "Absolute URL.", "Starts with https://"]} /></label>
-                        <input type="url" value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 outline-none ${!urlValid ? 'border-red-300 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-blue-100'}`} />
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2">Canonical URL <InfoTooltip content={["Self-referencing absolute URL.", "Prevents duplicate content.", "Must start with https://."]} /></label>
+                        <div className="relative">
+                                <input type="url" value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} className={`w-full border rounded-md px-4 py-2.5 outline-none ${!urlValid ? 'border-red-300 bg-red-50' : 'border-gray-300 focus:ring-2 focus:ring-blue-100'}`} />
+                            {!urlValid && <span className="absolute right-3 top-3 text-red-500 text-xs font-bold">Invalid URL</span>}
+                        </div>
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: STRUCTURE */}
+                {/* RIGHT: STRUCTURE */}
                 <div className="space-y-6">
                     {/* TEMPLATE */}
                     <div className="bg-slate-50 p-4 rounded-md border border-slate-200">
@@ -409,14 +415,15 @@ const SeoDetails = () => {
 
                     {/* H1 */}
                     <div>
-                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2">H1 Tag <span className="text-red-500 ml-1">*</span> <InfoTooltip content={["Single H1.", "Include keyword.", "Match Title intent."]} /></label>
-                        <input type="text" value={h1Tag} onChange={(e) => setH1Tag(e.target.value)} className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100" />
+                        <label className="flex items-center text-sm font-bold text-slate-700 mb-2">H1 Tag <span className="text-red-500 ml-1">*</span> <InfoTooltip content={["Single H1 per page.", "Include primary keyword.", "Match Meta Title intent."]} /></label>
+                        <input type="text" value={h1Tag} onChange={(e) => setH1Tag(e.target.value)} className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-100" placeholder="Main Page Heading" />
+                        <p className="text-[10px] text-slate-400 mt-1">Should match the intent of the Meta Title.</p>
                     </div>
 
                     {/* HEADER STRUCTURE */}
                     <div>
                         <div className="flex justify-between items-center mb-2">
-                             <label className="flex items-center text-sm font-bold text-slate-700">Header Structure <InfoTooltip content={["Hierarchy: H1>H2>H3.", "No skipped levels.", "Use questions in H2."]} /></label>
+                             <label className="flex items-center text-sm font-bold text-slate-700">Header Structure <InfoTooltip content={["Hierarchy: H1 -> H2 -> H3.", "No skipped levels.", "Use questions in H2s.", "Start with ## (H2)."]} /></label>
                              <div className="flex gap-2"><span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">H2: {headerStats.h2Count}</span><span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">H3: {headerStats.h3Count}</span></div>
                         </div>
                         <textarea rows="6" value={headerStructure} onChange={(e) => setHeaderStructure(e.target.value)} className="w-full border border-gray-300 rounded-md px-4 py-2.5 text-slate-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 resize-none" placeholder="## H2 Title..." />
@@ -426,13 +433,14 @@ const SeoDetails = () => {
                                     <span className="font-bold">{tip.type === 'error' ? '✕' : tip.type === 'warning' ? '⚠' : 'ℹ'}</span>{tip.msg}
                                 </div>
                             ))}
+                            {headerStats.tips.length === 0 && headerStructure.trim().length > 0 && <p className="text-[10px] text-green-600 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Structure looks solid.</p>}
                         </div>
                     </div>
 
-                    {/* TECHNICAL SEO */}
+                    {/* TECHNICAL SEO ROW */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
-                            <label className="flex items-center text-sm font-bold text-slate-700 mb-2">Robots <InfoTooltip content={["Index/Noindex.", "Follow/Nofollow."]} /></label>
+                            <label className="flex items-center text-sm font-bold text-slate-700 mb-2">Robots <InfoTooltip content={["Index: Allow results.", "Follow: Crawl links.", "Noindex: Hide page.", "Nofollow: No link equity."]} /></label>
                             <div className="flex gap-2">
                                 <select value={robotsIndex} onChange={(e) => setRobotsIndex(e.target.value)} className="flex-1 border rounded-md px-2 py-2 text-sm focus:outline-none border-gray-300"><option value="index">Index</option><option value="noindex">No Index</option></select>
                                 <select value={robotsFollow} onChange={(e) => setRobotsFollow(e.target.value)} className="flex-1 border border-gray-300 rounded-md px-2 py-2 text-sm focus:outline-none"><option value="follow">Follow</option><option value="nofollow">No Follow</option></select>
@@ -536,7 +544,7 @@ const SeoDetails = () => {
               <div>
                  <div className="flex justify-between items-center mb-2">
                     <label className="flex items-center text-sm font-bold text-slate-700">
-                        OG Title <InfoTooltip content={["Title for social.", "60-90 chars.", "Catchy."]} />
+                        OG Title <InfoTooltip content={["Title for social cards.", "Optimal: 60-90 chars.", "Catchy."]} />
                     </label>
                     <div className="flex items-center gap-2">
                         {ogTitleVal.msg && <span className={`text-[10px] uppercase font-bold px-1.5 rounded ${ogTitleVal.status === 'success' ? 'bg-green-100 text-green-700' : ogTitleVal.status === 'warning' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{ogTitleVal.msg}</span>}
@@ -548,7 +556,7 @@ const SeoDetails = () => {
               <div>
                  <div className="flex justify-between items-center mb-2">
                     <label className="flex items-center text-sm font-bold text-slate-700">
-                        OG Description <InfoTooltip content={["Desc for social.", "60-200 chars.", "No SEO rank."]} />
+                        OG Description <InfoTooltip content={["Desc for social cards.", "Optimal: 60-200 chars.", "Does not rank SEO."]} />
                     </label>
                     <div className="flex items-center gap-2">
                         {ogDescVal.msg && <span className={`text-[10px] uppercase font-bold px-1.5 rounded ${ogDescVal.status === 'success' ? 'bg-green-100 text-green-700' : ogDescVal.status === 'warning' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{ogDescVal.msg}</span>}
@@ -566,7 +574,7 @@ const SeoDetails = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                  <div>
-                    <label className="flex items-center text-sm font-bold text-slate-700 mb-2">OG Type <InfoTooltip content={["Object type.", "'website'/'article'."]} /></label>
+                    <label className="flex items-center text-sm font-bold text-slate-700 mb-2">OG Type <InfoTooltip content={["Object type.", "'website' for general.", "'article' for news."]} /></label>
                     <select value={ogType} onChange={(e) => setOgType(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2.5 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-100">
                        <option value="website">Website</option>
                        <option value="article">Article</option>
