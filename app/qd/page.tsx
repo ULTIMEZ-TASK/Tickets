@@ -542,7 +542,7 @@ const SeoDetails = () => {
                                     {attributes.slice(0, 5).map(([key, value]) => (
                                         <div key={key} className="flex flex-col text-sm">
                                             <span className="font-semibold text-slate-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                                            <span className="text-slate-500 truncate font-mono text-xs bg-slate-50 px-2 py-1 rounded mt-1">{typeof value === 'object' ? JSON.stringify(value).substring(0, 40) + '...' : value}</span>
+                                            <span className="text-slate-500 truncate font-mono text-xs bg-slate-50 px-2 py-1 rounded mt-1">{typeof value === 'object' && value !== null ? JSON.stringify(value).substring(0, 40) + '...' : String(value)}</span>
                                         </div>
                                     ))}
                                 </div>
