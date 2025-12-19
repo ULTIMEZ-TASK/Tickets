@@ -113,12 +113,16 @@
         <div class="p-3">
             <div class="text-[10px] font-bold text-gray-400 uppercase mb-2 px-2">Management</div>
             <nav class="space-y-0.5">
+                <!-- Pages & Screens is now Index/Home -->
                 <a href="index.html" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded transition-colors">
                     <i class="ph-bold ph-squares-four text-base"></i> Pages & Screens
                 </a>
                 <a href="final_components.html" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
                     <i class="ph-bold ph-cube text-base"></i> Component Mgmt
-             </a>
+                </a>
+                <a href="all_components.html" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
+                    <i class="ph-bold ph-grid-four text-base"></i> Component Catalog
+                </a>
                 <a href="code_file_manager.html" class="flex items-center gap-3 px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-primary hover:bg-neutral-gray/10 rounded transition-colors">
                     <i class="ph-bold ph-file-code text-base"></i> Code File Manager
                 </a>
@@ -203,8 +207,13 @@
                             <tr class="group hover:bg-blue-50/30 transition-colors">
                                 <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">App Coinpedia</span></td>
                                 <td>
-                                    <div class="font-bold text-xs text-neutral-black">Login Screen</div>
-                                    <div class="text-[10px] text-gray-500 font-mono">/auth/login</div>
+                                    <!-- Updated: Clickable Page Name -->
+                                    <div class="cursor-pointer group/page" onclick="openPageDetails('Login Screen', '/auth/login', 'App Coinpedia')">
+                                        <div class="font-bold text-xs text-neutral-black group-hover/page:text-primary group-hover/page:underline decoration-dotted flex items-center gap-1">
+                                            Login Screen <i class="ph-bold ph-arrow-square-out text-[10px] opacity-0 group-hover/page:opacity-100 transition-opacity"></i>
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 font-mono">/auth/login</div>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="flex flex-wrap gap-1">
@@ -214,7 +223,6 @@
                                 </td>
                                 <td>
                                     <div class="flex items-center gap-2 overflow-hidden flex-wrap">
-                                        <!-- Interactive Component Chips -->
                                         <button onclick="openPreview('Primary Button', 'cp-btn-primary', 'Stable', 'primary', '42', 'Oct 24, 10:30 AM (2 days ago)')" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-700 shadow-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">Primary Button</button>
                                         <button onclick="openPreview('Input Field', 'cp-input', 'Stable', 'indigo', '156', 'Oct 22, 09:00 AM (4 days ago)')" class="px-2 py-0.5 bg-white border border-gray-200 rounded text-[10px] text-gray-700 shadow-sm hover:border-primary hover:text-primary transition-colors cursor-pointer">Input Field</button>
                                         <span class="text-[10px] text-gray-400 cursor-default">+2 more</span>
@@ -230,8 +238,13 @@
                             <tr class="group hover:bg-blue-50/30 transition-colors">
                                 <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700">Markets</span></td>
                                 <td>
-                                    <div class="font-bold text-xs text-neutral-black">Asset Dashboard</div>
-                                    <div class="text-[10px] text-gray-500 font-mono">/markets/dashboard</div>
+                                    <!-- Updated: Clickable Page Name -->
+                                    <div class="cursor-pointer group/page" onclick="openPageDetails('Asset Dashboard', '/markets/dashboard', 'Markets Coinpedia')">
+                                        <div class="font-bold text-xs text-neutral-black group-hover/page:text-primary group-hover/page:underline decoration-dotted flex items-center gap-1">
+                                            Asset Dashboard <i class="ph-bold ph-arrow-square-out text-[10px] opacity-0 group-hover/page:opacity-100 transition-opacity"></i>
+                                        </div>
+                                        <div class="text-[10px] text-gray-500 font-mono">/markets/dashboard</div>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="flex flex-wrap gap-1">
@@ -258,15 +271,115 @@
         </div>
     </main>
 
-    <!-- NEW PAGE/SCREEN MODAL -->
-    <div id="new-page-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0" id="page-modal-backdrop" onclick="closeNewPageModal()"></div>
-        
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <!-- WIDENED MODAL to max-w-6xl for better complex form layout -->
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl transform transition-all scale-95 opacity-0 relative overflow-hidden flex flex-col max-h-[95vh]" id="page-modal-panel">
+    <!-- PAGE DETAILS DRAWER -->
+    <div id="page-details-drawer" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity opacity-0" id="page-drawer-backdrop" onclick="closePageDetails()"></div>
+        <div class="absolute top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col" id="page-drawer-panel">
+            
+            <!-- Header -->
+            <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-start shrink-0">
+                <div>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 mb-2 inline-block" id="detail-module">Module Name</span>
+                    <h2 class="text-lg font-bold text-gray-900" id="detail-title">Page Name</h2>
+                    <p class="text-xs text-gray-500 font-mono mt-0.5" id="detail-path">/path/to/page</p>
+                </div>
+                <button onclick="closePageDetails()" class="text-gray-400 hover:text-gray-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <!-- Page Details Tabs -->
+            <div class="px-6 border-b border-gray-100 flex gap-6 bg-white shrink-0">
+                <button onclick="switchPageTab('layout')" id="ptab-btn-layout" class="py-3 text-xs font-bold border-b-2 border-primary text-primary transition-colors">Page Layout Sections</button>
+                <button onclick="switchPageTab('validations')" id="ptab-btn-validations" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors">Validations</button>
+                <button onclick="switchPageTab('scenarios')" id="ptab-btn-scenarios" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors">Test Scenarios</button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6" id="page-drawer-body">
                 
-                <!-- Modal Header -->
+                <!-- Tab 1: Layout Sections -->
+                <div id="ptab-layout" class="space-y-6">
+                    <div id="detail-content" class="space-y-6">
+                        <!-- Dynamic Content Will Be Injected Here -->
+                    </div>
+                </div>
+
+                <!-- Tab 2: Validations -->
+                <div id="ptab-validations" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-900 uppercase mb-3">Page Validation Rules</h4>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="min-w-full text-left">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200">Rule Description</th>
+                                    <th class="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200 w-24">Type</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700">User must be authenticated (JWT Token present)</td>
+                                    <td class="px-4 py-3"><span class="bg-red-50 text-red-600 px-1.5 py-0.5 rounded text-[10px] border border-red-100 font-medium">Critical</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700">Redirect to /login if session expired</td>
+                                    <td class="px-4 py-3"><span class="bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded text-[10px] border border-orange-100 font-medium">Warning</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700">Check for 'feature_flag_new_dashboard' enabled</td>
+                                    <td class="px-4 py-3"><span class="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] border border-blue-100 font-medium">Info</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Test Scenarios -->
+                <div id="ptab-scenarios" class="hidden">
+                    <h4 class="text-xs font-bold text-gray-900 uppercase mb-3">QA Test Scenarios</h4>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <table class="min-w-full text-left">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200">Scenario</th>
+                                    <th class="px-4 py-2 text-[10px] font-bold text-gray-500 uppercase border-b border-gray-200">Expected Result</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 font-medium">Load page without auth cookie</td>
+                                    <td class="px-4 py-3 text-gray-600">Immediate redirect to login page</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 font-medium">Click "Logout" from header</td>
+                                    <td class="px-4 py-3 text-gray-600">Clear local storage and redirect to home</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700 font-medium">Mobile view breakpoint (&lt;640px)</td>
+                                    <td class="px-4 py-3 text-gray-600">Sidebar becomes hamburger menu, tables stack</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2 shrink-0">
+                <button class="cp-btn bg-white border border-gray-300 text-gray-700 text-xs shadow-sm"><i class="ph-bold ph-figma-logo mr-1"></i> View Design</button>
+                <button class="cp-btn bg-white border border-gray-300 text-gray-700 text-xs shadow-sm"><i class="ph-bold ph-code mr-1"></i> View Code</button>
+                <button class="cp-btn bg-primary text-white text-xs shadow-sm hover:bg-primary-hover"><i class="ph-bold ph-pencil-simple mr-1"></i> Edit Page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW PAGE/SCREEN MODAL (Existing) -->
+    <!-- ... (No changes to existing New Page Modal) ... -->
+    <div id="new-page-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- ... existing content ... -->
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0" id="page-modal-backdrop" onclick="closeNewPageModal()"></div>
+        <div class="flex items-center justify-center min-h-screen p-4">
+             <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl transform transition-all scale-95 opacity-0 relative overflow-hidden flex flex-col max-h-[95vh]" id="page-modal-panel">
+                <!-- ... header, body, footer ... -->
                 <div class="px-6 py-4 border-b border-gray-100 bg-white flex justify-between items-center shrink-0 z-10">
                     <div>
                         <h3 class="text-base font-bold text-gray-900">Create New Page / Screen</h3>
@@ -276,10 +389,7 @@
                         <button onclick="closeNewPageModal()" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded hover:bg-gray-100"><i class="ph-bold ph-x text-lg"></i></button>
                     </div>
                 </div>
-
-                <!-- Modal Body -->
-                <div class="p-6 overflow-y-auto space-y-8 bg-gray-50/30">
-                    
+                 <div class="p-6 overflow-y-auto space-y-8 bg-gray-50/30">
                     <!-- 1. Page Identity -->
                     <div class="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                         <h4 class="text-xs font-bold text-gray-900 uppercase mb-4 flex items-center gap-2"><i class="ph-bold ph-info text-primary"></i> Page Identity</h4>
@@ -306,7 +416,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- 2. Section Builder -->
                     <div>
                         <div class="flex justify-between items-end mb-4">
@@ -316,12 +425,7 @@
                             </div>
                             <button onclick="addSectionBlock()" class="cp-btn bg-primary text-white hover:bg-primary-hover text-xs shadow-sm shadow-blue-100"><i class="ph-bold ph-plus-circle mr-2"></i> Add New Section</button>
                         </div>
-                        
-                        <div id="sections-container" class="space-y-6">
-                            <!-- Dynamic Sections appear here -->
-                        </div>
-                        
-                        <!-- Empty State for Sections -->
+                        <div id="sections-container" class="space-y-6"></div>
                         <div id="sections-empty-state" class="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center bg-gray-50">
                             <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300 shadow-sm">
                                 <i class="ph-bold ph-layout text-xl"></i>
@@ -331,9 +435,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Modal Footer -->
-                <div class="px-6 py-4 border-t border-gray-100 bg-white flex justify-between items-center shrink-0 z-10">
+                 <div class="px-6 py-4 border-t border-gray-100 bg-white flex justify-between items-center shrink-0 z-10">
                     <div class="text-[11px] text-gray-400">
                         <span class="font-bold text-gray-600">Tip:</span> Use sections to group components logically (e.g. Header, Footer).
                     </div>
@@ -344,19 +446,16 @@
                         </button>
                     </div>
                 </div>
-            </div>
+             </div>
         </div>
     </div>
 
     <!-- PREVIEW MODAL (Shared logic) -->
+    <!-- ... (No changes to Preview Modal structure) ... -->
     <div id="preview-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modal-backdrop" onclick="closePreview()"></div>
-        
-        <!-- Modal Panel -->
         <div class="flex items-center justify-center min-h-screen p-4">
             <div class="bg-white rounded-lg shadow-2xl w-full max-w-xl transform transition-all scale-95 opacity-0 relative overflow-hidden flex flex-col max-h-[90vh]" id="modal-panel">
-                
                 <!-- Header -->
                 <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
                     <div>
@@ -378,7 +477,6 @@
                         <button onclick="closePreview()" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"><i class="ph-bold ph-x text-base"></i></button>
                     </div>
                 </div>
-
                 <!-- Tabs -->
                 <div class="px-5 border-b border-gray-100 flex gap-4 bg-white shrink-0 overflow-x-auto no-scrollbar">
                     <button onclick="switchTab('preview')" id="tab-btn-preview" class="py-3 text-xs font-medium border-b-2 border-primary text-primary transition-colors whitespace-nowrap">Preview</button>
@@ -386,7 +484,6 @@
                     <button onclick="switchTab('log')" id="tab-btn-log" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors whitespace-nowrap">Modified Log</button>
                     <button onclick="switchTab('conditions')" id="tab-btn-conditions" class="py-3 text-xs font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-gray-300 transition-colors whitespace-nowrap">Conditions</button>
                 </div>
-
                 <!-- Body -->
                 <div class="p-5 overflow-y-auto flex-1 h-[400px]">
                     <div id="tab-preview">
@@ -419,19 +516,171 @@
     </div>
 
     <script>
-        // Modal Logic
+        // --- PAGE DETAILS DRAWER LOGIC (New) ---
+        function switchPageTab(tabName) {
+            // Hide all tabs
+            ['layout', 'validations', 'scenarios'].forEach(t => {
+                document.getElementById(`ptab-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`ptab-btn-${t}`);
+                btn.classList.remove('border-primary', 'text-primary', 'font-bold');
+                btn.classList.add('border-transparent', 'text-gray-500', 'font-medium');
+            });
+
+            // Show active tab
+            document.getElementById(`ptab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`ptab-btn-${tabName}`);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500', 'font-medium');
+            activeBtn.classList.add('border-primary', 'text-primary', 'font-bold');
+        }
+
+        function openPageDetails(name, path, module) {
+            const drawer = document.getElementById('page-details-drawer');
+            const backdrop = document.getElementById('page-drawer-backdrop');
+            const panel = document.getElementById('page-drawer-panel');
+            const content = document.getElementById('detail-content');
+
+            // Reset to first tab
+            switchPageTab('layout');
+
+            // Populate Header
+            document.getElementById('detail-title').innerText = name;
+            document.getElementById('detail-path').innerText = path;
+            document.getElementById('detail-module').innerText = module;
+
+            // Mock Data Generator based on page name
+            let html = '';
+            if (name === 'Login Screen') {
+                html = `
+                    <!-- Section 1 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-700 uppercase">Header / Nav</span>
+                            <span class="text-[10px] text-gray-400">2 Components</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                            <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors cursor-pointer group">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-image"></i></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800">Logo</div>
+                                        <div class="text-[9px] text-gray-400">cp-logo</div>
+                                    </div>
+                                </div>
+                                <i class="ph-bold ph-caret-right text-gray-300 group-hover:text-primary"></i>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors cursor-pointer group">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-gray-100 flex items-center justify-center text-gray-500"><i class="ph-bold ph-moon"></i></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800">Theme Toggle</div>
+                                        <div class="text-[9px] text-gray-400">cp-toggle-theme</div>
+                                    </div>
+                                </div>
+                                <i class="ph-bold ph-caret-right text-gray-300 group-hover:text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-700 uppercase">Auth Form</span>
+                            <span class="text-[10px] text-gray-400">4 Components</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                             <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors cursor-pointer group">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-blue-50 flex items-center justify-center text-primary"><i class="ph-bold ph-cursor-text"></i></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800">Input Field (Email)</div>
+                                        <div class="text-[9px] text-gray-400">cp-input</div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors cursor-pointer group">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-blue-50 flex items-center justify-center text-primary"><i class="ph-bold ph-lock-key"></i></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800">Input Field (Password)</div>
+                                        <div class="text-[9px] text-gray-400">cp-input-password</div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors cursor-pointer group">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-blue-600 flex items-center justify-center text-white"><i class="ph-bold ph-hand-pointing"></i></div>
+                                    <div>
+                                        <div class="text-xs font-bold text-gray-800">Primary Button</div>
+                                        <div class="text-[9px] text-gray-400">cp-btn-primary</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                 html = `
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-700 uppercase">Top Bar</span>
+                            <span class="text-[10px] text-gray-400">2 Components</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                             <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-gray-100 text-gray-500 flex items-center justify-center"><i class="ph-bold ph-magnifying-glass"></i></div>
+                                    <div class="text-xs font-bold text-gray-800">Search Bar</div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                         <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-700 uppercase">Main Grid</span>
+                            <span class="text-[10px] text-gray-400">3 Components</span>
+                        </div>
+                        <div class="p-3 space-y-2">
+                             <div class="flex items-center justify-between p-2 bg-white border border-gray-100 rounded hover:border-blue-200 transition-colors">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center"><i class="ph-bold ph-table"></i></div>
+                                    <div class="text-xs font-bold text-gray-800">Data Table</div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                 `;
+            }
+
+            content.innerHTML = html;
+
+            drawer.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                panel.classList.remove('translate-x-full');
+            }, 10);
+        }
+
+        function closePageDetails() {
+            const drawer = document.getElementById('page-details-drawer');
+            const backdrop = document.getElementById('page-drawer-backdrop');
+            const panel = document.getElementById('page-drawer-panel');
+            
+            backdrop.classList.add('opacity-0');
+            panel.classList.add('translate-x-full');
+            setTimeout(() => { drawer.classList.add('hidden'); }, 300);
+        }
+
+        // --- NEW PAGE MODAL & PREVIEW LOGIC (Existing) ---
         function openNewPageModal() {
             const modal = document.getElementById('new-page-modal');
             const backdrop = document.getElementById('page-modal-backdrop');
             const panel = document.getElementById('page-modal-panel');
-
-            // Show empty state if no sections
+            
+            // Initializing with empty state
             const container = document.getElementById('sections-container');
             const emptyState = document.getElementById('sections-empty-state');
             if (container.children.length === 0) {
                 emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
             }
 
             modal.classList.remove('hidden');
@@ -479,27 +728,12 @@
                                 <label class="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Section Type</label>
                                 <div class="relative" onclick="event.stopPropagation()">
                                     <select class="cp-input h-8 text-xs appearance-none bg-transparent border-none p-0 font-bold text-gray-800 focus:ring-0 w-full cursor-pointer hover:text-primary transition-colors">
-                                        <option disabled selected>Select Section...</option>
-                                        <optgroup label="App: Directory / Listing">
-                                            <option>Hero Section</option>
-                                            <option>Search & Filter Bar</option>
-                                            <option>Directory List</option>
-                                            <option>Pagination</option>
-                                        </optgroup>
-                                        <optgroup label="App: Company Profile">
-                                            <option>Company Header</option>
-                                            <option>Main Content Area</option>
-                                            <option>Sidebar</option>
-                                            <option>FAQ Section</option>
-                                        </optgroup>
-                                        <optgroup label="News: Homepage">
-                                            <option>Hero Slider</option>
-                                            <option>Latest News Grid</option>
-                                        </optgroup>
-                                        <optgroup label="Markets">
-                                            <option>Global Market Stats</option>
-                                            <option>Main Data Table</option>
-                                        </optgroup>
+                                        <option>Header / Nav</option>
+                                        <option>Hero Section</option>
+                                        <option selected>Content Body</option>
+                                        <option>Sidebar</option>
+                                        <option>Footer</option>
+                                        <option>Modal / Overlay</option>
                                     </select>
                                     <i class="ph-bold ph-caret-down absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
                                 </div>
@@ -584,19 +818,19 @@
                         <div class="relative">
                             <select class="cp-input h-9 text-xs appearance-none bg-gray-50 border-gray-200 focus:bg-white transition-colors">
                                 <option disabled selected>Select from library...</option>
-                                <optgroup label="Foundations">
-                                    <option>Button</option>
-                                    <option>Badge / Chip</option>
-                                    <option>Typography</option>
+                                <optgroup label="Atoms">
+                                    <option>Primary Button (cp-btn-primary)</option>
+                                    <option>Input Field (cp-input)</option>
+                                    <option>Icon (cp-icon)</option>
                                 </optgroup>
-                                <optgroup label="Inputs">
-                                    <option>Input Field</option>
-                                    <option>Checkbox</option>
+                                <optgroup label="Molecules">
+                                    <option>User Card (cp-card-user)</option>
+                                    <option>Search Bar (cp-search)</option>
                                 </optgroup>
-                                <optgroup label="Layout">
-                                    <option>Card</option>
-                                    <option>Modal</option>
-                                    <option>Table</option>
+                                <optgroup label="Organisms">
+                                    <option>Data Table (cp-table)</option>
+                                    <option>Modal (cp-modal)</option>
+                                    <option>Ticker Tape (cp-ticker)</option>
                                 </optgroup>
                             </select>
                             <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
@@ -704,33 +938,39 @@
             container.appendChild(div);
         }
 
-        // --- Preview Logic ---
+        // ... (Preview Logic & Tabs - No Changes Needed) ...
         function switchTab(tabName) {
             ['preview', 'usage', 'log', 'conditions'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).classList.remove('border-primary', 'text-primary');
-                document.getElementById(`tab-btn-${t}`).classList.add('border-transparent', 'text-gray-500');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if(btn) {
+                    btn.classList.remove('border-primary', 'text-primary');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                }
             });
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${tabName}`).classList.remove('border-transparent', 'text-gray-500');
-            document.getElementById(`tab-btn-${tabName}`).classList.add('border-primary', 'text-primary');
+            const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('border-transparent', 'text-gray-500');
+                activeBtn.classList.add('border-primary', 'text-primary');
+            }
         }
 
         function openPreview(name, id, status, themeColor, usageCount, lastEdited) {
             const modal = document.getElementById('preview-modal');
             const backdrop = document.getElementById('modal-backdrop');
-            const panel = document.getElementById('modal-panel');
             
             switchTab('preview');
+
             document.getElementById('preview-title').textContent = name;
             document.getElementById('preview-id').textContent = id;
             document.getElementById('preview-usage-header').textContent = usageCount + ' Pages';
             document.getElementById('preview-date-header').textContent = lastEdited.split('(')[1].replace(')', '');
             document.getElementById('preview-status').textContent = status;
             
-            // Mock Content
             const canvas = document.getElementById('preview-canvas');
             const code = document.getElementById('preview-code');
+            
             if(name.includes('Button')) {
                 canvas.innerHTML = `<button class="px-5 py-2.5 bg-blue-600 text-white rounded font-bold shadow-md hover:bg-blue-700 transition-all flex items-center gap-2 text-xs"><i class="ph-bold ph-hand-pointing"></i> ${name}</button>`;
                 code.textContent = `<Button variant="primary" icon="hand-pointing">${name}</Button>`;
@@ -742,19 +982,22 @@
             modal.classList.remove('hidden');
             setTimeout(() => {
                 backdrop.classList.remove('opacity-0');
-                panel.classList.remove('scale-95', 'opacity-0');
-                panel.classList.add('scale-100', 'opacity-100');
+                document.getElementById('modal-panel').classList.remove('scale-95', 'opacity-0');
+                document.getElementById('modal-panel').classList.add('scale-100', 'opacity-100');
             }, 10);
         }
 
         function closePreview() {
             const modal = document.getElementById('preview-modal');
             const backdrop = document.getElementById('modal-backdrop');
-            const panel = document.getElementById('modal-panel');
+
             backdrop.classList.add('opacity-0');
-            panel.classList.remove('scale-100', 'opacity-100');
-            panel.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+            document.getElementById('modal-panel').classList.remove('scale-100', 'opacity-100');
+            document.getElementById('modal-panel').classList.add('scale-95', 'opacity-0');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
         }
     </script>
 </body>
