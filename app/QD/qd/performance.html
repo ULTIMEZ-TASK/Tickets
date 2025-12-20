@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Short Time Content Report</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafb;
+        }
+        /* Custom animation for modals */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans p-4 sm:p-6 lg:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Dashboard Header -->
+        <div id="dashboard-header" class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-t-xl shadow-lg">
+            <!-- Content will be rendered by JS -->
+        </div>
+
+        <!-- Filter Section and Tabs -->
+        <div class="bg-white p-6 rounded-b-xl shadow-md mt-4">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-4">
+                <button id="authors-tab" class="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 bg-blue-600 text-white">
+                    Authors Overview
+                </button>
+                <button id="editors-tab" class="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 text-gray-700 hover:bg-gray-100">
+                    Editors Overview
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div id="filter-section" class="flex flex-col md:flex-row md:justify-end items-center gap-4">
+                <div class="w-full md:w-auto flex-grow">
+                    <input type="text" id="search-input" placeholder="Search by name..." class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <div class="relative w-full md:w-auto">
+                    <select id="timeline-select" class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded-lg shadow-sm leading-tight focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        <option value="All Time">All Time</option>
+                        <option value="Last 30 Days">Last 30 Days</option>
+                        <option value="Last 90 Days">Last 90 Days</option>
+                        <option value="This Year">This Year</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+                <button id="clear-filters-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg shadow-sm hover:bg-red-600 transition-colors">
+                    Clear Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area">
+            <!-- Authors or Editors List/Detail will be rendered here by JS -->
+        </div>
+    </div>
+
+    <!-- Modals (initially hidden) -->
+    <div id="quality-breakdown-modal" class="hidden"></div>
+    <div id="timeliness-breakdown-modal" class="hidden"></div>
+    <div id="audience-engagement-modal" class="hidden"></div>
+    <div id="editor-content-quality-modal" class="hidden"></div>
+    <div id="editor-feedback-quality-modal" class="hidden"></div>
+    <div id="editor-audience-engagement-modal" class="hidden"></div>
+    <div id="kpi-insight-modal" class="hidden"></div> <!-- NEW KPI Insight Modal -->
+
+    <script>
+        // Mock Data (same as in React version)
+        const mockAuthorsData = [
+            {
+                id: 'auth001', name: 'Alice Johnson', email: 'alice.j@example.com', totalArticles: 120, publishedArticles: 95, inReviewArticles: 10, draftArticles: 15, rejectedArticles: 0, avgQualityScore: 4.7, avgTimeToPublishDays: 8, avgPubInADay: 0.5,
+                detailedQuality: { accuracy: 4.8, clarity: 4.7, originality: 4.6, researchDepth: 4.9, grammarSpelling: 4.7 },
+                timeliness: { onTimeSubmissions: 4.9, responsivenessToFeedback: 4.8 },
+                audienceEngagement: { pageViews: 120000, conversionRate: 2.5 },
+                shortTermKPIs: {
+                    dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 3, target: 3, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.', whatMeans: 'How many articles you successfully finished and submitted today, compared to your daily goal.', whyMatters: 'Shows your consistent output and if you\'re hitting your daily targets.', actionableInsight: 'If you\'re consistently below target, look at your daily workflow or discuss potential blockers with your manager.' },
+                    monthlyTargetArticles: { label: 'Monthly Target Articles', current: 70, target: 70, status: 'met', trend: 'up', tooltip: 'Total articles completed this month vs. monthly goal.', whatMeans: 'The total number of articles you\'ve successfully completed this month, compared to your monthly goal.', whyMatters: 'Tracks your overall progress towards monthly content targets.', actionableInsight: 'If you\'re behind mid-month, you might need to adjust your focus or pick up the pace to meet your monthly commitment.' },
+                    estimatedPerArticlesViews: { label: 'Average Views Per Article', current: 2000, target: 2000, status: 'met', trend: 'up', tooltip: 'Average views for articles published in this period.', whatMeans: 'On average, how many times each of your articles published in this period has been viewed.', whyMatters: 'Indicates how engaging and discoverable your individual pieces of content are. Higher means better initial appeal.', actionableInsight: 'If this is low, consider refining your headlines, introductions, or promoting your content more effectively.' },
+                    monthlyViews: { label: 'Total Monthly Content Views', current: 200000, target: 200000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.', whatMeans: 'The total number of times all your content has been viewed this month.', whyMatters: 'Shows the overall reach and audience interest in all your published work for the period.', actionableInsight: 'A low number might suggest your topics aren\'t trending, or your content isn\'t reaching enough people through distribution channels.' },
+                    bounceRate: { label: 'Bounce Rate', current: 40, previous: 42, trend: 'down', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.', whatMeans: 'The percentage of people who visited one of your articles but left quickly without interacting further.', whyMatters: 'High bounce rates can mean the content didn\'t match the reader\'s expectation, was hard to read, or wasn\'t engaging.', actionableInsight: 'If this is high, review your content\'s readability, clarity, and ensure it delivers on the promise of its title.' },
+                    impression: { label: 'Content Visibility', current: 4000000, previous: 3800000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).', whatMeans: 'How many times a link to your content (e.g., in search results, social media feeds) was displayed to users.', whyMatters: 'Shows the potential visibility and reach of your content before anyone even clicks.', actionableInsight: 'Low impressions could mean your content isn\'t optimized for search or isn\'t being distributed widely enough.' },
+                    ctr: { label: 'CTR', current: 3, previous: 2.8, trend: 'up', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.', whatMeans: 'The percentage of people who saw a link to your content (impression) and actually clicked on it.', whyMatters: 'Measures how compelling your headlines, descriptions, and accompanying visuals are.', actionableInsight: 'If CTR is low, focus on crafting more enticing titles and meta descriptions, or improving social media snippets.' },
+                    conversion: { label: 'Conversion', current: 1000, target: 950, status: 'exceeded', trend: 'up', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.', whatMeans: 'The number of times a desired action (e.g., newsletter signup, download, purchase) occurred directly as a result of interaction with your content.', whyMatters: 'This shows the direct business impact and value your content is generating.', actionableInsight: 'If conversions are low, evaluate your calls-to-action (CTAs), ensure your content leads logically to the desired action, or review the target audience.' },
+                    rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 28, target: 30, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.', whatMeans: 'How many times your articles were featured in prominent "Top Stories" sections (e.g., Google News, internal featured sections).', whyMatters: 'Signifies high visibility and authority recognition for your content.', actionableInsight: 'Analyze what makes articles appear in these sections (e.g., timeliness, authority, formatting) and apply those learnings to future content.' }, // RENAMED
+                    noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 38, target: 40, status: 'missed', trend: 'up', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).', whatMeans: 'The number of times your content was visited directly (e.g., someone typed the URL, used a bookmark, or clicked a link from an un-trackable source). This can also refer to instances where you actively added direct links to your work on other platforms.', whyMatters: 'Indicates strong brand recognition, content memorability, and the success of direct promotional efforts.', actionableInsight: 'Focus on building a strong personal brand, consistent sharing on owned channels, and creating highly shareable content to encourage direct visits.' } // RENAMED
+                },
+                articles: [
+                    { id: 'art001', title: 'The Future of AI in Content', status: 'Published', qualityScore: 4.8, submissionDate: '2024-01-10', publishDate: '2024-01-18' },
+                    { id: 'art002', title: 'Deep Dive into Machine Learning', status: 'Published', qualityScore: 4.7, submissionDate: '2024-02-01', publishDate: '2024-02-10' },
+                    { id: 'art003', title: 'Content Strategy for Startups', status: 'In Review', qualityScore: null, submissionDate: '2024-03-05', publishDate: null },
+                    { id: 'art004', title: 'Understanding Blockchain Technology', status: 'Published', qualityScore: 4.9, submissionDate: '2024-03-15', publishDate: '2024-03-22' },
+                    { id: 'art005', title: 'The Impact of Quantum Computing', status: 'Draft', qualityScore: null, submissionDate: '2024-04-01', publishDate: null },
+                ],
+            },
+            {
+                id: 'auth002', name: 'Bob Williams', email: 'bob.w@example.com', totalArticles: 85, publishedArticles: 70, inReviewArticles: 5, draftArticles: 8, rejectedArticles: 2, avgQualityScore: 4.5, avgTimeToPublishDays: 10, avgPubInADay: 0.3,
+                detailedQuality: { accuracy: 4.5, clarity: 4.4, originality: 4.6, researchDepth: 4.3, grammarSpelling: 4.7 },
+                timeliness: { onTimeSubmissions: 4.5, responsivenessToFeedback: 4.3 },
+                audienceEngagement: { pageViews: 85000, conversionRate: 1.8 },
+                shortTermKPIs: {
+                    dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 2, target: 3, status: 'missed', trend: 'down', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 48, target: 50, status: 'missed', trend: 'flat', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 1450, target: 1500, status: 'missed', trend: 'down', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 150000, target: 150000, status: 'met', trend: 'flat', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 45, previous: 43, trend: 'up', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 3000000, previous: 3200000, trend: 'down', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 2.5, previous: 2.6, trend: 'down', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 800, target: 850, status: 'missed', trend: 'down', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 23, target: 25, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 30, target: 35, status: 'missed', trend: 'up', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [
+                    { id: 'art006', title: 'Effective SEO Techniques 2024', status: 'Published', qualityScore: 4.6, submissionDate: '2024-01-20', publishDate: '2024-02-01' },
+                    { id: 'art007', title: 'Beyond Keywords: Semantic SEO', status: 'In Review', qualityScore: null, submissionDate: '2024-02-15', publishDate: null },
+                    { id: 'art008', title: 'Website Speed Optimization Guide', status: 'Published', qualityScore: 4.5, submissionDate: '2024-03-01', publishDate: '2024-03-12' },
+                    { id: 'art009', title: 'The Role of UX in SEO', status: 'Rejected', qualityScore: 3.0, submissionDate: '2024-03-25', publishDate: null },
+                ],
+            },
+            {
+                id: 'auth003', name: 'Charlie Brown', email: 'charlie.b@example.com', totalArticles: 60, publishedArticles: 50, inReviewArticles: 8, draftArticles: 2, rejectedArticles: 0, avgQualityScore: 4.6, avgTimeToPublishDays: 7, avgPubInADay: 0.4,
+                detailedQuality: { accuracy: 4.7, clarity: 4.6, originality: 4.5, researchDepth: 4.6, grammarSpelling: 4.8 },
+                timeliness: { onTimeSubmissions: 4.7, responsivenessToFeedback: 4.9 },
+                audienceEngagement: { pageViews: 95000, conversionRate: 2.1 },
+                shortTermKPIs: {
+                    dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 1, target: 1, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 35, target: 40, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 1900, target: 1800, status: 'exceeded', trend: 'up', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 100000, target: 100000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 38, previous: 40, trend: 'down', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 2500000, previous: 2400000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 3.2, previous: 3.0, trend: 'up', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 900, target: 900, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 28, target: 28, status: 'met', trend: 'up', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 38, target: 38, status: 'met', trend: 'up', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [
+                    { id: 'art010', title: 'The Art of Storytelling in Marketing', status: 'Published', qualityScore: 4.7, submissionDate: '2024-01-05', publishDate: '2024-01-12' },
+                    { id: 'art011', title: 'Building Brand Loyalty', status: 'Published', qualityScore: 4.6, submissionDate: '2024-02-10', publishDate: '2024-02-17' },
+                    { id: 'art012', title: 'Leveraging Social Media for Growth', status: 'In Review', qualityScore: null, submissionDate: '2024-03-10', publishDate: null },
+                ],
+            },
+            {
+                id: 'auth004', name: 'Anjali Belgamwar', email: 'a.b@example.com', totalArticles: 55, publishedArticles: 55, inReviewArticles: 0, draftArticles: 0, rejectedArticles: 0, avgQualityScore: 4.5, avgTimeToPublishDays: 9, avgPubInADay: 0.2, detailedQuality: { accuracy: 4.6, clarity: 4.5, originality: 4.4, researchDepth: 4.7, grammarSpelling: 4.5 }, timeliness: { onTimeSubmissions: 4.7, responsivenessToFeedback: 4.6 }, audienceEngagement: { pageViews: 45160, conversionRate: 1.5 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 10, target: 15, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 950, target: 1000, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 50000, target: 50000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 50, previous: 52, trend: 'down', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 1000000, previous: 950000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 1.5, previous: 1.4, trend: 'up', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 200, target: 200, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 8, target: 10, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 12, target: 15, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [{ id: 'art013', title: 'Data Analysis Techniques', status: 'Published', qualityScore: 4.5, submissionDate: '2024-01-15', publishDate: '2024-01-25' }],
+            },
+            {
+                id: 'auth005', name: 'Debashree Patra', email: 'd.p@example.com', totalArticles: 38, publishedArticles: 38, inReviewArticles: 0, draftArticles: 0, rejectedArticles: 0, avgQualityScore: 4.4, avgTimeToPublishDays: 10, avgPubInADay: 0.15, detailedQuality: { accuracy: 4.5, clarity: 4.4, originality: 4.3, researchDepth: 4.5, grammarSpelling: 4.4 }, timeliness: { onTimeSubmissions: 4.6, responsivenessToFeedback: 4.5 }, audienceEngagement: { pageViews: 17717, conversionRate: 1.2 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 8, target: 10, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 750, target: 800, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 30000, target: 30000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 55, previous: 50, trend: 'up', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 800000, previous: 780000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 1.0, previous: 1.1, trend: 'down', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 150, target: 150, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 6, target: 8, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 10, target: 12, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [{ id: 'art014', title: 'Introduction to Cloud Computing', status: 'Published', qualityScore: 4.4, submissionDate: '2024-02-01', publishDate: '2024-02-11' }],
+            },
+            {
+                id: 'auth006', name: 'Md. Ayesha S Mominiki', email: 'm.a@example.com', totalArticles: 14, publishedArticles: 0, inReviewArticles: 0, draftArticles: 14, rejectedArticles: 0, avgQualityScore: 3.8, avgTimeToPublishDays: 12, avgPubInADay: 0, detailedQuality: { accuracy: 3.8, clarity: 3.7, originality: 3.9, researchDepth: 3.8, grammarSpelling: 3.9 }, timeliness: { onTimeSubmissions: 4.0, responsivenessToFeedback: 4.1 }, audienceEngagement: { pageViews: 17102, conversionRate: 0.5 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 3, target: 5, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 400, target: 500, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 10000, target: 10000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 60, previous: 58, trend: 'up', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 500000, previous: 480000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.8, previous: 0.9, trend: 'down', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 50, target: 50, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 4, target: 5, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 6, target: 8, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth007', name: 'Kiran Ansari', email: 'k.a@example.com', totalArticles: 59, publishedArticles: 0, inReviewArticles: 0, draftArticles: 59, rejectedArticles: 0, avgQualityScore: 4.0, avgTimeToPublishDays: 11, avgPubInADay: 0, detailedQuality: { accuracy: 4.0, clarity: 4.0, originality: 4.1, researchDepth: 3.9, grammarSpelling: 4.0 }, timeliness: { onTimeSubmissions: 4.2, responsivenessToFeedback: 4.0 }, audienceEngagement: { pageViews: 16644, conversionRate: 0.6 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 5, target: 8, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 650, target: 700, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 12000, target: 12000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 58, previous: 60, trend: 'down', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 600000, previous: 550000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 1.0, previous: 1.1, trend: 'down', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 70, target: 70, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 6, target: 7, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 8, target: 10, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth008', name: 'Vignesh S G', email: 'v.s@example.com', totalArticles: 32, publishedArticles: 0, inReviewArticles: 0, draftArticles: 32, rejectedArticles: 0, avgQualityScore: 3.9, avgTimeToPublishDays: 11, avgPubInADay: 0, detailedQuality: { accuracy: 3.9, clarity: 3.8, originality: 3.9, researchDepth: 3.8, grammarSpelling: 4.0 }, timeliness: { onTimeSubmissions: 4.1, responsivenessToFeedback: 4.0 }, audienceEngagement: { pageViews: 13809, conversionRate: 0.7 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 4, target: 6, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 550, target: 600, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 10000, target: 10000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 62, previous: 60, trend: 'up', unit: '%' }, impression: { label: 'Content Visibility', current: 400000, previous: 380000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.9, previous: 1.0, trend: 'down', unit: '%' }, conversion: { label: 'Conversion', current: 60, target: 60, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 5, target: 6, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 6, target: 8, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth009', name: 'Shreedhar Satapute', email: 's.s@example.com', totalArticles: 39, publishedArticles: 0, inReviewArticles: 0, draftArticles: 39, rejectedArticles: 0, avgQualityScore: 3.9, avgTimeToPublishDays: 10, avgPubInADay: 0, detailedQuality: { accuracy: 3.9, clarity: 3.9, originality: 3.8, researchDepth: 3.9, grammarSpelling: 3.9 }, timeliness: { onTimeSubmissions: 4.0, responsivenessToFeedback: 3.9 }, audienceEngagement: { pageViews: 7361, conversionRate: 0.8 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 5, target: 7, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 500, target: 550, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 8000, target: 8000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 55, previous: 57, trend: 'down', unit: '%' }, impression: { label: 'Content Visibility', current: 350000, previous: 320000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 1.1, previous: 1.0, trend: 'up', unit: '%' }, conversion: { label: 'Conversion', current: 55, target: 55, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 5, target: 7, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 7, target: 9, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth010', name: 'Sameeta Khanna', email: 's.k@example.com', totalArticles: 29, publishedArticles: 0, inReviewArticles: 0, draftArticles: 29, rejectedArticles: 0, avgQualityScore: 4.2, avgTimeToPublishDays: 10, avgPubInADay: 0, detailedQuality: { accuracy: 4.2, clarity: 4.1, originality: 4.2, researchDepth: 4.1, grammarSpelling: 4.3 }, timeliness: { onTimeSubmissions: 4.3, responsivenessToFeedback: 4.2 }, audienceEngagement: { pageViews: 4179, conversionRate: 1.0 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 3, target: 4, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 380, target: 400, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 6000, target: 6000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 48, previous: 50, trend: 'down', unit: '%' }, impression: { label: 'Content Visibility', current: 200000, previous: 190000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 1.2, previous: 1.1, trend: 'up', unit: '%' }, conversion: { label: 'Conversion', current: 40, target: 40, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 3, target: 4, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 5, target: 6, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth011', name: 'Shreeinish L Tankasali', email: 's.l@example.com', totalArticles: 31, publishedArticles: 0, inReviewArticles: 0, draftArticles: 31, rejectedArticles: 0, avgQualityScore: 3.9, avgTimeToPublishDays: 11, avgPubInADay: 0, detailedQuality: { accuracy: 3.9, clarity: 3.8, originality: 3.9, researchDepth: 3.8, grammarSpelling: 4.0 }, timeliness: { onTimeSubmissions: 4.0, responsivenessToFeedback: 3.9 }, audienceEngagement: { pageViews: 3391, conversionRate: 0.7 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 3, target: 5, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Average Views Per Article', current: 300, target: 350, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 5000, target: 5000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 59, previous: 61, trend: 'down', unit: '%' }, impression: { label: 'Content Visibility', current: 180000, previous: 170000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.7, previous: 0.8, trend: 'down', unit: '%' }, conversion: { label: 'Conversion', current: 35, target: 35, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 4, target: 5, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 5, target: 7, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth012', name: 'Joye Muchuli', email: 'j.m@example.com', totalArticles: 39, publishedArticles: 0, inReviewArticles: 0, draftArticles: 39, rejectedArticles: 0, avgQualityScore: 3.9, avgTimeToPublishDays: 10, avgPubInADay: 0, detailedQuality: { accuracy: 3.9, clarity: 3.8, originality: 3.9, researchDepth: 3.8, grammarSpelling: 3.9 }, timeliness: { onTimeSubmissions: 4.0, responsivenessToFeedback: 3.9 }, audienceEngagement: { pageViews: 3236, conversionRate: 0.6 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 4, target: 6, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Estimated Per Article Views', current: 280, target: 300, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 4500, target: 4500, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 60, previous: 62, trend: 'down', unit: '%' }, impression: { label: 'Content Visibility', current: 150000, previous: 140000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.6, previous: 0.7, trend: 'down', unit: '%' }, conversion: { label: 'Conversion', current: 30, target: 30, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 4, target: 6, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 6, target: 8, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth013', name: 'Yash Jain', email: 'y.j@example.com', totalArticles: 26, publishedArticles: 0, inReviewArticles: 0, draftArticles: 26, rejectedArticles: 0, avgQualityScore: 3.5, avgTimeToPublishDays: 12, avgPubInADay: 0, detailedQuality: { accuracy: 3.5, clarity: 3.4, originality: 3.6, researchDepth: 3.3, grammarSpelling: 3.7 }, timeliness: { onTimeSubmissions: 3.7, responsivenessToFeedback: 3.5 }, audienceEngagement: { pageViews: 2395, conversionRate: 0.4 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 1, target: 3, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Estimated Per Article Views', current: 200, target: 250, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 3000, target: 3000, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 70, previous: 68, trend: 'up', unit: '%' }, impression: { label: 'Content Visibility', current: 100000, previous: 95000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.5, previous: 0.6, trend: 'down', unit: '%' }, conversion: { label: 'Conversion', current: 20, target: 20, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 1, target: 3, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 3, target: 5, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth014', name: 'Sahana Vithute', email: 's.v@example.com', totalArticles: 26, publishedArticles: 0, inReviewArticles: 0, draftArticles: 26, rejectedArticles: 0, avgQualityScore: 3.9, avgTimeToPublishDays: 11, avgPubInADay: 0, detailedQuality: { accuracy: 3.9, clarity: 3.8, originality: 3.9, researchDepth: 3.8, grammarSpelling: 3.9 }, timeliness: { onTimeSubmissions: 4.0, responsivenessToFeedback: 3.9 }, audienceEngagement: { pageViews: 1532, conversionRate: 0.5 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 1, target: 2, status: 'missed', trend: 'down', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Estimated Per Article Views', current: 180, target: 200, status: 'missed', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 2500, target: 2500, status: 'met', trend: 'up', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 65, previous: 63, trend: 'up', unit: '%' }, impression: { label: 'Content Visibility', current: 90000, previous: 85000, trend: 'up', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0.4, previous: 0.5, trend: 'down', unit: '%' }, conversion: { label: 'Conversion', current: 15, target: 15, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 1, target: 2, status: 'missed', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 2, target: 4, status: 'missed', trend: 'down', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth015', name: 'Mustafa Mulla', email: 'm.m@example.com', totalArticles: 4, publishedArticles: 0, inReviewArticles: 0, draftArticles: 4, rejectedArticles: 0, avgQualityScore: 3.0, avgTimeToPublishDays: 15, avgPubInADay: 0, detailedQuality: { accuracy: 3.0, clarity: 3.0, originality: 3.0, researchDepth: 3.0, grammarSpelling: 3.0 }, timeliness: { onTimeSubmissions: 3.0, responsivenessToFeedback: 3.0 }, audienceEngagement: { pageViews: 0, conversionRate: 0.0 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Estimated Per Article Views', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+            {
+                id: 'auth016', name: 'Shruti Sherawad', email: 's.sh@example.com', totalArticles: 161, publishedArticles: 0, inReviewArticles: 0, draftArticles: 161, rejectedArticles: 0, avgQualityScore: 3.0, avgTimeToPublishDays: 15, avgPubInADay: 0, detailedQuality: { accuracy: 3.0, clarity: 3.0, originality: 3.0, researchDepth: 3.0, grammarSpelling: 3.0 }, timeliness: { onTimeSubmissions: 3.0, responsivenessToFeedback: 3.0 }, audienceEngagement: { pageViews: 0, conversionRate: 0.0 },
+                shortTermKPIs: { dailyTargetedArticles: { label: 'Daily Targeted Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of articles completed today vs. daily goal.' }, monthlyTargetArticles: { label: 'Monthly Target Articles', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Total articles completed this month vs. monthly goal.' }, perArticlesViews: { label: 'Estimated Per Article Views', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Average views for articles published in this period.' }, monthlyViews: { label: 'Total Monthly Content Views', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Total views across all your content this month.' }, bounceRate: { label: 'Bounce Rate', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'Percentage of visitors who left after viewing only one page. Lower is better.' }, impression: { label: 'Content Visibility', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'How many times your content appeared to users (e.g., in search results).' }, ctr: { label: 'CTR', current: 0, previous: 0, trend: 'flat', unit: '%', tooltip: 'Click-Through Rate: Percentage of impressions that result in a click.' }, conversion: { label: 'Conversion', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of desired actions (e.g., sign-ups) directly from your content.' }, rankedInTopStoriesSectionTarget: { label: 'Top Stories Appearances', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of times your articles were featured in prominent top stories sections.' }, noOfDirectSourceAddedTarget: { label: 'Direct Traffic Sources (Added)', current: 0, target: 0, status: 'met', trend: 'flat', tooltip: 'Number of visits to your content directly (e.g., typed URL, bookmarks, direct shares).' }
+                },
+                articles: [],
+            },
+        ];
+
+        const mockEditorsData = [
+            {
+                id: 'edit001', name: 'David Lee', email: 'david.l@example.com', articlesEdited: 250, avgEditTimeHours: 2.5, feedbackQualityScore: 4.8, onTimeReviews: 0.98, articlesProcessedPerDay: 1.2, turnaroundTimeRevisionsDays: 2, qualityImprovementScore: 4.7, adherenceToStyleGuide: 4.9, accuracyVerificationRate: 0.99, deskRejectionRate: 0.10, authorSatisfaction: 4.7, clarityOfFeedback: 4.8, communicationEffectiveness: 4.9, teamMembersCount: 5,
+                articles: [
+                    { id: 'art001', title: 'The Future of AI in Content', author: 'Alice Johnson', status: 'Published', pageViews: 50000, conversionRate: 2.0 },
+                    { id: 'art003', title: 'Content Strategy for Startups', author: 'Alice Johnson', status: 'In Review', pageViews: 0, conversionRate: 0 },
+                    { id: 'art004', title: 'Understanding Blockchain Technology', author: 'Alice Johnson', status: 'Published', pageViews: 30000, conversionRate: 1.5 },
+                    { id: 'art006', title: 'Effective SEO Techniques 2024', author: 'Bob Williams', status: 'Published', pageViews: 20000, conversionRate: 1.0 },
+                ],
+            },
+            {
+                id: 'edit002', name: 'Emily Chen', email: 'emily.c@example.com', articlesEdited: 180, avgEditTimeHours: 3.0, feedbackQualityScore: 4.5, onTimeReviews: 0.95, articlesProcessedPerDay: 0.8, turnaroundTimeRevisionsDays: 3, qualityImprovementScore: 4.4, adherenceToStyleGuide: 4.6, accuracyVerificationRate: 0.97, deskRejectionRate: 0.05, authorSatisfaction: 4.5, clarityOfFeedback: 4.6, communicationEffectiveness: 4.5, teamMembersCount: 3,
+                articles: [
+                    { id: 'art002', title: 'Deep Dive into Machine Learning', author: 'Alice Johnson', status: 'Published', pageViews: 40000, conversionRate: 1.8 },
+                    { id: 'art007', title: 'Beyond Keywords: Semantic SEO', author: 'Bob Williams', status: 'In Review', pageViews: 0, conversionRate: 0 },
+                    { id: 'art008', title: 'Website Speed Optimization Guide', author: 'Bob Williams', status: 'Published', pageViews: 15000, conversionRate: 0.8 },
+                ],
+            },
+        ];
+
+        // Global state variables
+        let authorsData = [];
+        let editorsData = [];
+        let selectedAuthor = null;
+        let selectedEditor = null;
+        let searchTerm = '';
+        let selectedTimeframe = 'All Time';
+        let activeTab = 'authors';
+        let authorSortConfig = { key: null, direction: 'ascending' };
+        let editorSortConfig = { key: null, direction: 'ascending' };
+
+        // Helper function to format dates
+        const formatDate = (dateString) => {
+            if (!dateString) return 'N/A';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        };
+
+        // DOM Element references
+        const dashboardHeader = document.getElementById('dashboard-header');
+        const authorsTab = document.getElementById('authors-tab');
+        const editorsTab = document.getElementById('editors-tab');
+        const searchInput = document.getElementById('search-input');
+        const timelineSelect = document.getElementById('timeline-select');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        const contentArea = document.getElementById('content-area');
+
+        // Modal Elements
+        const qualityBreakdownModal = document.getElementById('quality-breakdown-modal');
+        const timelinessBreakdownModal = document.getElementById('timeliness-breakdown-modal');
+        const audienceEngagementModal = document.getElementById('audience-engagement-modal');
+        const editorContentQualityModal = document.getElementById('editor-content-quality-modal');
+        const editorFeedbackQualityModal = document.getElementById('editor-feedback-quality-modal');
+        const editorAudienceEngagementModal = document.getElementById('editor-audience-engagement-modal');
+        const kpiInsightModal = document.getElementById('kpi-insight-modal'); // NEW KPI Insight Modal
+
+
+        // --- Core Rendering Functions ---
+
+        function renderDashboardHeader(totalAuthors, totalPublishedArticles) {
+            dashboardHeader.innerHTML = `
+                <h1 class="text-3xl font-bold mb-2 flex items-center">
+                    <i data-lucide="bar-chart-2" class="mr-3" style="width:32px; height:32px;"></i> Short Time Content Report
+                </h1>
+                <p class="text-blue-100 mb-4">Overview of content team contributions and efficiency.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-blue-700 bg-opacity-70 p-4 rounded-lg flex items-center shadow-md">
+                        <i data-lucide="user" class="mr-3 text-blue-200" style="width:24px; height:24px;"></i>
+                        <div>
+                            <p class="text-sm text-blue-200">Total Authors</p>
+                            <p class="text-2xl font-semibold">${totalAuthors}</p>
+                        </div>
+                    </div>
+                    <div class="bg-blue-700 bg-opacity-70 p-4 rounded-lg flex items-center shadow-md">
+                        <i data-lucide="book" class="mr-3 text-blue-200" style="width:24px; height:24px;"></i>
+                        <div>
+                            <p class="text-sm text-blue-200">Total Published Articles</p>
+                            <p class="text-2xl font-semibold">${totalPublishedArticles}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        function renderAuthorList(authors) {
+            let tableRows = authors.map(author => `
+                <tr class="hover:bg-blue-50 transition-colors ${selectedAuthor && selectedAuthor.id === author.id ? 'bg-blue-100' : ''}" data-author-id="${author.id}">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${author.name}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${author.totalArticles}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${author.avgPubInADay.toFixed(2)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${author.publishedArticles}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${author.inReviewArticles}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="quality" data-author-id="${author.id}">
+                            ${author.avgQualityScore} <i data-lucide="star" class="ml-1 text-yellow-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="timeliness" data-author-id="${author.id}">
+                            ${((author.timeliness.onTimeSubmissions + author.timeliness.responsivenessToFeedback) / 2).toFixed(1)} <i data-lucide="clock" class="ml-1 text-blue-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="engagement" data-author-id="${author.id}">
+                            ${author.audienceEngagement.pageViews.toLocaleString()} <i data-lucide="eye" class="ml-1 text-purple-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-action="view-author-report" data-author-id="${author.id}">
+                            <i data-lucide="file-text" class="mr-1" style="width:16px; height:16px;"></i> View Report
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            contentArea.innerHTML = `
+                <div class="bg-white p-6 rounded-b-xl shadow-md mt-4">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Authors Overview</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="name">
+                                        Author Name <span data-sort-icon="name"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="totalArticles">
+                                        Total Articles <span data-sort-icon="totalArticles"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="avgPubInADay">
+                                        Avg. Pub. In A Day <span data-sort-icon="avgPubInADay"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="publishedArticles">
+                                        Published <span data-sort-icon="publishedArticles"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="inReviewArticles">
+                                        In Review <span data-sort-icon="inReviewArticles"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="avgQualityScore">
+                                        Content Quality <span data-sort-icon="avgQualityScore"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="timeliness">
+                                        Timeliness <span data-sort-icon="timeliness"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="audienceEngagement.pageViews">
+                                        Audience Engagement <span data-sort-icon="audienceEngagement.pageViews"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="author-table-body">${tableRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            addSortEventListeners('author');
+            addModalTriggerEventListeners('author');
+            addViewReportEventListeners('author');
+            lucide.createIcons();
+        }
+
+        function renderAuthorDetail(author) {
+            const qualityLabels = {
+                accuracy: 'Accuracy and Reliability', clarity: 'Clarity and Readability', originality: 'Originality and Uniqueness', researchDepth: 'Research Depth', grammarSpelling: 'Grammar & Spelling'
+            };
+            const timelinessLabels = {
+                onTimeSubmissions: 'On-time Submissions', responsivenessToFeedback: 'Responsiveness to Feedback'
+            };
+
+            const totalEngagement = calculateTotalAudienceEngagement(author.articles || []); // Ensure articles array exists
+
+            // Helper for rendering KPI status with icons and colors
+            const getKpiDisplayHtml = (kpi) => {
+                let valueDisplay = kpi.current !== undefined ? kpi.current.toLocaleString() : 'N/A';
+                let targetContext = '';
+                let statusClass = 'text-gray-800'; // Default neutral color
+                let iconHtml = '';
+                let unit = kpi.unit || '';
+
+                if (kpi.target !== undefined) {
+                    targetContext = ` (${kpi.target.toLocaleString()}${kpi.unit || ''})`;
+                    if (kpi.status === 'met' || kpi.status === 'exceeded') {
+                        statusClass = 'text-green-600';
+                        iconHtml = '<i data-lucide="check-circle" class="ml-1 text-green-500" style="width:16px; height:16px;"></i>';
+                    } else if (kpi.status === 'missed') {
+                        statusClass = 'text-red-600';
+                        iconHtml = '<i data-lucide="x-circle" class="ml-1 text-red-500" style="width:16px; height:16px;"></i>';
+                    }
+                } else if (kpi.trend) { // For non-target KPIs, show trend
+                    targetContext = kpi.previous !== undefined ? ` (vs ${kpi.previous.toLocaleString()}${kpi.unit || ''})` : '';
+                    if (kpi.trend === 'up') {
+                        statusClass = 'text-green-600';
+                        iconHtml = '<i data-lucide="trending-up" class="ml-1 text-green-500" style="width:16px; height:16px;"></i>';
+                    } else if (kpi.trend === 'down') {
+                         // Special handling for Bounce Rate: lower is better for 'down' trend
+                        if (kpi.label === 'Bounce Rate') {
+                            statusClass = 'text-green-600'; // Green because it's good
+                            iconHtml = '<i data-lucide="trending-down" class="ml-1 text-green-500" style="width:16px; height:16px;"></i>';
+                        } else { // Other metrics where 'down' is bad
+                            statusClass = 'text-red-600';
+                            iconHtml = '<i data-lucide="trending-down" class="ml-1 text-red-500" style="width:16px; height:16px;"></i>';
+                        }
+                    } else if (kpi.trend === 'flat') {
+                         statusClass = 'text-yellow-600';
+                         iconHtml = '<i data-lucide="minus" class="ml-1 text-yellow-500" style="width:16px; height:16px;"></i>';
+                    }
+                }
+                
+                // Add % for CTR as it's not in unit for simplicity
+                const finalUnit = (kpi.label === 'CTR' || kpi.label === 'Bounce Rate') ? '%' : (kpi.unit || '');
+
+                // Calculate progress percentage for progress bar
+                let progressPercentage = 0;
+                let progressBarColorClass = 'bg-gray-300';
+                if (kpi.target !== undefined && typeof kpi.current === 'number') {
+                    progressPercentage = Math.min(100, (kpi.current / kpi.target) * 100);
+                    if (kpi.status === 'met' || kpi.status === 'exceeded') {
+                        progressBarColorClass = 'bg-green-500';
+                    } else if (kpi.status === 'missed') {
+                        progressBarColorClass = 'bg-red-500';
+                    }
+                } else if (kpi.trend) {
+                    // For trend-only KPIs, maybe a subtle gradient or no bar, or a different visual.
+                    // For now, let's keep it simple: no progress bar for trend-only
+                    progressPercentage = 0;
+                }
+
+
+                return `
+                    <div class="bg-white p-3 rounded-lg shadow-sm flex flex-col justify-between">
+                        <span class="text-gray-700 font-medium mb-1 kpi-title" data-kpi-key="${kpi.label}">${kpi.label}</span>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-lg font-semibold ${statusClass}">${valueDisplay}${finalUnit}</span>
+                            <span class="text-sm text-gray-500 ml-1">${targetContext}</span>
+                            ${iconHtml}
+                        </div>
+                        ${kpi.target !== undefined ? `
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="${progressBarColorClass} h-2 rounded-full" style="width: ${progressPercentage}%;"></div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            };
+
+
+            contentArea.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-md mt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Detailed Report for ${author.name}</h2>
+                        <button id="back-to-authors-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center transition-colors shadow">
+                            <i data-lucide="arrow-left" class="mr-2" style="width:18px; height:18px;"></i> Back to Overview
+                        </button>
+                    </div>
+
+                    <!-- Short-term KPIs -->
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-indigo-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="zap" class="mr-2 text-indigo-600" style="width:20px; height:20px;"></i> Short-term KPIs
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            ${getKpiDisplayHtml(author.shortTermKPIs.dailyTargetedArticles)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.monthlyTargetArticles)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.estimatedPerArticlesViews)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.monthlyViews)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.bounceRate)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.impression)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.ctr)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.conversion)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.rankedInTopStoriesSectionTarget)}
+                            ${getKpiDisplayHtml(author.shortTermKPIs.noOfDirectSourceAddedTarget)}
+                        </div>
+                    </div>
+
+                    <!-- Articles Volume and Status Breakdown -->
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-blue-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="book" class="mr-2 text-blue-600" style="width:20px; height:20px;"></i> Articles Volume & Status
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Total Articles</span>
+                                <span class="text-lg font-semibold text-blue-800">${author.totalArticles}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Published</span>
+                                <span class="text-lg font-semibold text-green-700">${author.publishedArticles}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">In Review</span>
+                                <span class="text-lg font-semibold text-yellow-700">${author.inReviewArticles}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Rejected</span>
+                                <span class="text-lg font-semibold text-red-700">${author.rejectedArticles}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Quality -->
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-yellow-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="star" class="mr-2 text-yellow-600" style="width:20px; height:20px;"></i> Content Quality
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${Object.entries(author.detailedQuality).map(([key, score]) => `
+                                <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                    <span class="text-gray-700 font-medium">${qualityLabels[key]}</span>
+                                    <div class="flex items-center">
+                                        <span class="text-lg font-semibold text-blue-600">${score.toFixed(1)}</span>
+                                        <i data-lucide="star" class="ml-1 text-yellow-500" style="width:18px; height:18px;"></i>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Timeliness -->
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-green-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="clock" class="mr-2 text-green-600" style="width:20px; height:20px;"></i> Timeliness
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            ${Object.entries(author.timeliness).map(([key, score]) => `
+                                <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                    <span class="text-gray-700 font-medium">${timelinessLabels[key]}</span>
+                                    <div class="flex items-center">
+                                        <span class="text-lg font-semibold text-blue-600">${score.toFixed(1)}</span>
+                                        <i data-lucide="clock" class="ml-1 text-blue-500" style="width:18px; height:18px;"></i>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Audience Engagement -->
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-purple-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="eye" class="mr-2 text-purple-600" style="width:20px; height:20px;"></i> Audience Engagement
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">Page Views</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-purple-600">${author.audienceEngagement.pageViews.toLocaleString()}</span>
+                                    <i data-lucide="eye" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">Conversion Rate</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-green-600">${author.audienceEngagement.conversionRate.toFixed(1)}%</span>
+                                    <i data-lucide="trending-up" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Recent Articles</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
+                                <thead class="bg-gray-100 border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quality Score</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submission Date</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Publish Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    ${(author.articles || []).map(article => `
+                                        <tr>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${article.title}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                                <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                                    ${article.status === 'Published' ? 'bg-green-100 text-green-800' : ''}
+                                                    ${article.status === 'In Review' ? 'bg-yellow-100 text-yellow-800' : ''}
+                                                    ${article.status === 'Draft' ? 'bg-blue-100 text-blue-800' : ''}
+                                                    ${article.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
+                                                ">
+                                                    ${article.status}
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                                ${article.qualityScore ? `${article.qualityScore} / 5` : 'N/A'}
+                                            </td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${formatDate(article.submissionDate)}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${formatDate(article.publishDate)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('back-to-authors-btn').addEventListener('click', () => {
+                selectedAuthor = null;
+                renderApp();
+            });
+            lucide.createIcons();
+        }
+
+        function renderEditorList(editors) {
+            let tableRows = editors.map(editor => {
+                const { published, inReview } = getEditorArticleStatusCounts(editor.articles || []);
+                const totalEngagement = calculateTotalAudienceEngagement(editor.articles || []);
+
+                return `
+                <tr class="hover:bg-blue-50 transition-colors ${selectedEditor && selectedEditor.id === editor.id ? 'bg-blue-100' : ''}" data-editor-id="${editor.id}">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${editor.name}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${editor.articlesEdited}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${editor.articlesProcessedPerDay.toFixed(1)}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${(editor.onTimeReviews * 100).toFixed(0)}%</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${published}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${inReview}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="editor-quality" data-editor-id="${editor.id}">
+                            ${editor.qualityImprovementScore.toFixed(1)} <i data-lucide="star" class="ml-1 text-yellow-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="editor-feedback" data-editor-id="${editor.id}">
+                            ${editor.feedbackQualityScore.toFixed(1)} <i data-lucide="star" class="ml-1 text-yellow-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-modal-type="editor-engagement" data-editor-id="${editor.id}">
+                            ${totalEngagement.pageViews.toLocaleString()} <i data-lucide="eye" class="ml-1 text-purple-500" style="width:16px; height:16px;"></i>
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${editor.teamMembersCount}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm">
+                        <button class="text-blue-600 hover:text-blue-800 font-medium flex items-center" data-action="view-editor-report" data-editor-id="${editor.id}">
+                            <i data-lucide="edit-3" class="mr-1" style="width:16px; height:16px;"></i> View Details
+                        </button>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+
+            contentArea.innerHTML = `
+                <div class="bg-white p-6 rounded-b-xl shadow-md mt-4">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Editors Overview</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="name">
+                                        Editor Name <span data-sort-icon="name"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="articlesEdited">
+                                        Total Articles Edited <span data-sort-icon="articlesEdited"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="articlesProcessedPerDay">
+                                        Daily Avg <span data-sort-icon="articlesProcessedPerDay"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="onTimeReviews">
+                                        On-Time Reviews (%) <span data-sort-icon="onTimeReviews"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Published</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In review</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="qualityImprovementScore">
+                                        Content Quality <span data-sort-icon="qualityImprovementScore"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="feedbackQualityScore">
+                                        Feedback Quality <span data-sort-icon="feedbackQualityScore"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="audienceEngagement.pageViews">
+                                        Audience Engagement <span data-sort-icon="audienceEngagement.pageViews"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort-key="teamMembersCount">
+                                        Team Members (count) <span data-sort-icon="teamMembersCount"></span>
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="editor-table-body">${tableRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            addSortEventListeners('editor');
+            addModalTriggerEventListeners('editor');
+            addViewReportEventListeners('editor');
+            lucide.createIcons();
+        }
+
+        function renderEditorDetail(editor) {
+            const editorQualityLabels = {
+                qualityImprovementScore: 'Quality Improvement Score', adherenceToStyleGuide: 'Adherence to Style Guide', accuracyVerificationRate: 'Accuracy Verification Rate', deskRejectionRate: 'Desk Rejection Rate'
+            };
+            const editorCollaborationLabels = {
+                authorSatisfaction: 'Author Satisfaction with Feedback', clarityOfFeedback: 'Clarity and Actionability of Feedback', communicationEffectiveness: 'Communication Effectiveness'
+            };
+
+            const totalEngagement = calculateTotalAudienceEngagement(editor.articles || []);
+
+            contentArea.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-md mt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Detailed Report for Editor: ${editor.name}</h2>
+                        <button id="back-to-editors-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg flex items-center transition-colors shadow">
+                            <i data-lucide="arrow-left" class="mr-2" style="width:18px; height:18px;"></i> Back to Overview
+                        </button>
+                    </div>
+
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-blue-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="clock" class="mr-2 text-blue-600" style="width:20px; height:20px;"></i> Efficiency and Timeliness
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Avg. Time to Edit/Review (Hrs)</span>
+                                <span class="text-lg font-semibold text-blue-800">${editor.avgEditTimeHours.toFixed(1)}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">On-Time Review/Approval Rate</span>
+                                <span class="text-lg font-semibold text-green-700">${(editor.onTimeReviews * 100).toFixed(0)}%</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Articles Processed (Daily)</span>
+                                <span class="text-lg font-semibold text-yellow-700">${editor.articlesProcessedPerDay.toFixed(1)}</span>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm flex items-center justify-between">
+                                <span class="text-gray-700 font-medium">Turnaround Time for Revisions (Days)</span>
+                                <span class="text-lg font-semibold text-red-700">${editor.turnaroundTimeRevisionsDays}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-yellow-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="book-open" class="mr-2 text-yellow-600" style="width:20px; height:20px;"></i> Content Quality (Post-Edit)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorQualityLabels.qualityImprovementScore}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">${editor.qualityImprovementScore.toFixed(1)}</span>
+                                    <i data-lucide="star" class="ml-1 text-yellow-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorQualityLabels.adherenceToStyleGuide}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">${editor.adherenceToStyleGuide.toFixed(1)}</span>
+                                    <i data-lucide="book-open" class="ml-1 text-gray-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorQualityLabels.accuracyVerificationRate}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">{(editor.accuracyVerificationRate * 100).toFixed(1)}%</span>
+                                    <i data-lucide="check-circle" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorQualityLabels.deskRejectionRate}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">{(editor.deskRejectionRate * 100).toFixed(1)}%</span>
+                                    <i data-lucide="x-circle" class="ml-1 text-red-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-green-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="message-square" class="mr-2 text-green-600" style="width:20px; height:20px;"></i> Feedback and Collaboration
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorCollaborationLabels.authorSatisfaction}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">${editor.authorSatisfaction.toFixed(1)}</span>
+                                    <i data-lucide="user" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">${editorCollaborationLabels.clarityOfFeedback}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">${editor.clarityOfFeedback.toFixed(1)}</span>
+                                    <i data-lucide="message-square" class="ml-1 text-blue-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-700 font-medium">${editorCollaborationLabels.communicationEffectiveness}</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-blue-600">${editor.communicationEffectiveness.toFixed(1)}</span>
+                                    <i data-lucide="message-square" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6 p-4 border rounded-lg shadow-sm bg-purple-50">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-lucide="eye" class="mr-2 text-purple-600" style="width:20px; height:20px;"></i> Audience Engagement (Edited Articles)
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">Total Page Views</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-purple-600">${totalEngagement.pageViews.toLocaleString()}</span>
+                                    <i data-lucide="eye" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                                <span class="text-gray-700 font-medium">Overall Conversion Rate</span>
+                                <div class="flex items-center">
+                                    <span class="text-lg font-semibold text-green-600">${totalEngagement.conversionRate.toFixed(1)}%</span>
+                                    <i data-lucide="trending-up" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Recently Edited Articles</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white rounded-lg overflow-hidden border border-gray-200">
+                            <thead class="bg-gray-100 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${(editor.articles || []).map(article => `
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${article.title}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">${article.author}</td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                                            <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                                ${article.status === 'Published' ? 'bg-green-100 text-green-800' : ''}
+                                                ${article.status === 'In Review' ? 'bg-yellow-100 text-yellow-800' : ''}
+                                                ${article.status === 'Draft' ? 'bg-blue-100 text-blue-800' : ''}
+                                                ${article.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
+                                            ">
+                                                ${article.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            document.getElementById('back-to-editors-btn').addEventListener('click', () => {
+                selectedEditor = null;
+                renderApp();
+            });
+            lucide.createIcons();
+        }
+
+        // --- Modals Render Functions (extracted from React components) ---
+
+        function renderModal(modalElement, title, contentHtml, onClose) {
+            modalElement.innerHTML = `
+                <div class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center p-4 z-50">
+                    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md animate-fade-in-up">
+                        <div class="flex justify-between items-center mb-4 border-b pb-3">
+                            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+                            <button class="text-gray-500 hover:text-gray-700 transition-colors close-modal-btn" aria-label="Close modal">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="space-y-3">
+                            ${contentHtml}
+                        </div>
+                        <div class="mt-6 text-right">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-colors close-modal-btn">
+                                Got It
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            modalElement.classList.remove('hidden');
+            modalElement.querySelectorAll('.close-modal-btn').forEach(btn => {
+                btn.addEventListener('click', onClose);
+            });
+            lucide.createIcons();
+        }
+
+        function renderAuthorQualityModal(author) {
+            const qualityLabels = {
+                accuracy: 'Accuracy and Reliability', clarity: 'Clarity and Readability', originality: 'Originality and Uniqueness', researchDepth: 'Research Depth', grammarSpelling: 'Grammar & Spelling'
+            };
+            const contentHtml = Object.entries(author.detailedQuality).map(([key, score]) => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${qualityLabels[key]}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${score.toFixed(1)}</span>
+                        <i data-lucide="star" class="ml-1 text-yellow-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `).join('');
+            renderModal(qualityBreakdownModal, `Content Quality Breakdown for ${author.name}`, contentHtml, () => qualityBreakdownModal.classList.add('hidden'));
+        }
+
+        function renderAuthorTimelinessModal(author) {
+            const timelinessLabels = {
+                onTimeSubmissions: 'On-time Submissions', responsivenessToFeedback: 'Responsiveness to Feedback'
+            };
+            const contentHtml = Object.entries(author.timeliness).map(([key, score]) => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${timelinessLabels[key]}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${score.toFixed(1)}</span>
+                        <i data-lucide="clock" class="ml-1 text-blue-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `).join('');
+            renderModal(timelinessBreakdownModal, `Timeliness Breakdown for ${author.name}`, contentHtml, () => timelinessBreakdownModal.classList.add('hidden'));
+        }
+
+        function renderAuthorEngagementModal(author) {
+            const contentHtml = `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">Page Views</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-purple-600">${author.audienceEngagement.pageViews.toLocaleString()}</span>
+                        <i data-lucide="eye" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">Conversion Rate</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-green-600">${author.audienceEngagement.conversionRate.toFixed(1)}%</span>
+                        <i data-lucide="trending-up" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `;
+            renderModal(audienceEngagementModal, `Audience Engagement for ${author.name}`, contentHtml, () => audienceEngagementModal.classList.add('hidden'));
+        }
+
+        function renderEditorContentQualityModal(editor) {
+            const editorQualityLabels = {
+                qualityImprovementScore: 'Quality Improvement Score', adherenceToStyleGuide: 'Adherence to Style Guide', accuracyVerificationRate: 'Accuracy Verification Rate', deskRejectionRate: 'Desk Rejection Rate'
+            };
+            const contentHtml = `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorQualityLabels.qualityImprovementScore}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${editor.qualityImprovementScore.toFixed(1)}</span>
+                        <i data-lucide="star" class="ml-1 text-yellow-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorQualityLabels.adherenceToStyleGuide}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${editor.adherenceToStyleGuide.toFixed(1)}</span>
+                        <i data-lucide="book-open" class="ml-1 text-gray-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorQualityLabels.accuracyVerificationRate}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">{(editor.accuracyVerificationRate * 100).toFixed(1)}%</span>
+                        <i data-lucide="check-circle" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorQualityLabels.deskRejectionRate}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">{(editor.deskRejectionRate * 100).toFixed(1)}%</span>
+                        <i data-lucide="x-circle" class="ml-1 text-red-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `;
+            renderModal(editorContentQualityModal, `Content Quality for ${editor.name}`, contentHtml, () => editorContentQualityModal.classList.add('hidden'));
+        }
+
+        function renderEditorFeedbackModal(editor) {
+            const editorCollaborationLabels = {
+                authorSatisfaction: 'Author Satisfaction with Feedback', clarityOfFeedback: 'Clarity and Actionability of Feedback', communicationEffectiveness: 'Communication Effectiveness'
+            };
+            const contentHtml = `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorCollaborationLabels.authorSatisfaction}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${editor.authorSatisfaction.toFixed(1)}</span>
+                        <i data-lucide="user" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorCollaborationLabels.clarityOfFeedback}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${editor.clarityOfFeedback.toFixed(1)}</span>
+                        <i data-lucide="message-square" class="ml-1 text-blue-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">${editorCollaborationLabels.communicationEffectiveness}</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-blue-600">${editor.communicationEffectiveness.toFixed(1)}</span>
+                        <i data-lucide="message-square" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `;
+            renderModal(editorFeedbackQualityModal, `Feedback Quality for ${editor.name}`, contentHtml, () => editorFeedbackQualityModal.classList.add('hidden'));
+        }
+
+        function renderEditorAudienceEngagementModal(editorName, totalEngagement) {
+             const contentHtml = `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">Total Page Views (Edited Articles)</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-purple-600">${totalEngagement.pageViews.toLocaleString()}</span>
+                        <i data-lucide="eye" class="ml-1 text-purple-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-medium">Overall Conversion Rate (Edited Articles)</span>
+                    <div class="flex items-center">
+                        <span class="text-lg font-semibold text-green-600">${totalEngagement.conversionRate.toFixed(1)}%</span>
+                        <i data-lucide="trending-up" class="ml-1 text-green-500" style="width:18px; height:18px;"></i>
+                    </div>
+                </div>
+            `;
+            renderModal(editorAudienceEngagementModal, `Audience Engagement for ${editorName}`, contentHtml, () => editorAudienceEngagementModal.classList.add('hidden'));
+        }
+
+
+        // --- Helper Functions ---
+
+        function getEditorArticleStatusCounts(editorArticles) {
+            return editorArticles.reduce((acc, article) => {
+                if (article.status === 'Published') {
+                    acc.published += 1;
+                } else if (article.status === 'In Review') {
+                    acc.inReview += 1;
+                }
+                return acc;
+            }, { published: 0, inReview: 0 });
+        }
+
+        function calculateTotalAudienceEngagement(editorArticles) {
+            let totalPageViews = 0;
+            let totalConversions = 0;
+            let totalPublished = 0;
+
+            editorArticles.forEach(article => {
+                if (article.status === 'Published') {
+                    totalPageViews += article.pageViews || 0;
+                    totalConversions += (article.pageViews || 0) * ((article.conversionRate || 0) / 100);
+                    totalPublished++;
+                }
+            });
+
+            const overallConversionRate = totalPublished > 0 ? (totalConversions / totalPageViews) * 100 : 0;
+            
+            return {
+                pageViews: totalPageViews,
+                conversionRate: overallConversionRate
+            };
+        }
+
+        function sortData(data, sortConfig) {
+            if (!sortConfig.key) {
+                return data;
+            }
+
+            const sortedData = [...data].sort((a, b) => {
+                let aValue = a;
+                let bValue = b;
+
+                if (sortConfig.key.includes('.')) {
+                    const keys = sortConfig.key.split('.');
+                    aValue = a[keys[0]] ? a[keys[0]][keys[1]] : undefined;
+                    bValue = b[keys[0]] ? b[keys[0]][keys[1]] : undefined;
+                } else {
+                    aValue = a[sortConfig.key];
+                    bValue = b[sortConfig.key];
+                }
+                
+                // Handle undefined values
+                if (aValue === undefined && bValue === undefined) return 0;
+                if (aValue === undefined) return sortConfig.direction === 'ascending' ? 1 : -1;
+                if (bValue === undefined) return sortConfig.direction === 'ascending' ? -1 : 1;
+
+                // Handle numeric and string comparisons
+                if (typeof aValue === 'string' && typeof bValue === 'string') {
+                    return sortConfig.direction === 'ascending' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+                } else {
+                    if (aValue < bValue) {
+                        return sortConfig.direction === 'ascending' ? -1 : 1;
+                    }
+                    if (aValue > bValue) {
+                        return sortConfig.direction === 'ascending' ? 1 : -1;
+                    }
+                    return 0;
+                }
+            });
+            return sortedData;
+        }
+
+        function getFilteredAndSortedAuthors() {
+            let currentAuthors = authorsData;
+
+            if (searchTerm) {
+                currentAuthors = currentAuthors.filter(author =>
+                    author.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            if (selectedTimeframe !== 'All Time') {
+                if (selectedTimeframe === 'Last 30 Days') {
+                    currentAuthors = currentAuthors.filter(author =>
+                        ['auth001', 'auth002'].includes(author.id)
+                    );
+                } else if (selectedTimeframe === 'Last 90 Days') {
+                    currentAuthors = currentAuthors.filter(author =>
+                        ['auth001', 'auth002', 'auth003'].includes(author.id)
+                    );
+                } else if (selectedTimeframe === 'This Year') {
+                    currentAuthors = currentAuthors.filter(author =>
+                        ['auth001', 'auth002', 'auth003', 'auth004', 'auth005'].includes(author.id)
+                    );
+                }
+            }
+            return sortData(currentAuthors, authorSortConfig);
+        }
+
+        function getFilteredAndSortedEditors() {
+            let currentEditors = editorsData;
+            if (searchTerm) {
+                currentEditors = currentEditors.filter(editor =>
+                    editor.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            return sortData(currentEditors, editorSortConfig);
+        }
+
+        function updateSortIcons(type) {
+            const currentSortConfig = type === 'author' ? authorSortConfig : editorSortConfig;
+            document.querySelectorAll(`#content-area [data-sort-icon]`).forEach(iconSpan => {
+                const key = iconSpan.dataset.sortIcon;
+                iconSpan.innerHTML = ''; // Clear previous icon
+                if (currentSortConfig.key === key) {
+                    iconSpan.innerHTML = currentSortConfig.direction === 'ascending' ? '<i data-lucide="arrow-up" style="width:14px; height:14px;"></i>' : '<i data-lucide="arrow-down" style="width:14px; height:14px;"></i>';
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // --- Event Listeners Attachment ---
+
+        function addSortEventListeners(type) {
+            // Remove existing listeners to prevent duplicates
+            document.querySelectorAll(`#content-area th[data-sort-key]`).forEach(header => {
+                header.replaceWith(header.cloneNode(true));
+            });
+
+            // Add new listeners
+            document.querySelectorAll(`#content-area th[data-sort-key]`).forEach(header => {
+                header.addEventListener('click', (e) => {
+                    const key = header.dataset.sortKey;
+                    if (type === 'author') {
+                        let direction = 'ascending';
+                        if (authorSortConfig.key === key && authorSortConfig.direction === 'ascending') {
+                            direction = 'descending';
+                        }
+                        authorSortConfig = { key, direction };
+                    } else {
+                        let direction = 'ascending';
+                        if (editorSortConfig.key === key && editorSortConfig.direction === 'ascending') {
+                            direction = 'descending';
+                        }
+                        editorSortConfig = { key, direction };
+                    }
+                    renderApp(); // Re-render with new sort
+                });
+            });
+        }
+
+        function addModalTriggerEventListeners(type) {
+            // Remove existing listeners to prevent duplicates
+            document.querySelectorAll(`#content-area button[data-modal-type]`).forEach(button => {
+                button.replaceWith(button.cloneNode(true)); // Clones the node to remove all event listeners
+            });
+
+            // Add new listeners
+            document.querySelectorAll(`#content-area button[data-modal-type]`).forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent row click
+                    const modalType = button.dataset.modalType;
+                    const id = button.dataset[type === 'author' ? 'authorId' : 'editorId'];
+                    
+                    const data = type === 'author' ? authorsData.find(a => a.id === id) : editorsData.find(ed => ed.id === id);
+
+                    if (!data) return;
+
+                    if (modalType === 'quality') {
+                        renderAuthorQualityModal(data);
+                    } else if (modalType === 'timeliness') {
+                        renderAuthorTimelinessModal(data);
+                    } else if (modalType === 'engagement') {
+                        renderAuthorEngagementModal(data);
+                    } else if (modalType === 'editor-quality') {
+                        renderEditorContentQualityModal(data);
+                    } else if (modalType === 'editor-feedback') {
+                        renderEditorFeedbackModal(data);
+                    } else if (modalType === 'editor-engagement') {
+                        const totalEngagement = calculateTotalAudienceEngagement(data.articles || []);
+                        renderEditorAudienceEngagementModal(data.name, totalEngagement);
+                    }
+                });
+            });
+        }
+
+        function addViewReportEventListeners(type) {
+             // Remove existing listeners to prevent duplicates
+            document.querySelectorAll(`#content-area button[data-action="view-${type}-report"]`).forEach(button => {
+                button.replaceWith(button.cloneNode(true)); // Clones the node to remove all event listeners
+            });
+
+            // Add new listeners
+            document.querySelectorAll(`#content-area button[data-action="view-${type}-report"]`).forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = button.dataset[`${type}Id`];
+                    if (type === 'author') {
+                        selectedAuthor = authorsData.find(a => a.id === id);
+                        selectedEditor = null; // Clear editor selection
+                    } else {
+                        selectedEditor = editorsData.find(ed => ed.id === id);
+                        selectedAuthor = null; // Clear author selection
+                    }
+                    renderApp();
+                });
+            });
+        }
+
+        // --- NEW KPI Insight Modal Function ---
+        function renderKpiInsightModal(kpiData) {
+            const contentHtml = `
+                <p class="text-gray-700 text-base mb-2"><strong>What it means:</strong> ${kpiData.whatMeans}</p>
+                <p class="text-gray-700 text-base mb-2"><strong>Why it matters:</strong> ${kpiData.whyMatters}</p>
+                <p class="text-gray-700 text-base"><strong>Actionable Insight:</strong> ${kpiData.actionableInsight}</p>
+            `;
+            renderModal(kpiInsightModal, `${kpiData.label} Insights`, contentHtml, () => kpiInsightModal.classList.add('hidden'));
+        }
+
+        // --- Main Render Function ---
+        function renderApp() {
+            const filteredAuthors = getFilteredAndSortedAuthors();
+            const filteredEditors = getFilteredAndSortedEditors();
+
+            const totalAuthorsCount = filteredAuthors.length;
+            const totalPublishedArticlesCount = filteredAuthors.reduce((sum, author) => sum + author.publishedArticles, 0);
+
+            renderDashboardHeader(totalAuthorsCount, totalPublishedArticlesCount);
+
+            // Update tab styling
+            if (activeTab === 'authors') {
+                authorsTab.classList.add('bg-blue-600', 'text-white');
+                authorsTab.classList.remove('text-gray-700', 'hover:bg-gray-100');
+                editorsTab.classList.remove('bg-blue-600', 'text-white');
+                editorsTab.classList.add('text-gray-700', 'hover:bg-gray-100');
+            } else {
+                editorsTab.classList.add('bg-blue-600', 'text-white');
+                editorsTab.classList.remove('text-gray-700', 'hover:bg-gray-100');
+                authorsTab.classList.remove('bg-blue-600', 'text-white');
+                authorsTab.classList.add('text-gray-700', 'hover:bg-gray-100');
+            }
+
+            // Render content based on selected tab and detail view
+            if (activeTab === 'authors') {
+                if (selectedAuthor) {
+                    renderAuthorDetail(selectedAuthor);
+                    // Add event listeners for KPI titles in AuthorDetail
+                    document.querySelectorAll('.kpi-title').forEach(kpiTitleElement => {
+                        kpiTitleElement.addEventListener('click', (e) => {
+                            const kpiKey = e.target.dataset.kpiKey;
+                            const authorKPI = Object.values(selectedAuthor.shortTermKPIs).find(kpi => kpi.label === kpiKey);
+                            if (authorKPI) {
+                                renderKpiInsightModal(authorKPI);
+                            }
+                        });
+                    });
+                } else {
+                    renderAuthorList(filteredAuthors);
+                }
+            } else { // activeTab === 'editors'
+                if (selectedEditor) {
+                    renderEditorDetail(selectedEditor);
+                } else {
+                    renderEditorList(filteredEditors);
+                }
+            }
+
+            updateSortIcons(activeTab === 'authors' ? 'author' : 'editor');
+            lucide.createIcons();
+        }
+
+        // --- Initial Load & Global Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            authorsData = mockAuthorsData; // Initialize global authors data
+            editorsData = mockEditorsData; // Initialize global editors data
+
+            renderApp(); // Initial render
+
+            // Global event listeners
+            authorsTab.addEventListener('click', () => {
+                activeTab = 'authors';
+                selectedAuthor = null;
+                selectedEditor = null;
+                searchTerm = ''; // Reset search term on tab change
+                selectedTimeframe = 'All Time'; // Reset timeframe on tab change
+                authorSortConfig = { key: null, direction: 'ascending' }; // Reset sort
+                renderApp();
+            });
+
+            editorsTab.addEventListener('click', () => {
+                activeTab = 'editors';
+                selectedAuthor = null;
+                selectedEditor = null;
+                searchTerm = ''; // Reset search term on tab change
+                selectedTimeframe = 'All Time'; // Reset timeframe on tab change
+                editorSortConfig = { key: null, direction: 'ascending' }; // Reset sort
+                renderApp();
+            });
+
+            searchInput.addEventListener('input', (e) => {
+                searchTerm = e.target.value;
+                renderApp();
+            });
+
+            timelineSelect.addEventListener('change', (e) => {
+                selectedTimeframe = e.target.value;
+                renderApp();
+            });
+
+            clearFiltersBtn.addEventListener('click', () => {
+                searchTerm = '';
+                selectedTimeframe = 'All Time';
+                searchInput.value = ''; // Clear input field
+                timelineSelect.value = 'All Time'; // Reset select dropdown
+                authorSortConfig = { key: null, direction: 'ascending' };
+                editorSortConfig = { key: null, direction: 'ascending' };
+                renderApp();
+            });
+        });
+
+    </script>
+</body>
+</html>
