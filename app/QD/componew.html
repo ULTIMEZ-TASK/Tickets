@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimez Library | Web & Mobile Component Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .sidebar-link.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-right: 4px solid #2563eb;
+        }
+
+        .component-preview {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .mobile-frame {
+            width: 320px;
+            height: 580px;
+            border: 12px solid #1e293b;
+            border-radius: 36px;
+            position: relative;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .mobile-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: #1e293b;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 20;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+
+        /* --- Custom Component Designs --- */
+        .project_list_block { background: #ffffff; border-radius: 12px; width: 100%; }
+        .pad_row_brdcrumbs { padding: 12px 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .breadcrumb { display: flex; flex-wrap: wrap; padding: 0; list-style: none; align-items: center; margin: 0; }
+        .breadcrumb-item { display: flex; align-items: center; }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "\f105"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            padding: 0 0.75rem; color: #94a3b8; font-size: 0.75rem;
+        }
+        .breadcrumb-item a { color: #64748b; font-size: 0.875rem; font-weight: 500; transition: all 0.2s; }
+        .breadcrumb-item a:hover { color: #2563eb; }
+        .breadcrumb-item.active { color: #1e293b; font-weight: 700; font-size: 0.875rem; }
+        .back_bread_crumb {
+            display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; background: #ffffff; border: 1px solid #e2e8f0;
+            border-radius: 8px; margin-right: 12px; transition: all 0.2s;
+        }
+        .back_bread_crumb:hover { background: #f1f5f9; transform: translateX(-2px); }
+
+        /* Filter Section Styles */
+        .filter_bg { background: #ffffff; padding: 15px; border-radius: 10px; }
+        .filters_ul_list { display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; align-items: flex-end; gap: 15px; }
+        .lable_search { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .custom_input_group { position: relative; display: flex; align-items: stretch; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #f8fafc; }
+        .custom_input_group .form-control { border: none; background: transparent; padding: 8px 12px; font-size: 13px; color: #1e293b; outline: none; width: 100%; }
+        .input-group-addon { display: flex; align-items: center; padding: 0 10px; color: #cbd5e1; cursor: pointer; font-size: 10px; border-left: 1px solid #e2e8f0; background: #fff; }
+
+        /* Usage Table Styles */
+        .usage-table th { text-align: left; padding: 12px; background: #f8fafc; font-size: 12px; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+        .usage-table td { padding: 12px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+
+        /* Code Block Styling */
+        pre { position: relative; }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #334155;
+            color: #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .group:hover .copy-btn { opacity: 1; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Mobile Navigation Toggle -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button id="mobileMenuBtn" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-slate-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="navigate('library')">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none">ULTIMEZ</h1>
+                    <p class="text-[10px] text-slate-500 font-bold tracking-widest mt-1 uppercase">Manager Hub</p>
+                </div>
+            </div>
+
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-6">
+                <button onclick="switchPlatform('web')" id="btnWeb" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all">WEB</button>
+                <button onclick="switchPlatform('mobile')" id="btnMobile" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all">MOBILE</button>
+            </div>
+
+            <div class="relative mb-6">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="componentSearch" placeholder="Search components..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+            </div>
+
+            <nav class="space-y-1 overflow-y-auto flex-1 pr-2">
+                <div class="platform-group" data-platform="all">
+                    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">General</p>
+                    <a href="#introduction" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition active">Introduction</a>
+                    <a href="#breadcrumbs-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Breadcrumbs</a>
+                    <a href="#badges-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Badges</a>
+                    <a href="#avatars-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Avatars</a>
+                </div>
+
+                <div class="platform-group" data-platform="web">
+                    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2">Web Components</p>
+                    <a href="#filters" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Filters Bar</a>
+                    <a href="#buttons" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Buttons</a>
+                    <a href="#tables-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Data Tables</a>
+                    <a href="#forms-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Forms & Inputs</a>
+                    <a href="#modals-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Modals</a>
+                    <a href="#accordions-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Accordions</a>
+                    <a href="#progress-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Progress Indicators</a>
+                    <a href="#tabs-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Tabs Navigation</a>
+                </div>
+
+                <div class="platform-group hidden" id="mobileNavItems">
+                    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2">Mobile Native</p>
+                    <a href="#mobile-header" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">App Header</a>
+                    <a href="#bottom-nav" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Bottom Tab Bar</a>
+                </div>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="lg:ml-72 min-h-screen relative">
+        
+        <!-- Library View -->
+        <div id="library-view" class="view-panel">
+            <header class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-30 px-6 py-4 flex justify-between items-center">
+                <div class="text-xs font-medium text-slate-500">
+                    Library / <span class="text-slate-900">Dashboard</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center gap-1.5 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> SYSTEM READY
+                    </span>
+                </div>
+            </header>
+
+            <div class="max-w-4xl mx-auto p-6 md:p-12">
+                <!-- Introduction -->
+                <section id="introduction" class="mb-20 animate-fade-in">
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Component Manager</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">Centralized hub for cross-platform UI assets and standardized patterns.</p>
+                </section>
+
+                <!-- 1. Breadcrumbs Section -->
+                <section id="breadcrumbs-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-bold text-slate-800">Breadcrumbs</h3>
+                            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase">Cross-Platform</span>
+                        </div>
+                        <button onclick="openUsage('breadcrumbs')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-slate-50">
+                        <div class="project_list_block shadow-md">
+                            <div class="pad_row_brdcrumbs">
+                                <ol class="breadcrumb">
+                                    <li><a class="back_bread_crumb" href="#"><i class="fa-solid fa-arrow-left text-slate-400 text-xs"></i></a></li>
+                                    <li class="breadcrumb-item"><a href="#">Admin</a></li> 
+                                    <li class="breadcrumb-item active">Current Page</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="pad_row_brdcrumbs"&gt;
+  &lt;ol class="breadcrumb"&gt;
+    &lt;li&gt;&lt;a class="back_bread_crumb" href="#"&gt;&lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="breadcrumb-item"&gt;&lt;a href="#"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="breadcrumb-item active"&gt;Current&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 2. Badges Section -->
+                <section id="badges-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-bold text-slate-800">Badges & Tags</h3>
+                            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase">Cross-Platform</span>
+                        </div>
+                        <button onclick="openUsage('badges')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 flex flex-wrap gap-4 justify-center bg-white">
+                        <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Active</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">Success</span>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold"&gt;Active&lt;/span&gt;
+&lt;span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold"&gt;Success&lt;/span&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 3. Avatars Section -->
+                <section id="avatars-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-bold text-slate-800">Avatars</h3>
+                        </div>
+                        <button onclick="openUsage('avatars')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 flex flex-col items-center gap-8 bg-white">
+                        <div class="flex -space-x-3">
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">JD</div>
+                            <div class="w-10 h-10 rounded-full border-2 border-white bg-green-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">AS</div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="flex -space-x-3"&gt;
+  &lt;div class="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center text-xs font-bold"&gt;JD&lt;/div&gt;
+  &lt;div class="w-10 h-10 rounded-full border-2 border-white bg-green-500 text-white flex items-center justify-center text-xs font-bold"&gt;AS&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 4. Filters Section (WEB) -->
+                <section id="filters" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-2xl font-bold text-slate-800">Filters Bar</h3>
+                        </div>
+                        <button onclick="openUsage('filters')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-8 bg-slate-50">
+                        <div class="project_list_block shadow-lg">
+                            <div class="filter_bg">
+                                <ul class="filters_ul_list">
+                                    <li class="date_range_filters">
+                                        <label class="lable_search">Date Range</label>
+                                        <div class="custom_input_group"><input type="text" value="2024-01-01" class="form-control"></div>
+                                    </li> 
+                                    <li class="search_filter">
+                                        <label class="lable_search">Search</label>
+                                        <div class="custom_input_group"><input type="text" placeholder="Keywords..." class="form-control"></div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="filter_bg"&gt;
+  &lt;ul class="filters_ul_list"&gt;
+    &lt;li class="date_range_filters"&gt;
+      &lt;label class="lable_search"&gt;Date Range&lt;/label&gt;
+      &lt;input type="text" class="form-control"&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 5. Tables Section (WEB) -->
+                <section id="tables-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-bold text-slate-800">Data Tables</h3>
+                        <button onclick="openUsage('tables')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl overflow-hidden bg-white">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project</th>
+                                    <th class="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-100">
+                                    <td class="px-6 py-4 text-sm font-semibold">Ultimez Hub</td>
+                                    <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold">Live</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;table class="w-full text-left"&gt;
+  &lt;thead class="bg-slate-50 border-b"&gt;
+    &lt;tr&gt;&lt;th&gt;Header&lt;/th&gt;&lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;&lt;td&gt;Data Cell&lt;/td&gt;&lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 6. Forms Section (WEB) -->
+                <section id="forms-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-bold text-slate-800">Forms & Inputs</h3>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white flex flex-col gap-4 max-w-sm mx-auto">
+                        <input type="email" placeholder="email@company.com" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" class="w-4 h-4 rounded text-indigo-600">
+                            <span class="text-xs text-slate-600">I agree to terms</span>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;input type="email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"&gt;
+&lt;div class="flex items-center gap-2"&gt;
+  &lt;input type="checkbox"&gt;&lt;span&gt;Label&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 7. Modals Section (WEB) -->
+                <section id="modals-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-bold text-slate-800">Modals</h3>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-slate-100 flex items-center justify-center">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xs border border-slate-100">
+                            <h4 class="font-bold mb-2">Simple Modal</h4>
+                            <p class="text-xs text-slate-500 mb-4">A standard centered overlay window.</p>
+                            <button class="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">Action</button>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="bg-white rounded-2xl shadow-xl p-6 max-w-xs border"&gt;
+  &lt;h4 class="font-bold"&gt;Title&lt;/h4&gt;
+  &lt;p&gt;Body content&lt;/p&gt;
+  &lt;button class="bg-indigo-600 text-white rounded-lg"&gt;Save&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 8. Accordions Section (WEB) -->
+                <section id="accordions-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-bold text-slate-800">Accordions</h3>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white">
+                        <div class="border rounded-lg overflow-hidden">
+                            <div class="px-6 py-4 bg-slate-50 flex justify-between items-center border-b">
+                                <span class="text-sm font-bold">Expandable Header</span>
+                                <i class="fa-solid fa-chevron-up text-xs text-indigo-600"></i>
+                            </div>
+                            <div class="px-6 py-4 text-sm text-slate-500">
+                                This is the collapsible content area.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="border rounded-lg overflow-hidden"&gt;
+  &lt;div class="px-6 py-4 bg-slate-50 flex justify-between"&gt;
+    &lt;span&gt;Header&lt;/span&gt;&lt;i class="fa-solid fa-chevron-up"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;div class="px-6 py-4 text-sm text-slate-500"&gt;Content&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- 9. Progress Indicators -->
+                <section id="progress-sec" class="mb-20">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl font-bold text-slate-800">Progress</h3>
+                    </div>
+                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white">
+                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="bg-indigo-600 h-full rounded-full" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="relative group">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"&gt;
+  &lt;div class="bg-indigo-600 h-full" style="width: 65%"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Mobile Navigation -->
+                <div id="mobileSectionsContent" class="hidden">
+                    <section id="mobile-header" class="mb-20">
+                        <h3 class="text-2xl font-bold mb-8">Mobile Header</h3>
+                        <div class="flex justify-center p-10 bg-slate-100 rounded-t-xl">
+                            <div class="mobile-frame">
+                                <div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center">
+                                    <i class="fa-solid fa-bars text-slate-400"></i>
+                                    <span class="font-bold">Home</span>
+                                    <i class="fa-solid fa-bell text-slate-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group">
+                            <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
+                            <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;!-- Mobile Header --&gt;
+&lt;div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center"&gt;
+  &lt;i class="fa-solid fa-bars"&gt;&lt;/i&gt;
+  &lt;span class="font-bold"&gt;App&lt;/span&gt;
+  &lt;i class="fa-solid fa-bell"&gt;&lt;/i&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Documentation View -->
+        <div id="usage-view" class="view-panel hidden animate-fade-in bg-white min-h-screen">
+            <header class="sticky top-0 bg-white border-b border-slate-200 z-30 px-6 py-4 flex items-center gap-4">
+                <button onclick="navigate('library')" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="text-xs font-medium text-slate-500">
+                    Documentation / <span id="usage-title-breadcrumb" class="text-slate-900">Usage</span>
+                </div>
+            </header>
+
+            <div class="max-w-4xl mx-auto p-6 md:p-12">
+                <div class="mb-10">
+                    <h1 id="usage-title" class="text-4xl font-extrabold text-slate-900 mb-2">Component</h1>
+                    <p id="usage-description" class="text-lg text-slate-600"></p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2 overflow-x-auto">
+                        <table class="w-full usage-table">
+                            <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                            <tbody id="usage-props-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="bg-slate-50 p-6 rounded-2xl h-fit border border-slate-100">
+                        <h4 class="font-bold mb-3 text-indigo-600">Guidelines</h4>
+                        <ul id="usage-practices" class="text-sm text-slate-600 space-y-3"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex flex-col items-center"></div>
+
+    <script>
+        const componentData = {
+            'breadcrumbs': {
+                title: 'Breadcrumbs',
+                desc: 'A hierarchical navigation trail for dashboards.',
+                props: [['backUrl', 'String', '#', 'Back link'], ['activeColor', 'String', 'indigo-600', 'Text color']],
+                practices: ['Use for deep hierarchies', 'Always include back arrow'],
+                code: `<div class="pad_row_brdcrumbs">\n  <ol class="breadcrumb">\n    <li><a class="back_bread_crumb" href="#"><i class="fa-solid fa-arrow-left"></i></a></li>\n    <li class="breadcrumb-item"><a href="#">Home</a></li>\n  </ol>\n</div>`
+            },
+            'badges': {
+                title: 'Badges & Tags',
+                desc: 'Small status labels for highlighting metadata.',
+                props: [['variant', 'Enum', 'blue', 'Color theme']],
+                practices: ['Limit to 1-2 words'],
+                code: `<span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Active</span>`
+            }
+            // Add more data as needed for usage view...
+        };
+
+        function navigate(view) {
+            const lib = document.getElementById('library-view');
+            const usage = document.getElementById('usage-view');
+            lib.classList.toggle('hidden', view !== 'library');
+            usage.classList.toggle('hidden', view === 'library');
+            window.scrollTo(0,0);
+        }
+
+        function switchPlatform(platform) {
+            const btnWeb = document.getElementById('btnWeb');
+            const btnMobile = document.getElementById('btnMobile');
+            const mobileSections = document.getElementById('mobileSectionsContent');
+            const webNav = document.querySelector('.platform-group[data-platform="web"]');
+            const mobileNav = document.getElementById('mobileNavItems');
+
+            const isWeb = platform === 'web';
+            btnWeb.className = isWeb ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all';
+            btnMobile.className = !isWeb ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all';
+            
+            mobileSections.classList.toggle('hidden', isWeb);
+            webNav.classList.toggle('hidden', !isWeb);
+            mobileNav.classList.toggle('hidden', isWeb);
+        }
+
+        function openUsage(compId) {
+            const data = componentData[compId];
+            if (!data) return;
+            document.getElementById('usage-title').innerText = data.title;
+            document.getElementById('usage-title-breadcrumb').innerText = data.title;
+            document.getElementById('usage-description').innerText = data.desc;
+            document.getElementById('usage-props-body').innerHTML = data.props.map(p => `<tr><td class="font-mono text-indigo-600 font-bold">${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td></tr>`).join('');
+            document.getElementById('usage-practices').innerHTML = data.practices.map(p => `<li class="flex gap-2"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i><span>${p}</span></li>`).join('');
+            navigate('usage');
+        }
+
+        function copyCode(button) {
+            const pre = button.nextElementSibling;
+            const code = pre.querySelector('code').innerText;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold animate-fade-in mb-2 shadow-2xl';
+            toast.innerHTML = '<i class="fa-solid fa-check text-green-400 mr-2"></i> Copied to clipboard!';
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+            button.classList.add('bg-green-600');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 400);
+                button.innerHTML = originalHTML;
+                button.classList.remove('bg-green-600');
+            }, 2000);
+        }
+
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('-translate-x-full');
+        });
+
+        document.getElementById('componentSearch').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('.sidebar-link').forEach(l => {
+                l.style.display = l.textContent.toLowerCase().includes(q) ? 'flex' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
