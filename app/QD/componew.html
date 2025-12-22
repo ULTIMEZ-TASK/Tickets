@@ -24,7 +24,7 @@
         }
 
         .component-preview {
-            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-image: radial-gradient(#f1f5f9 1.5px, transparent 1.5px);
             background-size: 20px 20px;
         }
 
@@ -102,10 +102,24 @@
             border-radius: 6px;
             font-size: 11px;
             font-weight: 600;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            z-index: 10;
         }
-        .group:hover .copy-btn { opacity: 1; }
+        .copy-btn:hover { opacity: 1; background: #1e293b; }
+
+        .component-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+            transition: box-shadow 0.3s ease;
+        }
+        .component-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -151,20 +165,18 @@
 
                 <div class="platform-group" data-platform="web">
                     <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2">Web Components</p>
-                    <a href="#filters" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Filters Bar</a>
-                    <a href="#buttons" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Buttons</a>
+                    <a href="#filters-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Filters Bar</a>
+                    <a href="#buttons-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Buttons</a>
                     <a href="#tables-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Data Tables</a>
                     <a href="#forms-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Forms & Inputs</a>
                     <a href="#modals-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Modals</a>
                     <a href="#accordions-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Accordions</a>
                     <a href="#progress-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Progress Indicators</a>
-                    <a href="#tabs-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Tabs Navigation</a>
                 </div>
 
                 <div class="platform-group hidden" id="mobileNavItems">
                     <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2">Mobile Native</p>
-                    <a href="#mobile-header" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">App Header</a>
-                    <a href="#bottom-nav" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Bottom Tab Bar</a>
+                    <a href="#mobile-header-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">App Header</a>
                 </div>
             </nav>
         </div>
@@ -188,22 +200,22 @@
 
             <div class="max-w-4xl mx-auto p-6 md:p-12">
                 <!-- Introduction -->
-                <section id="introduction" class="mb-20 animate-fade-in">
-                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Component Manager</h2>
-                    <p class="text-lg text-slate-600 leading-relaxed">Centralized hub for cross-platform UI assets and standardized patterns.</p>
+                <section id="introduction" class="mb-16 animate-fade-in">
+                    <h2 class="text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">Component Hub</h2>
+                    <p class="text-lg text-slate-600 leading-relaxed">Centralized management system for consistent UI patterns across Web and Mobile platforms.</p>
                 </section>
 
                 <!-- 1. Breadcrumbs Section -->
-                <section id="breadcrumbs-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
+                <div id="breadcrumbs-sec" class="component-card group">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                         <div class="flex items-center gap-3">
-                            <h3 class="text-2xl font-bold text-slate-800">Breadcrumbs</h3>
-                            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase">Cross-Platform</span>
+                            <h3 class="text-lg font-bold text-slate-800">Breadcrumbs</h3>
+                            <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">Cross-Platform</span>
                         </div>
-                        <button onclick="openUsage('breadcrumbs')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                        <button onclick="openUsage('breadcrumbs')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-slate-50">
-                        <div class="project_list_block shadow-md">
+                    <div class="p-8 component-preview bg-white">
+                        <div class="project_list_block shadow-sm">
                             <div class="pad_row_brdcrumbs">
                                 <ol class="breadcrumb">
                                     <li><a class="back_bread_crumb" href="#"><i class="fa-solid fa-arrow-left text-slate-400 text-xs"></i></a></li>
@@ -213,9 +225,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="pad_row_brdcrumbs"&gt;
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="pad_row_brdcrumbs"&gt;
   &lt;ol class="breadcrumb"&gt;
     &lt;li&gt;&lt;a class="back_bread_crumb" href="#"&gt;&lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
     &lt;li class="breadcrumb-item"&gt;&lt;a href="#"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
@@ -223,66 +235,68 @@
   &lt;/ol&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 2. Badges Section -->
-                <section id="badges-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
+                <div id="badges-sec" class="component-card group">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                         <div class="flex items-center gap-3">
-                            <h3 class="text-2xl font-bold text-slate-800">Badges & Tags</h3>
-                            <span class="px-2 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase">Cross-Platform</span>
+                            <h3 class="text-lg font-bold text-slate-800">Badges & Tags</h3>
+                            <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded uppercase tracking-wider">Cross-Platform</span>
                         </div>
-                        <button onclick="openUsage('badges')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                        <button onclick="openUsage('badges')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 flex flex-wrap gap-4 justify-center bg-white">
-                        <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Active</span>
-                        <span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold">Success</span>
+                    <div class="p-8 component-preview flex flex-wrap gap-4 justify-center bg-white">
+                        <span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">Active</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">Success</span>
+                        <span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">Error</span>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold"&gt;Active&lt;/span&gt;
-&lt;span class="px-2.5 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold"&gt;Success&lt;/span&gt;</code></pre>
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200"&gt;Active&lt;/span&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 3. Avatars Section -->
-                <section id="avatars-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
+                <div id="avatars-sec" class="component-card group">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                         <div class="flex items-center gap-3">
-                            <h3 class="text-2xl font-bold text-slate-800">Avatars</h3>
+                            <h3 class="text-lg font-bold text-slate-800">Avatars</h3>
                         </div>
-                        <button onclick="openUsage('avatars')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                        <button onclick="openUsage('avatars')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 flex flex-col items-center gap-8 bg-white">
+                    <div class="p-10 component-preview flex flex-col items-center gap-8 bg-white">
                         <div class="flex -space-x-3">
-                            <div class="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">JD</div>
-                            <div class="w-10 h-10 rounded-full border-2 border-white bg-green-500 text-white flex items-center justify-center text-xs font-bold shadow-sm">AS</div>
+                            <div class="w-12 h-12 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">JD</div>
+                            <div class="w-12 h-12 rounded-full border-2 border-white bg-green-500 text-white flex items-center justify-center text-sm font-bold shadow-sm">AS</div>
+                            <div class="w-12 h-12 rounded-full border-2 border-white bg-slate-100 text-slate-400 flex items-center justify-center text-xs font-bold shadow-sm">+5</div>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="flex -space-x-3"&gt;
-  &lt;div class="w-10 h-10 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center text-xs font-bold"&gt;JD&lt;/div&gt;
-  &lt;div class="w-10 h-10 rounded-full border-2 border-white bg-green-500 text-white flex items-center justify-center text-xs font-bold"&gt;AS&lt;/div&gt;
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="flex -space-x-3"&gt;
+  &lt;div class="w-12 h-12 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center font-bold shadow-sm"&gt;JD&lt;/div&gt;
+  &lt;div class="w-12 h-12 rounded-full border-2 border-white bg-slate-100 text-slate-400 flex items-center justify-center text-xs font-bold shadow-sm"&gt;+5&lt;/div&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 4. Filters Section (WEB) -->
-                <section id="filters" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
+                <div id="filters-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                         <div class="flex items-center gap-3">
-                            <h3 class="text-2xl font-bold text-slate-800">Filters Bar</h3>
+                            <h3 class="text-lg font-bold text-slate-800">Filters Bar</h3>
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded uppercase tracking-wider">Web Only</span>
                         </div>
-                        <button onclick="openUsage('filters')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                        <button onclick="openUsage('filters')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-8 bg-slate-50">
-                        <div class="project_list_block shadow-lg">
+                    <div class="p-8 component-preview bg-slate-50">
+                        <div class="project_list_block shadow-sm">
                             <div class="filter_bg">
                                 <ul class="filters_ul_list">
                                     <li class="date_range_filters">
                                         <label class="lable_search">Date Range</label>
-                                        <div class="custom_input_group"><input type="text" value="2024-01-01" class="form-control"></div>
+                                        <div class="custom_input_group"><input type="text" value="2024-01-01" class="form-control" readonly></div>
                                     </li> 
                                     <li class="search_filter">
                                         <label class="lable_search">Search</label>
@@ -292,9 +306,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="filter_bg"&gt;
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="filter_bg"&gt;
   &lt;ul class="filters_ul_list"&gt;
     &lt;li class="date_range_filters"&gt;
       &lt;label class="lable_search"&gt;Date Range&lt;/label&gt;
@@ -303,33 +317,35 @@
   &lt;/ul&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 5. Tables Section (WEB) -->
-                <section id="tables-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Data Tables</h3>
-                        <button onclick="openUsage('tables')" class="text-indigo-600 text-xs font-bold hover:underline">View Usage</button>
+                <div id="tables-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Data Tables</h3>
+                        </div>
+                        <button onclick="openUsage('tables')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl overflow-hidden bg-white">
+                    <div class="p-0 component-preview bg-white">
                         <table class="w-full text-left">
-                            <thead class="bg-slate-50 border-b border-slate-200">
+                            <thead class="bg-slate-50 border-b border-slate-100">
                                 <tr>
-                                    <th class="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project</th>
-                                    <th class="px-6 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Name</th>
+                                    <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="border-b border-slate-100">
-                                    <td class="px-6 py-4 text-sm font-semibold">Ultimez Hub</td>
+                                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                                    <td class="px-6 py-4 text-sm font-semibold text-slate-700">Ultimez Hub</td>
                                     <td class="px-6 py-4"><span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold">Live</span></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;table class="w-full text-left"&gt;
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;table class="w-full text-left"&gt;
   &lt;thead class="bg-slate-50 border-b"&gt;
     &lt;tr&gt;&lt;th&gt;Header&lt;/th&gt;&lt;/tr&gt;
   &lt;/thead&gt;
@@ -338,119 +354,147 @@
   &lt;/tbody&gt;
 &lt;/table&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 6. Forms Section (WEB) -->
-                <section id="forms-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Forms & Inputs</h3>
-                    </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white flex flex-col gap-4 max-w-sm mx-auto">
-                        <input type="email" placeholder="email@company.com" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <div class="flex items-center gap-2">
-                            <input type="checkbox" class="w-4 h-4 rounded text-indigo-600">
-                            <span class="text-xs text-slate-600">I agree to terms</span>
+                <div id="forms-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Forms & Inputs</h3>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;input type="email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"&gt;
-&lt;div class="flex items-center gap-2"&gt;
-  &lt;input type="checkbox"&gt;&lt;span&gt;Label&lt;/span&gt;
-&lt;/div&gt;</code></pre>
+                    <div class="p-10 component-preview bg-white flex flex-col gap-4 max-w-sm mx-auto">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider">Email Address</label>
+                            <input type="email" placeholder="name@company.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <span class="text-sm text-slate-600">Remember me</span>
+                        </div>
                     </div>
-                </section>
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;input type="email" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500"&gt;</code></pre>
+                    </div>
+                </div>
 
                 <!-- 7. Modals Section (WEB) -->
-                <section id="modals-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Modals</h3>
-                    </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-slate-100 flex items-center justify-center">
-                        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xs border border-slate-100">
-                            <h4 class="font-bold mb-2">Simple Modal</h4>
-                            <p class="text-xs text-slate-500 mb-4">A standard centered overlay window.</p>
-                            <button class="w-full py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold">Action</button>
+                <div id="modals-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Modals</h3>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="bg-white rounded-2xl shadow-xl p-6 max-w-xs border"&gt;
-  &lt;h4 class="font-bold"&gt;Title&lt;/h4&gt;
-  &lt;p&gt;Body content&lt;/p&gt;
-  &lt;button class="bg-indigo-600 text-white rounded-lg"&gt;Save&lt;/button&gt;
+                    <div class="p-10 component-preview bg-slate-100 flex items-center justify-center">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-xs border border-slate-50 animate-fade-in">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-bold text-slate-800">Confirmation</h4>
+                                <i class="fa-solid fa-xmark text-slate-300 text-sm"></i>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">This action will permanently delete the record. Are you sure?</p>
+                            <div class="flex gap-2">
+                                <button class="flex-1 py-2 bg-slate-50 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-100">No, Cancel</button>
+                                <button class="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700">Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="bg-white rounded-2xl shadow-xl p-6"&gt;
+  &lt;h4 class="font-bold"&gt;Modal Title&lt;/h4&gt;
+  &lt;p class="text-xs text-slate-500"&gt;Body content&lt;/p&gt;
+  &lt;button class="bg-indigo-600 text-white rounded-lg px-4 py-2"&gt;Save&lt;/button&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 8. Accordions Section (WEB) -->
-                <section id="accordions-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Accordions</h3>
+                <div id="accordions-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Accordions</h3>
+                        </div>
                     </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white">
-                        <div class="border rounded-lg overflow-hidden">
-                            <div class="px-6 py-4 bg-slate-50 flex justify-between items-center border-b">
-                                <span class="text-sm font-bold">Expandable Header</span>
-                                <i class="fa-solid fa-chevron-up text-xs text-indigo-600"></i>
+                    <div class="p-10 component-preview bg-white">
+                        <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+                            <div class="px-6 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-100 cursor-pointer group/item">
+                                <span class="text-sm font-bold text-slate-700 group-hover/item:text-indigo-600 transition">How do I access analytics?</span>
+                                <i class="fa-solid fa-chevron-up text-xs text-indigo-500"></i>
                             </div>
-                            <div class="px-6 py-4 text-sm text-slate-500">
-                                This is the collapsible content area.
+                            <div class="px-6 py-4 text-sm text-slate-500 leading-relaxed">
+                                Navigation to the dashboard sidebar and select the 'Analytics' tab to view real-time data reports.
                             </div>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="border rounded-lg overflow-hidden"&gt;
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="border rounded-xl overflow-hidden"&gt;
   &lt;div class="px-6 py-4 bg-slate-50 flex justify-between"&gt;
     &lt;span&gt;Header&lt;/span&gt;&lt;i class="fa-solid fa-chevron-up"&gt;&lt;/i&gt;
   &lt;/div&gt;
-  &lt;div class="px-6 py-4 text-sm text-slate-500"&gt;Content&lt;/div&gt;
+  &lt;div class="px-6 py-4"&gt;Content&lt;/div&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
                 <!-- 9. Progress Indicators -->
-                <section id="progress-sec" class="mb-20">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-2xl font-bold text-slate-800">Progress</h3>
-                    </div>
-                    <div class="component-preview border border-slate-200 rounded-t-xl p-10 bg-white">
-                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div class="bg-indigo-600 h-full rounded-full" style="width: 65%"></div>
+                <div id="progress-sec" class="component-card group platform-specific" data-platform="web">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Progress Bar</h3>
                         </div>
                     </div>
-                    <div class="relative group">
-                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                        <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden"&gt;
+                    <div class="p-12 component-preview bg-white flex flex-col items-center">
+                        <div class="w-full max-w-sm">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Project Progress</span>
+                                <span class="text-[10px] font-bold text-indigo-600">65%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden"&gt;
   &lt;div class="bg-indigo-600 h-full" style="width: 65%"&gt;&lt;/div&gt;
 &lt;/div&gt;</code></pre>
                     </div>
-                </section>
+                </div>
 
-                <!-- Mobile Navigation -->
-                <div id="mobileSectionsContent" class="hidden">
-                    <section id="mobile-header" class="mb-20">
-                        <h3 class="text-2xl font-bold mb-8">Mobile Header</h3>
-                        <div class="flex justify-center p-10 bg-slate-100 rounded-t-xl">
-                            <div class="mobile-frame">
-                                <div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center">
-                                    <i class="fa-solid fa-bars text-slate-400"></i>
-                                    <span class="font-bold">Home</span>
-                                    <i class="fa-solid fa-bell text-slate-400"></i>
-                                </div>
+                <!-- 10. Mobile Header -->
+                <div id="mobile-header-sec" class="component-card group platform-specific hidden" data-platform="mobile">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-slate-800">Mobile Header</h3>
+                            <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded uppercase tracking-wider">Mobile Only</span>
+                        </div>
+                        <button onclick="openUsage('mobile-header')" class="text-indigo-600 text-xs font-bold hover:text-indigo-800 transition">Usage Docs</button>
+                    </div>
+                    <div class="flex justify-center p-12 bg-slate-100">
+                        <div class="mobile-frame">
+                            <div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center">
+                                <i class="fa-solid fa-bars text-slate-400"></i>
+                                <span class="font-bold text-slate-800">Main Feed</span>
+                                <i class="fa-solid fa-bell text-slate-400"></i>
+                            </div>
+                            <div class="p-6">
+                                <div class="h-4 w-1/2 bg-slate-100 rounded mb-2"></div>
+                                <div class="h-4 w-3/4 bg-slate-50 rounded"></div>
                             </div>
                         </div>
-                        <div class="relative group">
-                            <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy</button>
-                            <pre class="bg-slate-900 text-slate-100 p-6 rounded-b-xl overflow-x-auto text-xs code-font"><code>&lt;!-- Mobile Header --&gt;
+                    </div>
+                    <div class="relative border-t border-slate-100 bg-slate-900">
+                        <button onclick="copyCode(this)" class="copy-btn"><i class="fa-solid fa-copy mr-1"></i> Copy Code</button>
+                        <pre class="p-6 overflow-x-auto text-xs text-slate-100 code-font"><code>&lt;!-- Mobile Header --&gt;
 &lt;div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center"&gt;
   &lt;i class="fa-solid fa-bars"&gt;&lt;/i&gt;
   &lt;span class="font-bold"&gt;App&lt;/span&gt;
   &lt;i class="fa-solid fa-bell"&gt;&lt;/i&gt;
 &lt;/div&gt;</code></pre>
-                        </div>
-                    </section>
+                    </div>
                 </div>
             </div>
         </div>
@@ -467,20 +511,25 @@
             </header>
 
             <div class="max-w-4xl mx-auto p-6 md:p-12">
-                <div class="mb-10">
-                    <h1 id="usage-title" class="text-4xl font-extrabold text-slate-900 mb-2">Component</h1>
-                    <p id="usage-description" class="text-lg text-slate-600"></p>
+                <div class="mb-12">
+                    <h1 id="usage-title" class="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Component</h1>
+                    <p id="usage-description" class="text-lg text-slate-600 max-w-2xl leading-relaxed"></p>
                 </div>
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="md:col-span-2 overflow-x-auto">
-                        <table class="w-full usage-table">
-                            <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-                            <tbody id="usage-props-body"></tbody>
-                        </table>
+                <div class="grid md:grid-cols-3 gap-12">
+                    <div class="md:col-span-2">
+                        <h4 class="font-bold text-lg mb-6 text-slate-800">Properties & API</h4>
+                        <div class="overflow-x-auto border border-slate-200 rounded-2xl shadow-sm">
+                            <table class="w-full usage-table bg-white">
+                                <thead><tr><th>Property</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                                <tbody id="usage-props-body"></tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="bg-slate-50 p-6 rounded-2xl h-fit border border-slate-100">
-                        <h4 class="font-bold mb-3 text-indigo-600">Guidelines</h4>
-                        <ul id="usage-practices" class="text-sm text-slate-600 space-y-3"></ul>
+                    <div>
+                        <div class="bg-slate-50 p-8 rounded-2xl h-fit border border-slate-100 shadow-sm">
+                            <h4 class="font-bold mb-4 text-indigo-600 flex items-center gap-2 uppercase tracking-widest text-[10px]">Guidelines</h4>
+                            <ul id="usage-practices" class="text-sm text-slate-600 space-y-4"></ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -493,19 +542,46 @@
         const componentData = {
             'breadcrumbs': {
                 title: 'Breadcrumbs',
-                desc: 'A hierarchical navigation trail for dashboards.',
-                props: [['backUrl', 'String', '#', 'Back link'], ['activeColor', 'String', 'indigo-600', 'Text color']],
-                practices: ['Use for deep hierarchies', 'Always include back arrow'],
+                desc: 'Standardized hierarchical navigation trail with integrated back action for dashboard layouts.',
+                props: [['backUrl', 'String', '#', 'URL for the back navigation button'], ['activeColor', 'String', 'indigo-600', 'Tailwind color class for current page']],
+                practices: ['Use for deep folder hierarchies', 'Ensure back button returns to logical parent', 'Limit breadcrumb count on mobile'],
                 code: `<div class="pad_row_brdcrumbs">\n  <ol class="breadcrumb">\n    <li><a class="back_bread_crumb" href="#"><i class="fa-solid fa-arrow-left"></i></a></li>\n    <li class="breadcrumb-item"><a href="#">Home</a></li>\n  </ol>\n</div>`
             },
             'badges': {
                 title: 'Badges & Tags',
-                desc: 'Small status labels for highlighting metadata.',
-                props: [['variant', 'Enum', 'blue', 'Color theme']],
-                practices: ['Limit to 1-2 words'],
-                code: `<span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Active</span>`
+                desc: 'Compact status indicators with predefined semantic variants for immediate user feedback.',
+                props: [['variant', 'Enum', 'blue', 'Semantic color theme (blue, green, red, amber)'], ['pill', 'Boolean', 'true', 'Enable full rounded corners']],
+                practices: ['Keep text concise', 'Use high contrast variants for critical alerts', 'Don\'t use for clickable triggers'],
+                code: `<span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200">Active</span>`
+            },
+            'avatars': {
+                title: 'Avatars',
+                desc: 'Circular profile components with integrated initials fallback and grouped stack capability.',
+                props: [['size', 'String', '12', 'Width/Height in Tailwind units'], ['stack', 'Boolean', 'true', 'Enable overlapping hover effect']],
+                practices: ['Use JD/AS style initials as fallback', 'Limit stacks to 5 visible users', 'Add border on stacked items for separation'],
+                code: `<div class="flex -space-x-3">\n  <div class="w-12 h-12 rounded-full border-2 border-white bg-indigo-500 text-white flex items-center justify-center font-bold shadow-sm">JD</div>\n</div>`
+            },
+            'filters': {
+                title: 'Filters Bar',
+                desc: 'Contextual filter strip for data management views, optimized for horizontal screen real estate.',
+                props: [['horizontal', 'Boolean', 'true', 'Align controls in row'], ['sticky', 'Boolean', 'false', 'Fix to top of table']],
+                practices: ['Place primary search first', 'Include clear-all button if 3+ filters', 'Use placeholder icons for date range'],
+                code: `<ul class="filters_ul_list">...</ul>`
+            },
+            'tables': {
+                title: 'Data Tables',
+                desc: 'High-density information grid with standardized header typography and hover states.',
+                props: [['hover', 'Boolean', 'true', 'Highlight row on mouseover'], ['stickyHeader', 'Boolean', 'true', 'Freeze header on scroll']],
+                practices: ['Use tracking-widest on headers', 'Add min-width to avoid column cramp', 'Highlight key ID columns in bold'],
+                code: `<table class="w-full text-left">...</table>`
+            },
+            'mobile-header': {
+                title: 'Mobile Header',
+                desc: 'Optimized top navigation bar for mobile web apps, following native platform guidelines.',
+                props: [['title', 'String', 'Home', 'Center title text'], ['notch', 'Boolean', 'true', 'Add safe-area padding for top notch']],
+                practices: ['Keep title under 12 characters', 'Use standard system icons (3 lines menu)', 'Always add subtle bottom border'],
+                code: `<div class="bg-white border-b px-6 pt-12 pb-4 flex justify-between items-center">...</div>`
             }
-            // Add more data as needed for usage view...
         };
 
         function navigate(view) {
@@ -519,7 +595,8 @@
         function switchPlatform(platform) {
             const btnWeb = document.getElementById('btnWeb');
             const btnMobile = document.getElementById('btnMobile');
-            const mobileSections = document.getElementById('mobileSectionsContent');
+            const mobileSections = document.querySelectorAll('.platform-specific[data-platform="mobile"]');
+            const webSections = document.querySelectorAll('.platform-specific[data-platform="web"]');
             const webNav = document.querySelector('.platform-group[data-platform="web"]');
             const mobileNav = document.getElementById('mobileNavItems');
 
@@ -527,7 +604,8 @@
             btnWeb.className = isWeb ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all';
             btnMobile.className = !isWeb ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600 transition-all' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 transition-all';
             
-            mobileSections.classList.toggle('hidden', isWeb);
+            mobileSections.forEach(s => s.classList.toggle('hidden', isWeb));
+            webSections.forEach(s => s.classList.toggle('hidden', !isWeb));
             webNav.classList.toggle('hidden', !isWeb);
             mobileNav.classList.toggle('hidden', isWeb);
         }
@@ -538,8 +616,8 @@
             document.getElementById('usage-title').innerText = data.title;
             document.getElementById('usage-title-breadcrumb').innerText = data.title;
             document.getElementById('usage-description').innerText = data.desc;
-            document.getElementById('usage-props-body').innerHTML = data.props.map(p => `<tr><td class="font-mono text-indigo-600 font-bold">${p[0]}</td><td>${p[1]}</td><td>${p[2]}</td><td>${p[3]}</td></tr>`).join('');
-            document.getElementById('usage-practices').innerHTML = data.practices.map(p => `<li class="flex gap-2"><i class="fa-solid fa-circle-check text-green-500 mt-1"></i><span>${p}</span></li>`).join('');
+            document.getElementById('usage-props-body').innerHTML = data.props.map(p => `<tr><td class="font-mono text-indigo-600 font-bold">${p[0]}</td><td>${p[1]}</td><td><code class="text-[10px] bg-slate-100 px-1 rounded">${p[2]}</code></td><td>${p[3]}</td></tr>`).join('');
+            document.getElementById('usage-practices').innerHTML = data.practices.map(p => `<li class="flex gap-3"><i class="fa-solid fa-check text-green-500 mt-1 text-xs"></i><span class="leading-relaxed">${p}</span></li>`).join('');
             navigate('usage');
         }
 
@@ -555,19 +633,19 @@
             document.body.removeChild(textArea);
 
             const toast = document.createElement('div');
-            toast.className = 'bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold animate-fade-in mb-2 shadow-2xl';
+            toast.className = 'bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold animate-fade-in mb-2 shadow-2xl border border-slate-800';
             toast.innerHTML = '<i class="fa-solid fa-check text-green-400 mr-2"></i> Copied to clipboard!';
             document.getElementById('toastContainer').appendChild(toast);
             
             const originalHTML = button.innerHTML;
-            button.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-            button.classList.add('bg-green-600');
+            button.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copied!';
+            button.classList.replace('bg-slate-800', 'bg-green-600');
 
             setTimeout(() => {
                 toast.classList.add('opacity-0');
                 setTimeout(() => toast.remove(), 400);
                 button.innerHTML = originalHTML;
-                button.classList.remove('bg-green-600');
+                button.classList.replace('bg-green-600', 'bg-slate-800');
             }, 2000);
         }
 
