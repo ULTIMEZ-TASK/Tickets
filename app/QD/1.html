@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimez Library | Web & Mobile Component Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .code-font { font-family: 'Fira Code', monospace; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .sidebar-link.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-right: 4px solid #2563eb;
+        }
+
+        .component-preview {
+            background-image: radial-gradient(#f1f5f9 1.5px, transparent 1.5px);
+            background-size: 20px 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        /* --- Custom Component Designs --- */
+        .project_list_block { background: #ffffff; border-radius: 12px; width: 100%; }
+        .pad_row_brdcrumbs { padding: 12px 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .breadcrumb { display: flex; flex-wrap: wrap; padding: 0; list-style: none; align-items: center; margin: 0; }
+        .breadcrumb-item { display: flex; align-items: center; font-size: 0.8rem; }
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "\f105"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            padding: 0 0.5rem; color: #94a3b8; font-size: 0.7rem;
+        }
+        .back_bread_crumb {
+            display: flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; background: #ffffff; border: 1px solid #e2e8f0;
+            border-radius: 6px; margin-right: 10px;
+        }
+
+        /* Filter Section Styles */
+        .filter_bg { background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .filters_ul_list { display: flex; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; align-items: flex-end; gap: 12px; }
+        .lable_search { display: block; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .custom_input_group { display: flex; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; background: #f8fafc; }
+        .custom_input_group .form-control { border: none; background: transparent; padding: 6px 10px; font-size: 12px; outline: none; width: 100%; }
+
+        /* Component Card Enhancements */
+        .component-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+            background: #f8fafc;
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .usage-table th { text-align: left; padding: 10px; background: #f8fafc; font-size: 11px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+        .usage-table td { padding: 10px; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: #334155; color: white; padding: 4px 8px;
+            border-radius: 4px; font-size: 10px; opacity: 0.8; z-index: 10;
+        }
+        .copy-btn:hover { opacity: 1; }
+
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-production { background: #dcfce7; color: #166534; }
+        .status-beta { background: #fef9c3; color: #854d0e; }
+        .status-dev { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Mobile Navigation Toggle -->
+    <div class="lg:hidden fixed bottom-6 right-6 z-50">
+        <button id="mobileMenuBtn" class="bg-blue-600 text-white p-4 rounded-full shadow-lg">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-slate-200 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex items-center gap-3 mb-8 cursor-pointer" onclick="window.location.reload()">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <i class="fa-solid fa-layer-group text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none">ULTIMEZ</h1>
+                    <p class="text-[10px] text-slate-500 font-bold tracking-widest mt-1 uppercase">Manager Hub</p>
+                </div>
+            </div>
+
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-6">
+                <button onclick="switchPlatform('web')" id="btnWeb" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600">WEB</button>
+                <button onclick="switchPlatform('mobile')" id="btnMobile" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500">MOBILE</button>
+            </div>
+
+            <nav class="space-y-1 overflow-y-auto flex-1 pr-2">
+                <div class="platform-group" data-platform="all">
+                    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">General</p>
+                    <a href="#breadcrumbs-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Breadcrumbs</a>
+                </div>
+                <div class="platform-group" data-platform="web">
+                    <p class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2">Web Components</p>
+                    <a href="#filters-sec" class="sidebar-link flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50 transition">Filters Bar</a>
+                </div>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="lg:ml-72 min-h-screen">
+        <header class="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-200 z-30 px-6 py-4 flex justify-between items-center">
+            <div class="text-xs font-medium text-slate-500">
+                Hub / <span class="text-slate-900 font-bold">Component Explorer</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full uppercase">Online</span>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto p-6 md:p-12">
+            
+            <!-- Component Card: Breadcrumbs -->
+            <div id="breadcrumbs-sec" class="component-card" data-comp-id="ULT-NAV-001">
+                <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-mono font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded">ID: ULT-NAV-001</span>
+                        <h3 class="font-bold text-slate-800">Breadcrumbs</h3>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cross-Platform</span>
+                </div>
+                
+                <!-- Tab Bar -->
+                <div class="flex border-b border-slate-100 px-4 overflow-x-auto whitespace-nowrap">
+                    <button onclick="changeTab(this, 0)" class="tab-btn active">Preview</button>
+                    <button onclick="changeTab(this, 1)" class="tab-btn">Usage Pages</button>
+                    <button onclick="changeTab(this, 2)" class="tab-btn">Modified Log</button>
+                    <button onclick="changeTab(this, 3)" class="tab-btn">Validations</button>
+                    <button onclick="changeTab(this, 4)" class="tab-btn">Test Scenarios</button>
+                </div>
+
+                <!-- Tab Panes -->
+                <div class="p-0">
+                    <!-- Preview -->
+                    <div class="tab-content active p-8 component-preview bg-white">
+                        <div class="pad_row_brdcrumbs shadow-sm border border-slate-200 rounded-xl">
+                            <ol class="breadcrumb">
+                                <li><a class="back_bread_crumb" href="#"><i class="fa-solid fa-arrow-left text-slate-400 text-xs"></i></a></li>
+                                <li class="breadcrumb-item"><a href="#" class="text-slate-500">Dashboard</a></li> 
+                                <li class="breadcrumb-item font-bold text-slate-900 active">Components</li>
+                            </ol>
+                        </div>
+                        <div class="mt-6 relative">
+                            <button onclick="copyCode(this)" class="copy-btn">Copy HTML</button>
+                            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs code-font"><code>&lt;div class="pad_row_brdcrumbs shadow-sm"&gt;
+  &lt;ol class="breadcrumb"&gt;
+    &lt;li&gt;&lt;a class="back_bread_crumb" href="#"&gt;&lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="breadcrumb-item"&gt;&lt;a href="#"&gt;Dashboard&lt;/a&gt;&lt;/li&gt;
+    &lt;li class="breadcrumb-item active"&gt;Components&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Usage Pages -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="mb-10">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Implemented In (Active Usage)</h4>
+                            <div class="overflow-hidden border border-slate-100 rounded-xl shadow-sm">
+                                <table class="w-full usage-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project/Page Name</th>
+                                            <th>Module</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Admin Dashboard</td>
+                                            <td class="text-slate-500">Analytics Hub</td>
+                                            <td><span class="status-pill status-production">Production</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Project Management</td>
+                                            <td class="text-slate-500">Operations</td>
+                                            <td><span class="status-pill status-production">Production</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Member Directory</td>
+                                            <td class="text-slate-500">HR Module</td>
+                                            <td><span class="status-pill status-beta">Beta</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Mobile Home Feed</td>
+                                            <td class="text-slate-500">Mobile App</td>
+                                            <td><span class="status-pill status-beta">Beta</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Settings View</td>
+                                            <td class="text-slate-500">Configuration</td>
+                                            <td><span class="status-pill status-dev">Dev</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Usage Components Table (API)</h4>
+                        <div class="overflow-hidden border border-slate-100 rounded-xl shadow-sm">
+                            <table class="w-full usage-table">
+                                <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">backUrl</td><td>String</td><td>'#'</td><td>Navigation path for back button</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">items</td><td>Array</td><td>[]</td><td>Objects with {label, path}</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">activeColor</td><td>String</td><td>'slate-900'</td><td>Tailwind text color class</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">separator</td><td>String</td><td>'chevron'</td><td>Separator icon between items</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">showBackArrow</td><td>Boolean</td><td>true</td><td>Toggle back arrow visibility</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Modified Log -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="space-y-4">
+                            <div class="flex gap-4 items-start">
+                                <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">v1.2.0</span>
+                                <div>
+                                    <p class="text-xs font-bold">Dec 23, 2024</p>
+                                    <p class="text-[11px] text-slate-500">Refactored CSS for high-density dashboard layouts and improved dark mode support.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start border-t pt-4">
+                                <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded">v1.1.5</span>
+                                <div>
+                                    <p class="text-xs font-bold">Nov 10, 2024</p>
+                                    <p class="text-[11px] text-slate-500">Added breadcrumb truncation logic for long project titles on small screens.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start border-t pt-4">
+                                <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded">v1.0.0</span>
+                                <div>
+                                    <p class="text-xs font-bold">Sep 01, 2024</p>
+                                    <p class="text-[11px] text-slate-500">Initial release with basic navigation and back arrow functionality.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validations -->
+                    <div class="tab-content p-8 bg-white">
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Maximum 6 breadcrumb levels allowed for standard viewports to avoid UI clutter.</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Labels must be plain text and should not exceed 20 characters per item.</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Component must include `aria-label="Breadcrumb"` for screen reader compatibility.</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Back button must always have a valid `href` or `onClick` handler.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Test Scenarios -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="space-y-4">
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                                <p class="text-xs font-bold text-slate-700">Scenario 1: Truncation & Tooltip</p>
+                                <p class="text-[11px] text-slate-500">Verify long project titles truncate with "..." on mobile widths and show full title on hover via tooltip.</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                                <p class="text-xs font-bold text-slate-700">Scenario 2: Keyboard Navigation</p>
+                                <p class="text-[11px] text-slate-500">Ensure users can navigate through breadcrumb links using the "Tab" key and activate them with "Enter".</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                                <p class="text-xs font-bold text-slate-700">Scenario 3: Empty Breadcrumbs</p>
+                                <p class="text-[11px] text-slate-500">Component should gracefully hide or show only the 'Home' link if no items array is provided.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Component Card: Filters Bar -->
+            <div id="filters-sec" class="component-card" data-comp-id="ULT-FIL-002">
+                <div class="px-6 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-mono font-bold bg-slate-200 text-slate-600 px-2 py-0.5 rounded">ID: ULT-FIL-002</span>
+                        <h3 class="font-bold text-slate-800">Filters Bar</h3>
+                    </div>
+                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">Web Only</span>
+                </div>
+                
+                <div class="flex border-b border-slate-100 px-4 overflow-x-auto whitespace-nowrap">
+                    <button onclick="changeTab(this, 0)" class="tab-btn active">Preview</button>
+                    <button onclick="changeTab(this, 1)" class="tab-btn">Usage Pages</button>
+                    <button onclick="changeTab(this, 2)" class="tab-btn">Modified Log</button>
+                    <button onclick="changeTab(this, 3)" class="tab-btn">Validations</button>
+                    <button onclick="changeTab(this, 4)" class="tab-btn">Test Scenarios</button>
+                </div>
+
+                <div class="p-0">
+                    <div class="tab-content active p-8 bg-slate-50 component-preview">
+                        <div class="filter_bg shadow-lg">
+                            <ul class="filters_ul_list">
+                                <li>
+                                    <label class="lable_search">Project Status</label>
+                                    <div class="custom_input_group">
+                                        <select class="form-control"><option>All Status</option><option>Active</option><option>Completed</option><option>Pending</option></select>
+                                    </li>
+                                <li>
+                                    <label class="lable_search">Global Search</label>
+                                    <div class="custom_input_group"><input type="text" placeholder="Search by ID..." class="form-control"></div>
+                                </li>
+                                <li>
+                                    <button class="bg-indigo-600 text-white text-[10px] font-bold px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Apply Filters</button>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mt-6 relative">
+                            <button onclick="copyCode(this)" class="copy-btn">Copy HTML</button>
+                            <pre class="bg-slate-900 text-slate-100 p-4 rounded-xl text-xs code-font"><code>&lt;div class="filter_bg shadow-lg"&gt;
+  &lt;ul class="filters_ul_list"&gt;
+    &lt;li&gt;
+      &lt;label class="lable_search"&gt;Status&lt;/label&gt;
+      &lt;select class="form-control"&gt;...&lt;/select&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+      &lt;button class="bg-indigo-600 text-white"&gt;Apply&lt;/button&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Usage Pages -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="mb-10">
+                            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Implemented In</h4>
+                            <div class="overflow-hidden border border-slate-100 rounded-xl shadow-sm">
+                                <table class="w-full usage-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Project Name</th>
+                                            <th>Module</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Inventory Management</td>
+                                            <td class="text-slate-500">Warehouse</td>
+                                            <td><span class="status-pill status-production">Production</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Sales Dashboard</td>
+                                            <td class="text-slate-500">Revenue Tracking</td>
+                                            <td><span class="status-pill status-production">Production</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-semibold text-slate-700">Support Tickets</td>
+                                            <td class="text-slate-500">Customer Support</td>
+                                            <td><span class="status-pill status-beta">Beta</span></td>
+                                            <td><a href="#" class="text-indigo-600 hover:underline">View Page</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Usage Components Table</h4>
+                        <div class="overflow-hidden border border-slate-100 rounded-xl shadow-sm">
+                            <table class="w-full usage-table">
+                                <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">onSubmit</td><td>Function</td><td>null</td><td>Callback for apply button</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">fields</td><td>Array</td><td>[]</td><td>Dynamic filter inputs configuration</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">onClearAll</td><td>Function</td><td>null</td><td>Reset all filters to default</td></tr>
+                                    <tr><td class="font-mono text-indigo-600 font-bold">isSticky</td><td>Boolean</td><td>false</td><td>Keep bar fixed at top of screen</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Modified Log -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="space-y-4">
+                            <div class="flex gap-4 items-start">
+                                <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">v1.1.0</span>
+                                <div>
+                                    <p class="text-xs font-bold">Dec 01, 2024</p>
+                                    <p class="text-[11px] text-slate-500">Added multi-select support for status filters and custom date range picker integration.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 items-start border-t pt-4">
+                                <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded">v1.0.0</span>
+                                <div>
+                                    <p class="text-xs font-bold">Oct 15, 2024</p>
+                                    <p class="text-[11px] text-slate-500">Initial release with basic dropdowns and search input.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validations -->
+                    <div class="tab-content p-8 bg-white">
+                        <ul class="space-y-4">
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Search input must be sanitized to prevent XSS attacks.</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Dropdowns must contain a default "Select" option with an empty value.</span>
+                            </li>
+                            <li class="flex items-start gap-3 text-xs text-slate-600">
+                                <i class="fa-solid fa-circle-check text-green-500 mt-0.5"></i>
+                                <span>Filters should not exceed 5 items to maintain alignment on 13" laptop screens.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Test Scenarios -->
+                    <div class="tab-content p-8 bg-white">
+                        <div class="space-y-4">
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                                <p class="text-xs font-bold text-slate-700">Scenario 1: Reset Logic</p>
+                                <p class="text-[11px] text-slate-500">Verify that clicking "Clear all" restores all dropdowns to their initial state and clears the search box.</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-indigo-500 shadow-sm">
+                                <p class="text-xs font-bold text-slate-700">Scenario 2: Dynamic Fields</p>
+                                <p class="text-[11px] text-slate-500">Ensure the component renders new filter types correctly when the `fields` array is updated dynamically via props.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="toastContainer" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex flex-col items-center"></div>
+
+    <script>
+        function changeTab(btn, index) {
+            const card = btn.closest('.component-card');
+            card.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const panes = card.querySelectorAll('.tab-content');
+            panes.forEach(p => p.classList.remove('active'));
+            panes[index].classList.add('active', 'animate-fade-in');
+        }
+
+        function switchPlatform(platform) {
+            const btnWeb = document.getElementById('btnWeb');
+            const btnMobile = document.getElementById('btnMobile');
+            const mobileNav = document.getElementById('mobileNavItems');
+
+            if (platform === 'web') {
+                btnWeb.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600';
+                btnMobile.className = 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500';
+                mobileNav.classList.add('hidden');
+            } else {
+                btnMobile.className = 'flex-1 py-2 text-xs font-bold rounded-lg bg-white shadow-sm text-indigo-600';
+                btnWeb.className = 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-500';
+                mobileNav.classList.remove('hidden');
+            }
+        }
+
+        function copyCode(button) {
+            const code = button.nextElementSibling.querySelector('code').innerText;
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const toast = document.createElement('div');
+            toast.className = 'bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold animate-fade-in mb-2 shadow-2xl';
+            toast.innerText = 'Copied to clipboard!';
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            const originalText = button.innerText;
+            button.innerText = 'Copied!';
+            setTimeout(() => {
+                toast.remove();
+                button.innerText = originalText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
