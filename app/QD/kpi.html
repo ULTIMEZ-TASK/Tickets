@@ -1,0 +1,1411 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Employee Performance Report — Sunaya Harikantra</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --accent-light: #eff6ff;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --radius: 16px;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    /* Card Utilities */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Compact Card Modifier for Time Utilization */
+    .card.compact-card {
+        padding: 16px; /* Reduced padding */
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .card-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .card-header i.header-icon {
+      color: var(--accent);
+      font-size: 1.25rem;
+      background: var(--accent-light);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    /* Date Filter Styles */
+    .date-filter-container {
+      margin-left: auto; /* Pushes to the right */
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .filter-select {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-select:hover {
+      border-color: var(--accent);
+      background: #f8fafc;
+    }
+
+    /* Main Header Section */
+    .report-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .report-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 8px 0;
+    }
+
+    .report-header p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Employee Meta Data Grid - COMPACT VERSION */
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: white;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      border: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+      .meta-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+    }
+
+    .meta-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .meta-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* KPI Grids */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    /* Compact Grid for Time Utilization */
+    .kpi-grid.compact-grid {
+        gap: 12px; /* tighter gap */
+    }
+
+    @media (min-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .kpi-item {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      position: relative;
+    }
+
+    /* Compact KPI Item Style */
+    .compact-grid .kpi-item {
+        padding: 10px 12px; /* Reduced padding */
+    }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Smaller Label for compact version */
+    .compact-grid .kpi-label {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .kpi-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: block;
+    }
+
+    /* Smaller Value for compact version */
+    .compact-grid .kpi-value {
+        font-size: 0.95rem; /* Reduced from 1.1rem */
+    }
+
+    .kpi-sub {
+      font-size: 0.75rem;
+      margin-top: 4px;
+      display: block;
+    }
+    
+    .compact-grid .kpi-sub {
+        font-size: 0.65rem; /* Reduced subtext */
+        margin-top: 2px;
+    }
+
+    .text-success { color: var(--success); }
+    .text-danger { color: var(--danger); }
+
+    /* Summary Section */
+    .summary-box {
+      background: #eff6ff;
+      border-left: 4px solid var(--accent);
+    }
+    
+    .summary-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px; 
+      font-size: 0.85rem; 
+      line-height: 1.5;
+    }
+    .summary-item:last-child { margin-bottom: 0; }
+    .summary-item i { margin-top: 2px; color: var(--accent); font-size: 1rem; }
+
+    /* Dual Column Layout */
+    .dual-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    @media (min-width: 900px) {
+      .dual-col { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* App Usage Table with Bars */
+    .app-table {
+      width: 100%;
+      border-collapse: separate; /* Changed for border handling */
+      border-spacing: 0;
+    }
+    .app-table th {
+        text-align: left;
+        padding: 8px 4px;
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .app-table td {
+      padding: 12px 4px; /* Increased padding for table feel */
+      vertical-align: middle;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .app-table tr:last-child td {
+        border-bottom: none;
+    }
+    .app-name {
+      font-weight: 500;
+      width: 140px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-bar-container {
+      flex: 1;
+      background: #e2e8f0;
+      height: 6px;
+      border-radius: 3px;
+      margin: 0 16px;
+      position: relative;
+      min-width: 100px;
+    }
+    .app-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      display: block;
+    }
+    .app-time {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      width: 80px;
+      text-align: right;
+    }
+
+    /* Charts Area */
+    .charts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .chart-wrapper {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid #e2e8f0; /* Added border for clarity */
+    }
+    .chart-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0 0 12px 0;
+        text-align: center;
+    }
+    .chart-pie {
+      flex: 0 0 300px;
+      height: 280px; /* Adjusted for title space */
+      margin: 0 auto;
+    }
+    .chart-bar {
+      flex: 1;
+      min-width: 300px;
+      height: 280px; /* Adjusted for title space */
+    }
+
+    /* --- TAB STYLES --- */
+    .tab-nav {
+      display: flex;
+      gap: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 10px 4px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+    .tab-content { display: none; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* --- RECOMMENDATION LIST STYLES --- */
+    .rec-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .rec-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid #f1f5f9;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fff;
+    }
+    .rec-item:hover {
+        background: #f8fafc;
+        border-color: var(--accent);
+        transform: translateX(2px);
+    }
+    .rec-date-badge {
+        font-size: 0.7rem;
+        color: var(--accent);
+        background: var(--accent-light);
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        margin-right: 12px;
+        white-space: nowrap;
+    }
+    .rec-text {
+        font-size: 0.9rem;
+        color: var(--text-main);
+        flex: 1;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .rec-item i {
+        color: var(--text-muted);
+        font-size: 1.2rem;
+    }
+
+    /* --- MODAL STYLES --- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open {
+        display: flex;
+        animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: scale(0.98); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    .modal-card {
+        background: white;
+        width: 90%;
+        max-width: 650px;
+        max-height: 85vh;
+        border-radius: 16px;
+        padding: 32px;
+        position: relative;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #f1f5f9;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all 0.2s;
+    }
+    .modal-close:hover { 
+        background: #e2e8f0; 
+        color: var(--danger); 
+    }
+    .rec-full-date {
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .rec-full-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 24px 0;
+        color: var(--text-main);
+        line-height: 1.2;
+    }
+    .rec-body {
+        color: #334155;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+    .rec-body p { margin-bottom: 16px; }
+    .rec-body ul { margin-bottom: 16px; padding-left: 20px; }
+    .rec-body li { margin-bottom: 8px; }
+    .rec-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--accent);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 24px;
+        transition: background 0.2s;
+    }
+    .rec-action-btn:hover { background: #2563eb; }
+
+    /* --- TOOLTIP STYLES --- */
+    .info-icon {
+      cursor: help;
+      color: #94a3b8;
+      font-size: 0.9rem; /* Smaller icon for compact layout */
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      transition: color 0.2s;
+      vertical-align: middle;
+    }
+    .info-icon:hover {
+      color: var(--accent);
+    }
+    .tooltip {
+      visibility: hidden;
+      width: 260px;
+      background-color: #1e293b;
+      color: #f8fafc;
+      text-align: left;
+      border-radius: 8px;
+      padding: 12px;
+      position: absolute;
+      z-index: 50;
+      bottom: 140%; /* Position above */
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.2s, bottom 0.2s;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      font-weight: 400;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      pointer-events: none;
+    }
+    .info-icon:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+      bottom: 150%;
+    }
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -6px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: #1e293b transparent transparent transparent;
+    }
+    .tooltip-header {
+      font-weight: 700;
+      color: #eff6ff;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 6px;
+      display: block;
+      font-size: 0.85rem;
+    }
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      align-items: center;
+    }
+    .tooltip-good { color: #4ade80; font-weight: 600; }
+    .tooltip-bad { color: #f87171; font-weight: 600; }
+    
+    /* Global Tooltip alignment for headers */
+    .card-header .tooltip,
+    .summary-box .tooltip {
+        width: 280px;
+        left: -10px; /* Align to left side of icon */
+        transform: translateX(0);
+    }
+    .card-header .tooltip::after,
+    .summary-box .tooltip::after {
+        left: 15px; /* Adjust arrow to point to icon */
+        margin-left: 0;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="report-header">
+      <h1>Employee Performance Report</h1>
+      <p>October 2025</p>
+    </div>
+
+    <!-- Employee Meta Data (Compact) -->
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span class="meta-label">Employee Name</span>
+        <span class="meta-value">Sunaya Harikantra</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Department</span>
+        <span class="meta-value">Development</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Type</span>
+        <span class="meta-value">Full Time</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Team Leader</span>
+        <span class="meta-value">Shivaraj Patil</span>
+      </div>
+    </div>
+
+    <!-- Overall Summary -->
+    <div class="card summary-box">
+      <div class="card-header" style="border-bottom: none; margin-bottom: 0; padding-bottom: 10px;">
+        <i class="ri-bar-chart-line header-icon"></i>
+        <h2 style="display: flex; align-items: center; gap: 8px;">
+          Executive Summary
+          <span class="info-icon">
+            <i class="ri-information-fill"></i>
+            <div class="tooltip">
+              <span class="tooltip-header">Automated Analysis Protocol</span>
+              This summary is auto-generated by the Teramind Engine based on 3 key vectors:
+              <div class="tooltip-row" style="margin-top:8px;">
+                 <span>1. Productivity Score vs. Input Activity</span>
+              </div>
+              <div class="tooltip-row">
+                 <span>2. Month-over-Month Trend Comparison</span>
+              </div>
+              <div class="tooltip-row">
+                 <span>3. Attendance & Leave Records</span>
+              </div>
+              <div style="margin-top:8px; font-style: italic; color: #94a3b8; font-size: 0.7rem;">
+                  Last updated: Oct 31, 2025
+              </div>
+            </div>
+          </span>
+        </h2>
+      </div>
+      <div class="summary-item">
+        <i class="ri-lightbulb-flash-line"></i>
+        <span><strong>Highlights:</strong> Inconsistent input activity and low work hours, despite good productivity scores.</span>
+      </div>
+      <div class="summary-item">
+        <i class="ri-trending-down-line"></i>
+        <span><strong>Trend:</strong> Performance stagnant compared to last month. Input activity dropped by 11.5%.</span>
+      </div>
+      <div class="summary-item">
+        <i class="ri-calendar-event-line"></i>
+        <span><strong>Leaves:</strong> 1 day taken (out of 1.5 allowed).</span>
+      </div>
+    </div>
+
+    <!-- Time Utilization Dashboard (Compact Version) -->
+    <div class="card compact-card">
+      <div class="card-header">
+        <i class="ri-time-line header-icon"></i>
+        <h2 style="display: flex; align-items: center; gap: 8px;">
+            Productivity & Activity Analysis
+            <span class="info-icon">
+                <i class="ri-information-fill"></i>
+                <div class="tooltip">
+                    <span class="tooltip-header">Time Tracking Data</span>
+                    Breakdown of total logged hours categorized by activity levels, input intensity, and app classification.
+                </div>
+            </span>
+        </h2>
+      </div>
+      
+      <!-- Added compact-grid class -->
+      <div class="kpi-grid compact-grid">
+        <div class="kpi-item">
+          <span class="kpi-label">
+            Work Time
+            <span class="info-icon">
+              <i class="ri-information-fill"></i>
+              <div class="tooltip">
+                <span class="tooltip-header">Total Logged Hours</span>
+                Total time clocked in the system, including productive and idle time.
+                <div class="tooltip-row"><span>Best:</span> <span class="tooltip-good">> 8h/day</span></div>
+                <div class="tooltip-row"><span>Poor:</span> <span class="tooltip-bad">< 7h/day</span></div>
+              </div>
+            </span>
+          </span>
+          <span class="kpi-value">177h 35m</span>
+          <span class="kpi-sub text-muted">vs 200h Est.</span>
+        </div>
+
+        <div class="kpi-item">
+          <span class="kpi-label">
+            Active Time
+            <span class="info-icon">
+              <i class="ri-information-fill"></i>
+              <div class="tooltip">
+                <span class="tooltip-header">Active Computer Usage</span>
+                Time spent actively using the computer (mouse movements/clicks).
+                <div class="tooltip-row"><span>Best:</span> <span class="tooltip-good">> 7h/day</span></div>
+                <div class="tooltip-row"><span>Poor:</span> <span class="tooltip-bad">< 5h/day</span></div>
+              </div>
+            </span>
+          </span>
+          <span class="kpi-value">176h 52m</span>
+          <span class="kpi-sub text-success">High Activity</span>
+        </div>
+
+        <div class="kpi-item">
+          <span class="kpi-label">
+            Input Activity
+            <span class="info-icon">
+              <i class="ri-information-fill"></i>
+              <div class="tooltip">
+                <span class="tooltip-header">Keyboard/Mouse Intensity</span>
+                Percentage of active time with high frequency input events.
+                <div class="tooltip-row"><span>Best:</span> <span class="tooltip-good">> 70%</span></div>
+                <div class="tooltip-row"><span>Poor:</span> <span class="tooltip-bad">< 40%</span></div>
+              </div>
+            </span>
+          </span>
+          <span class="kpi-value">53.7%</span>
+          <span class="kpi-sub text-danger">Needs Focus</span>
+        </div>
+
+        <div class="kpi-item">
+          <span class="kpi-label">
+            Productive Time
+            <span class="info-icon">
+              <i class="ri-information-fill"></i>
+              <div class="tooltip">
+                <span class="tooltip-header">Productive App Usage</span>
+                Percentage of time spent on whitelisted business applications.
+                <div class="tooltip-row"><span>Best:</span> <span class="tooltip-good">> 85%</span></div>
+                <div class="tooltip-row"><span>Poor:</span> <span class="tooltip-bad">< 60%</span></div>
+              </div>
+            </span>
+          </span>
+          <span class="kpi-value">99.55%</span>
+          <span class="kpi-sub text-success">Excellent</span>
+        </div>
+
+        <div class="kpi-item">
+          <span class="kpi-label">Avg Login</span>
+          <span class="kpi-value">10:31 AM</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Avg Logout</span>
+          <span class="kpi-value">07:36 PM</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Idle Time</span>
+          <span class="kpi-value">42m 58s</span>
+        </div>
+        <div class="kpi-item">
+          <span class="kpi-label">Unproductive</span>
+          <span class="kpi-value">2m 16s</span>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-container">
+        <div class="chart-wrapper chart-pie">
+          <h4 class="chart-title">Productivity Distribution</h4>
+          <canvas id="productivityChart"></canvas>
+        </div>
+        <div class="chart-wrapper chart-bar">
+          <h4 class="chart-title">Weekly Trend</h4>
+          <canvas id="weekChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Column: Apps & Recommendations -->
+    <div class="dual-col">
+      
+      <!-- Top Apps -->
+      <div class="card">
+        <div class="card-header">
+          <i class="ri-apps-2-line header-icon"></i>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            Top Applications
+            <span class="info-icon">
+                <i class="ri-information-fill"></i>
+                <div class="tooltip">
+                    <span class="tooltip-header">Usage Telemetry</span>
+                    Ranked list of applications based on "Active Focus" duration (window in foreground).
+                </div>
+            </span>
+          </h2>
+        </div>
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Application</th>
+              <th>Usage Trend</th>
+              <th style="text-align: right;">Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="app-name"><i class="ri-code-line"></i> VS Code</div>
+              </td>
+              <td>
+                <div class="app-bar-container">
+                  <span class="app-bar" style="width: 100%"></span>
+                </div>
+              </td>
+              <td class="app-time">38:18</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="app-name"><i class="ri-tools-line"></i> DevTools</div>
+              </td>
+              <td>
+                <div class="app-bar-container">
+                  <span class="app-bar" style="width: 68%"></span>
+                </div>
+              </td>
+              <td class="app-time">26:30</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="app-name"><i class="ri-file-text-line"></i> G-Docs</div>
+              </td>
+              <td>
+                <div class="app-bar-container">
+                  <span class="app-bar" style="width: 39%"></span>
+                </div>
+              </td>
+              <td class="app-time">15:15</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="app-name"><i class="ri-robot-line"></i> ChatGPT</div>
+              </td>
+              <td>
+                <div class="app-bar-container">
+                  <span class="app-bar" style="width: 31%"></span>
+                </div>
+              </td>
+              <td class="app-time">11:59</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="app-name"><i class="ri-global-line"></i> Localhost</div>
+              </td>
+              <td>
+                <div class="app-bar-container">
+                  <span class="app-bar" style="width: 26%"></span>
+                </div>
+              </td>
+              <td class="app-time">09:55</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- QD Recommendations -->
+      <div class="card">
+        <div class="card-header">
+          <i class="ri-lightbulb-line header-icon"></i>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            QD Recommendations
+            <span class="info-icon">
+                <i class="ri-information-fill"></i>
+                <div class="tooltip">
+                    <span class="tooltip-header">Evaluation Logic</span>
+                    This Evaluate Total Work of Employees Based on The responsibility, And Monthly Work Target, We Send Recommendations Of Pending Work to Complete, Study Materials In Of Specific Responsibility As Per Lastest Updates In That Industry,
+                </div>
+            </span>
+          </h2>
+        </div>
+        
+        <!-- Interactive Recommendation List -->
+        <div class="rec-list">
+            <div class="rec-item" onclick="openRecModal(1)">
+                <span class="rec-date-badge">Oct 25</span>
+                <span class="rec-text">Action Required: SEO Performance Gap</span>
+                <i class="ri-arrow-right-s-line"></i>
+            </div>
+            <div class="rec-item" onclick="openRecModal(2)">
+                <span class="rec-date-badge">Oct 26</span>
+                <span class="rec-text">Monthly Target: Production Velocity</span>
+                <i class="ri-arrow-right-s-line"></i>
+            </div>
+            <div class="rec-item" onclick="openRecModal(3)">
+                <span class="rec-date-badge">Oct 28</span>
+                <span class="rec-text">Strategic Focus: Keyword Opportunity</span>
+                <i class="ri-arrow-right-s-line"></i>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics & KPI (Full Width below Top Apps) -->
+    <div class="card" id="task-metrics-card">
+        <div class="card-header">
+          <i class="ri-task-line header-icon"></i>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            Performance Metrics & KPI
+            <span class="info-icon">
+                <i class="ri-information-fill"></i>
+                <div class="tooltip">
+                    <span class="tooltip-header">Goal Tracking</span>
+                    Detailed performance across different roles (Tasks, Authors, Editors) compared against set monthly targets.
+                </div>
+            </span>
+          </h2>
+          
+          <!-- New Filter -->
+          <div class="date-filter-container">
+            <select class="filter-select">
+              <option>Months Filter</option>
+              <option>Last 6 Month</option>
+              <option>Last 3 Month</option>
+              <option>Last 1 Month</option>
+              <option>This Month</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('tasks')">Task Metrics</button>
+          <button class="tab-btn" onclick="switchTab('authors')">Authors Metrics</button>
+          <button class="tab-btn" onclick="switchTab('editors')">Editors</button>
+          <button class="tab-btn" onclick="switchTab('backlinks')">Backlink</button>
+          <button class="tab-btn" onclick="switchTab('community')">Community Manager</button>
+        </div>
+
+        <!-- Tab 1: Task Metrics (Original) -->
+        <div id="tab-tasks" class="tab-content active">
+           <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="kpi-item">
+                <span class="kpi-label">Assigned Hours</span>
+                <span class="kpi-value">10h 30m</span>
+              </div>
+              <div class="kpi-item">
+                <span class="kpi-label">Completed Hours</span>
+                <span class="kpi-value">19h 29m</span>
+              </div>
+              <div class="kpi-item">
+                <span class="kpi-label">Time Dragged</span>
+                <span class="kpi-value text-danger">09h 29m</span>
+              </div>
+              <div class="kpi-item">
+                <span class="kpi-label">Live Gone</span>
+                <span class="kpi-value">00:00</span>
+              </div>
+              
+              <!-- New Ticket Metrics Section -->
+              <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-ticket-2-line"></i> Tickets Completed</span>
+                <span class="kpi-value">42</span>
+                <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-muted);">
+                    Total Assigned: <strong>45</strong>
+                </div>
+              </div>
+              <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-alarm-warning-line"></i> Delayed Tickets</span>
+                <span class="kpi-value text-danger">3</span>
+                <div style="font-size: 0.75rem; margin-top: 4px; color: var(--text-muted);">
+                    Avg Delay: <strong>4h</strong>
+                </div>
+              </div>
+              <div class="kpi-item" style="grid-column: span 2; border-left: 4px solid var(--success);">
+                <span class="kpi-label">Ticket Completion Score</span>
+                <span class="kpi-value text-success">93%</span>
+                <span class="kpi-sub">Calculated based on on-time delivery vs. total assignments.</span>
+              </div>
+
+              <div class="kpi-item" style="grid-column: span 2; background: #fff1f2; border-color: #fecdd3;">
+                <span class="kpi-label text-danger">Loss for Company (200 Hrs)</span>
+                <span class="kpi-value text-danger">190h 00m</span>
+              </div>
+           </div>
+        </div>
+
+        <!-- Tab 2: Authors Metrics -->
+        <div id="tab-authors" class="tab-content">
+           <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            
+            <!-- 1. New Articles -->
+            <div class="kpi-item">
+                <span class="kpi-label">New Articles</span>
+                <span class="kpi-value">12</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">15</strong></div>
+                    <div>Daily Avg: <strong style="color:var(--text-main)">0.4</strong></div>
+                </div>
+            </div>
+
+            <!-- 2. ReUpdated Articles -->
+            <div class="kpi-item">
+                <span class="kpi-label">Re-Updated Articles</span>
+                <span class="kpi-value">8</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">10</strong></div>
+                    <div>Daily Avg: <strong style="color:var(--text-main)">0.3</strong></div>
+                </div>
+            </div>
+
+            <!-- 3. Total Views -->
+            <div class="kpi-item">
+                <span class="kpi-label">Total Views</span>
+                <span class="kpi-value">45.2k</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; color: var(--text-muted); display: flex; justify-content: space-between;">
+                    <div>Target: <strong style="color:var(--text-main)">50k</strong></div>
+                    <div class="text-warning">90% Achieved</div>
+                </div>
+                <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Conversions:</span> <span class="text-success" style="font-weight:600;">542 (1.2%)</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Bounce Rate:</span> <span class="text-danger" style="font-weight:600;">65%</span>
+                    </div>
+                </div>
+            </div>
+
+             <!-- 4. CTR -->
+             <div class="kpi-item">
+                <span class="kpi-label">CTR (Click-Through)</span>
+                <span class="kpi-value">3.8%</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; color: var(--text-muted); display: flex; justify-content: space-between;">
+                    <div>Target: <strong style="color:var(--text-main)">4.5%</strong></div>
+                    <div class="text-danger">-0.7% Gap</div>
+                </div>
+                <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Impressions:</span> <span style="font-weight:600; color:var(--text-main);">1.2M</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Total Traffic:</span> <span style="font-weight:600; color:var(--text-main);">45.2k</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Top Performing (Views) -->
+            <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-eye-line"></i> Top (Views)</span>
+                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="The Future of AI">"The Future of AI..."</div>
+                <span class="kpi-sub text-success">12,405 Views</span>
+            </div>
+
+            <!-- 6. Top Performing (Conversions) -->
+            <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-filter-3-line"></i> Top (Conv.)</span>
+                 <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Pricing Guide 2025">"Pricing Guide 2025"</div>
+                <span class="kpi-sub text-success">45 Leads</span>
+            </div>
+
+           </div>
+        </div>
+
+        <!-- Tab 3: Editors -->
+        <div id="tab-editors" class="tab-content">
+           <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+             
+             <!-- 1. Articles Approved & Published -->
+             <div class="kpi-item">
+                <span class="kpi-label">Articles Approved</span>
+                <span class="kpi-value">18</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">20</strong></div>
+                    <div>Daily Avg: <strong style="color:var(--text-main)">0.6</strong></div>
+                </div>
+            </div>
+
+            <!-- 2. Top Performing (Views) -->
+            <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-fire-line"></i> Top (Views)</span>
+                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="State of DevOps 2025">"State of DevOps 2025"</div>
+                <span class="kpi-sub text-success">18,500 Views</span>
+            </div>
+
+            <!-- 3. Top Performing (Conversions) -->
+            <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-shopping-cart-line"></i> Top (Conv.)</span>
+                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="Ultimate API Guide">"Ultimate API Guide"</div>
+                <span class="kpi-sub text-success">82 Leads</span>
+            </div>
+
+            <!-- 4. Total Views -->
+            <div class="kpi-item">
+                <span class="kpi-label">Total Views</span>
+                <span class="kpi-value">68.5k</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Conversions:</span> <span class="text-success" style="font-weight:600;">890 (1.3%)</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Bounce Rate:</span> <span class="text-danger" style="font-weight:600;">58%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. CTR -->
+            <div class="kpi-item">
+                <span class="kpi-label">CTR (Click-Through)</span>
+                <span class="kpi-value">4.2%</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Impressions:</span> <span style="font-weight:600; color:var(--text-main);">1.6M</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Total Traffic:</span> <span style="font-weight:600; color:var(--text-main);">68.5k</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Editorial Approve & Publish Time -->
+            <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-timer-flash-line"></i> Approve & Publish Time</span>
+                <span class="kpi-value">28 Hours</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target Avg: <strong style="color:var(--text-main)">48 Hours</strong></div>
+                    <div class="text-success">Ahead of Schedule</div>
+                </div>
+            </div>
+
+           </div>
+        </div>
+
+        <!-- Tab 4: Backlinks -->
+        <div id="tab-backlinks" class="tab-content">
+           <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+             
+             <!-- 1. Link Build Number -->
+             <div class="kpi-item">
+                <span class="kpi-label">Links Built</span>
+                <span class="kpi-value">42</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">50</strong></div>
+                    <div>Avg DA: <strong style="color:var(--text-main)">45</strong></div>
+                </div>
+            </div>
+
+            <!-- 2. CTR -->
+            <div class="kpi-item">
+                <span class="kpi-label">CTR (Referral)</span>
+                <span class="kpi-value">2.4%</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Impressions:</span> <span style="font-weight:600; color:var(--text-main);">150k</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; color: var(--text-muted);">
+                        <span>Total Traffic:</span> <span style="font-weight:600; color:var(--text-main);">3.6k</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Outreach Efficiency (Contextual) -->
+            <div class="kpi-item">
+                <span class="kpi-label">Outreach Sent</span>
+                <span class="kpi-value">230</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Success Rate: <strong class="text-success">18%</strong></div>
+                    <div>Replies: <strong>58</strong></div>
+                </div>
+            </div>
+
+             <!-- 4. Top Acquired Link -->
+             <div class="kpi-item">
+                <span class="kpi-label"><i class="ri-link-m"></i> Top Acquisition</span>
+                <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;" title="techcrunch.com">techcrunch.com</div>
+                <span class="kpi-sub text-success">DA 92 - Dofollow</span>
+            </div>
+
+           </div>
+        </div>
+
+        <!-- Tab 5: Community Manager -->
+        <div id="tab-community" class="tab-content">
+           <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+             
+             <!-- 1. Published Post -->
+             <div class="kpi-item">
+                <span class="kpi-label">Published Post</span>
+                <span class="kpi-value">28</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">30</strong></div>
+                    <div>Daily Avg: <strong style="color:var(--text-main)">0.9</strong></div>
+                </div>
+            </div>
+
+             <!-- 2. Engagement Rate -->
+             <div class="kpi-item">
+                <span class="kpi-label">Engagement Rate</span>
+                <span class="kpi-value">5.8%</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">5.0%</strong></div>
+                    <div class="text-success"><i class="ri-arrow-up-line"></i> 1.2% Growth</div>
+                </div>
+            </div>
+
+            <!-- 3. Total Follower -->
+            <div class="kpi-item">
+                <span class="kpi-label">Total Follower</span>
+                <span class="kpi-value">5,420</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target: <strong style="color:var(--text-main)">5,200</strong></div>
+                    <div class="text-success">On Track</div>
+                </div>
+            </div>
+
+             <!-- 4. Post Completion Time Score -->
+             <div class="kpi-item">
+                <span class="kpi-label">Completion Time Score</span>
+                <span class="kpi-value">9.5/10</span>
+                <div style="font-size: 0.75rem; margin-top: 8px; color: var(--text-muted); display: flex; justify-content: space-between; border-top: 1px solid #f1f5f9; padding-top: 6px;">
+                    <div>Target Time: <strong style="color:var(--text-main)">2 Hours</strong></div>
+                    <div class="text-success">Optimal</div>
+                </div>
+            </div>
+
+           </div>
+        </div>
+    </div>
+
+    <!-- Reviewer's Comments -->
+    <div class="card">
+        <div class="card-header">
+          <i class="ri-chat-quote-line header-icon"></i>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            Reviewer's Comments
+            <span class="info-icon">
+                <i class="ri-information-fill"></i>
+                <div class="tooltip">
+                    <span class="tooltip-header">Manager Feedback</span>
+                    Qualitative assessment and final remarks from the direct supervisor or team lead.
+                </div>
+            </span>
+          </h2>
+        </div>
+        <p style="margin: 0; line-height: 1.6; color: var(--text-muted); font-style: italic;">
+          "Your overall performance is good; however, there is a need to improve your input activity and productivity levels. I appreciate your efforts and encourage you to maintain them in the coming months."
+        </p>
+    </div>
+
+  </div>
+
+  <!-- Recommendation Modal -->
+  <div id="recModal" class="modal-overlay">
+    <div class="modal-card">
+        <button class="modal-close" onclick="closeRecModal()">&times;</button>
+        <span id="modalDate" class="rec-full-date"></span>
+        <h2 id="modalTitle" class="rec-full-title"></h2>
+        <div id="modalBody" class="rec-body"></div>
+        <a href="#" class="rec-action-btn">
+            <i class="ri-external-link-line"></i> Go to Learning Portal
+        </a>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Hide all contents
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      // Deactivate all buttons
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      // Show specific content
+      document.getElementById('tab-' + tabName).classList.add('active');
+      // Activate specific button
+      document.querySelector(`.tab-btn[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    }
+
+    // --- Recommendation Logic ---
+    const recData = {
+        1: {
+            date: "Oct 25, 2025",
+            title: "Action Required: SEO Performance Gap",
+            body: `<p><strong>Observation:</strong> Your current CTR is 3.8%, falling short of the 4.5% departmental target. High-impression pages are under-converting clicks.</p>
+               <p><strong>Next Steps:</strong></p>
+               <ul>
+                   <li><strong>Audit Titles:</strong> Rewrite H1s for the top 5 articles with >10k impressions but <2% CTR.</li>
+                   <li><strong>Meta Descriptions:</strong> Ensure primary keywords appear in the first 160 characters.</li>
+                   <li><strong>Internal Linking:</strong> Add 3-5 internal links to high-authority parent pages to boost relevance.</li>
+               </ul>`
+        },
+        2: {
+            date: "Oct 26, 2025",
+            title: "Monthly Target: Production Velocity",
+            body: `<p><strong>Status:</strong> You have published 12 articles against the monthly target of 15. With 5 days remaining, output velocity needs to increase.</p>
+               <p><strong>Next Steps:</strong></p>
+               <ul>
+                   <li><strong>Immediate Drafts:</strong> Move 2 articles from 'Research' to 'Drafting' phase by EOD tomorrow.</li>
+                   <li><strong>Editorial Slot:</strong> Book a review slot with Sarah for Thursday morning to avoid bottleneck.</li>
+                   <li><strong>Focus:</strong> Deprioritize deep-dive research for 'Quick Win' news pieces to meet quota.</li>
+               </ul>`
+        },
+        3: {
+            date: "Oct 28, 2025",
+            title: "Strategic Focus: Keyword Opportunity",
+            body: `<p><strong>Insight:</strong> Competitor analysis shows a gap in "AI-driven DevOps" keywords where we have high authority potential.</p>
+               <p><strong>Next Steps:</strong></p>
+               <ul>
+                   <li><strong>Content Plan:</strong> Create a topic cluster around 'Automated CI/CD' for next month.</li>
+                   <li><strong>Update Old Content:</strong> Refresh the 2024 DevOps Guide with a new section on AI tools.</li>
+                   <li><strong>Backlink Outreach:</strong> Identify 5 partners for guest post swaps on this topic.</li>
+               </ul>`
+        }
+    };
+
+    function openRecModal(id) {
+        const data = recData[id];
+        if(!data) return;
+        
+        document.getElementById('modalDate').innerText = data.date;
+        document.getElementById('modalTitle').innerText = data.title;
+        document.getElementById('modalBody').innerHTML = data.body;
+        
+        document.getElementById('recModal').classList.add('open');
+    }
+
+    function closeRecModal() {
+        document.getElementById('recModal').classList.remove('open');
+    }
+    
+    // Close on click outside
+    document.getElementById('recModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('recModal')) closeRecModal();
+    });
+
+    // Re-initialize Charts with cleaner config
+    window.addEventListener("load", () => {
+      
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10 } },
+          tooltip: {
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            padding: 12,
+            cornerRadius: 8,
+          },
+          // Disable internal chart title since we added HTML titles
+          title: { display: false }
+        }
+      };
+
+      // Pie Chart
+      const ctxPie = document.getElementById('productivityChart').getContext('2d');
+      new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: ['Productive', 'Unproductive'],
+          datasets: [{
+            data: [99.55, 0.05],
+            backgroundColor: ['#22c55e', '#ef4444'],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          cutout: '70%',
+        }
+      });
+
+      // Bar Chart
+      const ctxBar = document.getElementById('weekChart').getContext('2d');
+      new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          datasets: [{
+            label: 'Input Activity %',
+            data: [58.1, 57.6, 59.4, 46.9],
+            backgroundColor: '#3b82f6',
+            borderRadius: 4,
+            barPercentage: 0.6
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { borderDash: [2, 2], drawBorder: false },
+              max: 100
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
