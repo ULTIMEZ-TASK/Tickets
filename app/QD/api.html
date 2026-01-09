@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Monitor Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Smooth transitions for bars */
+        .bar-transition { transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 transition-transform duration-300 ease-in-out -translate-x-full lg:relative lg:translate-x-0 flex flex-col">
+        <div class="flex items-center justify-between h-16 px-6 bg-slate-950 flex-shrink-0">
+            <div class="flex items-center gap-2 font-bold text-white text-xl">
+                <i data-lucide="shield" class="text-indigo-500"></i>
+                <span>Admin<span class="text-indigo-500">Panel</span></span>
+            </div>
+            <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <nav class="p-4 space-y-1 flex-1 overflow-y-auto">
+            <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Platform</p>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 transition-colors">
+                <i data-lucide="activity" class="w-4 h-4"></i> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-indigo-600 text-white rounded-md shadow-lg shadow-indigo-900/20">
+                <i data-lucide="server" class="w-4 h-4"></i> API Monitor
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 transition-colors">
+                <i data-lucide="database" class="w-4 h-4"></i> Databases
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 transition-colors">
+                <i data-lucide="cloud" class="w-4 h-4"></i> Storage Buckets
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-slate-800">
+                <p class="px-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Settings</p>
+                <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-slate-800 transition-colors">
+                    <i data-lucide="settings" class="w-4 h-4"></i> Configuration
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Mobile Overlay -->
+        <div id="mobile-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 hidden lg:hidden transition-opacity opacity-0"></div>
+
+        <!-- Header -->
+        <header class="flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <h1 class="text-xl font-semibold text-gray-800">API Integration Status</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="refreshBtn" onclick="manualRefresh()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i id="refreshIcon" data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span id="refreshText">Refresh Status</span>
+                </button>
+                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
+                    A
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+            
+            <!-- Stats Grid -->
+            <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Stats injected by JS -->
+            </div>
+
+            <!-- Filters & Toolbar -->
+            <div class="bg-white rounded-t-xl border border-gray-200 border-b-0 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="relative flex-1 max-w-md">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="Search APIs by name or provider..." 
+                        class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                        oninput="handleSearch(this.value)"
+                    />
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <select 
+                            id="statusFilter"
+                            class="appearance-none pl-4 pr-10 py-2 text-sm font-medium bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-gray-700"
+                            onchange="handleFilter(this.value)"
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="operational">Operational</option>
+                            <option value="degraded">Degraded</option>
+                            <option value="downtime">Downtime</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                            <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white border border-gray-200 rounded-b-xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[1000px]">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-200">
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">API Service</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Endpoint</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Latency</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Billing</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Credits Usage</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Uptime (24h)</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="apis-table-body" class="divide-y divide-gray-200">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Footer -->
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+                    <div class="text-xs text-gray-500">
+                        Showing <span id="showing-start" class="font-medium text-gray-900">0</span> to <span id="showing-end" class="font-medium text-gray-900">0</span> of <span id="showing-total" class="font-medium text-gray-900">0</span> results
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-3 py-1 border border-gray-300 rounded text-xs font-medium text-gray-500 bg-white disabled:opacity-50 cursor-not-allowed opacity-50">Previous</button>
+                        <button class="px-3 py-1 border border-gray-300 rounded text-xs font-medium text-gray-500 bg-white hover:bg-gray-50">Next</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- API Details Modal -->
+    <div id="api-modal" class="fixed inset-0 z-[60] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeApiDetails()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <!-- Content injected by JS -->
+                    <div id="api-modal-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- State ---
+        let state = {
+            apis: [],
+            searchTerm: '',
+            filterStatus: 'all',
+            loading: false
+        };
+
+        // --- Mock Data Generators ---
+        const getFutureDate = (days) => {
+            const date = new Date();
+            date.setDate(date.getDate() + days);
+            return date;
+        };
+
+        const generateMockApis = () => {
+            return [
+                { id: 1, name: 'Authentication Service', provider: 'Auth0', endpoint: 'https://auth.api.internal/v2/token', method: 'POST', status: 'operational', latency: 120, uptime: 99.99, lastChecked: new Date(), billingAmount: 1200.00, nextBillingDate: getFutureDate(12), credits: { used: 85420, total: 100000 } },
+                { id: 2, name: 'Payment Gateway', provider: 'Stripe', endpoint: 'https://api.stripe.com/v1/charges', method: 'POST', status: 'operational', latency: 245, uptime: 99.95, lastChecked: new Date(), billingAmount: 450.50, nextBillingDate: getFutureDate(5), credits: { used: 4500, total: 50000 } },
+                { id: 3, name: 'User Data Service', provider: 'Internal', endpoint: 'https://api.internal/users', method: 'GET', status: 'degraded', latency: 850, uptime: 98.50, lastChecked: new Date(), billingAmount: 0, nextBillingDate: null, credits: { used: 120500, total: -1 } },
+                { id: 4, name: 'Email Notification', provider: 'SendGrid', endpoint: 'https://api.sendgrid.com/v3/mail/send', method: 'POST', status: 'operational', latency: 180, uptime: 99.90, lastChecked: new Date(), billingAmount: 89.00, nextBillingDate: getFutureDate(28), credits: { used: 985, total: 1000 } },
+                { id: 5, name: 'Search Engine', provider: 'Elasticsearch', endpoint: 'https://search.internal/query', method: 'POST', status: 'operational', latency: 45, uptime: 99.99, lastChecked: new Date(), billingAmount: 350.00, nextBillingDate: getFutureDate(15), credits: { used: 250000, total: 5000000 } },
+                { id: 6, name: 'File Storage', provider: 'AWS S3', endpoint: 'https://s3.aws.com/upload', method: 'PUT', status: 'downtime', latency: 0, uptime: 95.20, lastChecked: new Date(), billingAmount: 150.25, nextBillingDate: getFutureDate(2), credits: { used: 45, total: 100 } },
+                { id: 7, name: 'Analytics Stream', provider: 'Segment', endpoint: 'https://api.segment.io/v1/track', method: 'POST', status: 'operational', latency: 155, uptime: 99.98, lastChecked: new Date(), billingAmount: 500.00, nextBillingDate: getFutureDate(20), credits: { used: 890000, total: 1000000 } },
+                { id: 8, name: 'Inventory Sync', provider: 'Internal', endpoint: 'https://api.internal/inventory/sync', method: 'PATCH', status: 'maintenance', latency: 0, uptime: 99.00, lastChecked: new Date(), billingAmount: 0, nextBillingDate: null, credits: { used: 500, total: -1 } },
+            ];
+        };
+
+        // --- Formatters ---
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        };
+
+        const formatDateShort = (date) => {
+            if (!date) return 'N/A';
+            return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(date);
+        };
+        
+        const formatTime = (date) => {
+             return date.toLocaleTimeString();
+        }
+
+        const formatNumber = (num) => {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+            return num.toString();
+        };
+
+        // --- Render Helpers ---
+
+        const getStatusBadgeHTML = (status) => {
+            const styles = {
+                operational: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                degraded: 'bg-amber-100 text-amber-700 border-amber-200',
+                downtime: 'bg-rose-100 text-rose-700 border-rose-200',
+                maintenance: 'bg-blue-100 text-blue-700 border-blue-200',
+            };
+            const icons = {
+                operational: 'check-circle-2',
+                degraded: 'alert-circle',
+                downtime: 'x',
+                maintenance: 'clock',
+            };
+            const labels = {
+                operational: 'Operational',
+                degraded: 'Degraded',
+                downtime: 'Downtime',
+                maintenance: 'Maintenance',
+            };
+
+            return `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles[status] || styles.operational}">
+                    <i data-lucide="${icons[status]}" class="w-3.5 h-3.5 mr-1.5"></i>
+                    ${labels[status]}
+                </span>
+            `;
+        };
+
+        const getMethodBadgeHTML = (method) => {
+            const colors = {
+                GET: 'bg-blue-50 text-blue-700 border-blue-200',
+                POST: 'bg-green-50 text-green-700 border-green-200',
+                PUT: 'bg-orange-50 text-orange-700 border-orange-200',
+                DELETE: 'bg-red-50 text-red-700 border-red-200',
+                PATCH: 'bg-purple-50 text-purple-700 border-purple-200',
+            };
+            return `<span class="px-2 py-0.5 rounded text-[10px] font-bold border ${colors[method] || 'bg-gray-100 text-gray-700'}">${method}</span>`;
+        };
+
+        const getCreditsBarHTML = (used, total) => {
+            if (total === -1) {
+                return `
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                        <i data-lucide="globe" class="w-2.5 h-2.5 mr-1"></i> Unlimited
+                    </span>
+                `;
+            }
+            const percentage = Math.min((used / total) * 100, 100);
+            let colorClass = 'bg-emerald-500';
+            if (percentage > 90) colorClass = 'bg-rose-500';
+            else if (percentage > 70) colorClass = 'bg-amber-500';
+
+            return `
+                <div class="w-full max-w-[140px]">
+                    <div class="flex justify-between text-[10px] mb-1 text-gray-500">
+                        <span>${formatNumber(used)}</span>
+                        <span>${formatNumber(total)}</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full bar-transition ${colorClass}" style="width: ${percentage}%"></div>
+                    </div>
+                </div>
+            `;
+        };
+        
+        const getLatencyBarHTML = (latency) => {
+             const width = Math.min((latency / 1000) * 100, 100);
+             let colorClass = 'bg-emerald-500';
+             if (latency >= 500) colorClass = 'bg-rose-500';
+             else if (latency >= 200) colorClass = 'bg-amber-500';
+             
+             return `
+                <div class="w-16 h-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full bar-transition ${colorClass}" style="width: ${width}%"></div>
+                </div>
+             `;
+        };
+
+        // --- Core Application Logic ---
+
+        const calculateStats = (apis) => {
+            const total = apis.length;
+            const operational = apis.filter(a => a.status === 'operational').length;
+            const issues = apis.filter(a => ['degraded', 'downtime'].includes(a.status)).length;
+            const downCount = apis.filter(a => a.status === 'downtime').length;
+            const avgLatency = Math.round(apis.reduce((acc, curr) => acc + curr.latency, 0) / (total - downCount || 1));
+            const totalBilling = apis.reduce((acc, curr) => acc + curr.billingAmount, 0);
+            return { total, operational, issues, avgLatency, totalBilling };
+        };
+
+        const renderStats = () => {
+            const stats = calculateStats(state.apis);
+            const container = document.getElementById('stats-container');
+            
+            container.innerHTML = `
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-start justify-between transition-all hover:shadow-md">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total APIs</p>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${stats.total}</h3>
+                        <p class="text-xs text-gray-400 mt-1">Across 4 providers</p>
+                    </div>
+                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <i data-lucide="globe" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-start justify-between transition-all hover:shadow-md">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Monthly Billing</p>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${formatCurrency(stats.totalBilling)}</h3>
+                        <p class="text-xs text-gray-400 mt-1">Estimated for current month</p>
+                    </div>
+                    <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <i data-lucide="credit-card" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-start justify-between transition-all hover:shadow-md">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Critical Issues</p>
+                        <h3 class="text-2xl font-bold text-rose-600 mt-1">${stats.issues}</h3>
+                        <p class="text-xs text-gray-400 mt-1">Requires attention</p>
+                    </div>
+                    <div class="p-2 bg-rose-50 rounded-lg text-rose-600">
+                        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex items-start justify-between transition-all hover:shadow-md">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Avg. Latency</p>
+                        <h3 class="text-2xl font-bold text-gray-900 mt-1">${stats.avgLatency}ms</h3>
+                        <p class="text-xs text-emerald-600 mt-1 flex items-center gap-1">
+                            <i data-lucide="zap" class="w-3 h-3 fill-current"></i> -12ms vs last hour
+                        </p>
+                    </div>
+                    <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderTable = () => {
+            const filtered = state.apis.filter(api => {
+                const matchesSearch = api.name.toLowerCase().includes(state.searchTerm.toLowerCase()) || 
+                                      api.provider.toLowerCase().includes(state.searchTerm.toLowerCase());
+                const matchesStatus = state.filterStatus === 'all' || api.status === state.filterStatus;
+                return matchesSearch && matchesStatus;
+            });
+
+            const tbody = document.getElementById('apis-table-body');
+            
+            // Update Footer counts
+            document.getElementById('showing-start').textContent = filtered.length > 0 ? 1 : 0;
+            document.getElementById('showing-end').textContent = filtered.length;
+            document.getElementById('showing-total').textContent = state.apis.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center">
+                                <i data-lucide="search" class="w-8 h-8 text-gray-300 mb-3"></i>
+                                <p>No APIs found matching your criteria.</p>
+                                <button onclick="clearFilters()" class="mt-2 text-indigo-600 hover:text-indigo-800 text-sm font-medium">Clear filters</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(api => `
+                <tr class="hover:bg-gray-50/80 transition-colors group border-b border-gray-100 last:border-0">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center cursor-pointer" onclick="openApiDetails(${api.id})" title="Click to view details">
+                            <div class="flex-shrink-0 h-10 w-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600 font-bold border border-indigo-100 text-sm">
+                                ${api.name.charAt(0)}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors">${api.name}</div>
+                                <div class="text-xs text-gray-500">${api.provider}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2">
+                                ${getMethodBadgeHTML(api.method)}
+                                <span class="text-xs font-mono text-gray-600 truncate max-w-[150px]" title="${api.endpoint}">
+                                    ${api.endpoint}
+                                </span>
+                            </div>
+                            <div class="text-[10px] text-gray-400">
+                                Updated ${formatTime(api.lastChecked)}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getStatusBadgeHTML(api.status)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium ${api.latency > 500 ? 'text-amber-600' : api.latency === 0 ? 'text-gray-400' : 'text-gray-900'}">
+                                ${api.latency > 0 ? api.latency + 'ms' : '-'}
+                            </span>
+                            ${api.latency > 0 ? getLatencyBarHTML(api.latency) : ''}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex flex-col">
+                            ${api.billingAmount > 0 
+                                ? `
+                                    <span class="text-sm font-medium text-gray-900">${formatCurrency(api.billingAmount)}</span>
+                                    <div class="flex items-center gap-1 text-[10px] text-gray-500">
+                                        <i data-lucide="calendar" class="w-2.5 h-2.5"></i>
+                                        Due ${formatDateShort(api.nextBillingDate)}
+                                    </div>
+                                  ` 
+                                : '<span class="text-xs text-gray-400 italic">Free Tier</span>'
+                            }
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${getCreditsBarHTML(api.credits.used, api.credits.total)}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${api.uptime}%
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-indigo-600" title="View Logs">
+                                <i data-lucide="activity" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-indigo-600" title="Visit Endpoint">
+                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-1.5 hover:bg-gray-100 rounded text-gray-500 hover:text-indigo-600">
+                                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            lucide.createIcons();
+        };
+
+        const renderApp = () => {
+            renderStats();
+            renderTable();
+        };
+
+        // --- Modal Logic ---
+
+        const openApiDetails = (id) => {
+            const api = state.apis.find(a => a.id === id);
+            if (!api) return;
+            
+            const modal = document.getElementById('api-modal');
+            const content = document.getElementById('api-modal-content');
+            
+            // Construct Modal Content
+            content.innerHTML = `
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i data-lucide="server" class="h-6 w-6 text-indigo-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">${api.name}</h3>
+                            <div class="mt-1 flex items-center gap-2">
+                                <span class="text-xs text-gray-500">${api.provider}</span>
+                                ${getStatusBadgeHTML(api.status)}
+                            </div>
+                            
+                            <div class="mt-4 border-t border-gray-100 pt-4 grid grid-cols-1 gap-y-3">
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500">Endpoint</p>
+                                    <div class="mt-1 flex items-center gap-2 bg-gray-50 p-2 rounded border border-gray-200">
+                                        ${getMethodBadgeHTML(api.method)}
+                                        <code class="text-xs text-gray-700 font-mono break-all">${api.endpoint}</code>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500">Current Latency</p>
+                                        <p class="text-sm font-semibold text-gray-900 mt-0.5">${api.latency}ms</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500">Uptime (24h)</p>
+                                        <p class="text-sm font-semibold text-gray-900 mt-0.5">${api.uptime}%</p>
+                                    </div>
+                                     <div>
+                                        <p class="text-xs font-medium text-gray-500">Monthly Billing</p>
+                                        <p class="text-sm font-semibold text-gray-900 mt-0.5">${formatCurrency(api.billingAmount)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-medium text-gray-500">Next Bill</p>
+                                        <p class="text-sm font-semibold text-gray-900 mt-0.5">${formatDateShort(api.nextBillingDate)}</p>
+                                    </div>
+                                </div>
+
+                                 <div>
+                                    <p class="text-xs font-medium text-gray-500 mb-1">Credits Usage</p>
+                                    ${getCreditsBarHTML(api.credits.used, api.credits.total)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                    <button type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto" onclick="closeApiDetails()">Close</button>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        const closeApiDetails = () => {
+             document.getElementById('api-modal').classList.add('hidden');
+        }
+
+        // --- Interaction Handlers ---
+
+        const handleSearch = (val) => {
+            state.searchTerm = val;
+            renderTable();
+        };
+
+        const handleFilter = (val) => {
+            state.filterStatus = val;
+            renderTable();
+        };
+
+        const clearFilters = () => {
+            state.searchTerm = '';
+            state.filterStatus = 'all';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = 'all';
+            renderTable();
+        };
+
+        const manualRefresh = () => {
+            if (state.loading) return;
+            state.loading = true;
+            
+            // UI Loading state
+            const btn = document.getElementById('refreshBtn');
+            const icon = document.getElementById('refreshIcon');
+            const text = document.getElementById('refreshText');
+            
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+            icon.classList.add('animate-spin');
+            text.textContent = 'Refreshing...';
+
+            setTimeout(() => {
+                updateDataSim();
+                state.loading = false;
+                
+                // Reset UI
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                icon.classList.remove('animate-spin');
+                text.textContent = 'Refresh Status';
+                
+                renderApp();
+            }, 800);
+        };
+
+        const updateDataSim = () => {
+            state.apis = state.apis.map(api => {
+                // Fluctuate Latency
+                const latencyFluctuation = Math.floor(Math.random() * 50) - 25;
+                let newLatency = Math.max(0, api.latency + latencyFluctuation);
+                
+                // Random Status Change logic
+                let newStatus = api.status;
+                const randomVal = Math.random();
+                
+                if (api.status === 'downtime' && randomVal > 0.2) newStatus = 'operational';
+                else if (api.status === 'operational' && randomVal > 0.95) newStatus = 'degraded';
+                else if (api.status === 'degraded' && randomVal > 0.90) newStatus = 'downtime';
+
+                if (newStatus === 'downtime') newLatency = 0;
+
+                return {
+                    ...api,
+                    status: newStatus,
+                    latency: newStatus === 'downtime' ? 0 : newLatency,
+                    lastChecked: new Date()
+                };
+            });
+        };
+
+        // --- Sidebar Logic ---
+        const toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                // timeout to allow display:block to apply before opacity transition
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load Initial Data
+            state.apis = generateMockApis();
+            
+            // Initial Render
+            renderApp();
+            
+            // Start Auto-Refresh Interval
+            setInterval(() => {
+                updateDataSim();
+                renderApp();
+            }, 30000);
+        });
+
+    </script>
+</body>
+</html>
