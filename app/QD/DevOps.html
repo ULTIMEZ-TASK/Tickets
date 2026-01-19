@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Responsibility SOP Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --header-bg: #1e293b;
+            --header-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--header-bg);
+            margin-bottom: 40px;
+        }
+
+        /* Main Dashboard Table Style */
+        .process-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .main-table th {
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .main-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px;
+            background-color: var(--header-bg);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Detail Table Styles inside Modal */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .detail-table th, .detail-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .detail-table th {
+            background-color: #f1f5f9;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .tag-yes {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .tag-no {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .sub-header {
+            background-color: #e2e8f0;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DevOps & Infrastructure SOP Dashboard</h1>
+
+    <div class="process-container">
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Process Category</th>
+                    <th>Components Included</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><strong>Pipeline Setup Process</strong></td>
+                    <td>Environment Config, Tech Stack (CI/CD), 3rd Party Resources</td>
+                    <td><button class="action-btn" onclick="openModal('pipeline')">View Details</button></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><strong>Ticket Deploy & Monitoring</strong></td>
+                    <td>Ticket Creation, Branching, Deployment, Post-Deploy Checks</td>
+                    <td><button class="action-btn" onclick="openModal('ticket')">View Details</button></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><strong>Infrastructure Management Routine</strong></td>
+                    <td>Server Health, Costs, Updates (DO/GCP), Reporting</td>
+                    <td><button class="action-btn" onclick="openModal('infra')">View Details</button></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><strong>Application Management Routine</strong></td>
+                    <td>UX (Clarity), Errors (New Relic), SEO (Console), Reporting</td>
+                    <td><button class="action-btn" onclick="openModal('app')">View Details</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Process Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Store for the SOPs
+        const sopData = {
+            pipeline: `
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>TASK DESCRIPTION</th>
+                            <th>FREQUENCY</th>
+                            <th>STATUS</th>
+                            <th>NOTE</th>
+                            <th>CAN WE AUTOMATE?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td colspan="5">Based On Environment</td></tr>
+                        <tr>
+                            <td>Configure Local Docker Environments</td>
+                            <td>One-time / Ad-hoc</td>
+                            <td>Active</td>
+                            <td>Ensure parity with Prod DB versions</td>
+                            <td><span class="tag-yes">Yes (Docker Compose)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Setup Vercel Preview Deployments</td>
+                            <td>Per PR</td>
+                            <td>Active</td>
+                            <td>Auto-generates URLs for QA</td>
+                            <td><span class="tag-yes">Yes (Vercel Git)</span></td>
+                        </tr>
+                        <tr class="sub-header"><td colspan="5">Based On Tech Stack</td></tr>
+                        <tr>
+                            <td>Configure GitHub Actions (Backend Build)</td>
+                            <td>Per Push</td>
+                            <td>Active</td>
+                            <td>Run Tests -> Build Docker -> Push Registry</td>
+                            <td><span class="tag-yes">Yes (YAML Workflows)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Vercel Frontend Build Config</td>
+                            <td>Per Push</td>
+                            <td>Active</td>
+                            <td>Output dir: .next, Build: npm run build</td>
+                            <td><span class="tag-yes">Yes</span></td>
+                        </tr>
+                        <tr class="sub-header"><td colspan="5">3rd Party Resources</td></tr>
+                        <tr>
+                            <td>Sync Secrets/API Keys (GCP, Mongo)</td>
+                            <td>Ad-hoc</td>
+                            <td>Pending</td>
+                            <td>Add to Github Secrets & Vercel Env Vars</td>
+                            <td><span class="tag-yes">Yes (Doppler/Vault)</span></td>
+                        </tr>
+                    </tbody>
+                </table>`,
+            
+            ticket: `
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>TASK DESCRIPTION</th>
+                            <th>FREQUENCY</th>
+                            <th>STATUS</th>
+                            <th>NOTE</th>
+                            <th>CAN WE AUTOMATE?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Create Feature Branch (fix/xyz)</td>
+                            <td>Per Ticket</td>
+                            <td>Active</td>
+                            <td>Never push directly to main</td>
+                            <td><span class="tag-no">No</span></td>
+                        </tr>
+                        <tr>
+                            <td>Review Vercel Preview URL</td>
+                            <td>Per PR</td>
+                            <td>Active</td>
+                            <td>Verify UI changes before merge</td>
+                            <td><span class="tag-no">No (Manual QA)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Merge to Main (Trigger Deploy)</td>
+                            <td>Per Ticket</td>
+                            <td>Active</td>
+                            <td>Triggers CI/CD Pipeline</td>
+                            <td><span class="tag-yes">Yes (Github Actions)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Post-Deploy Health Check</td>
+                            <td>Immediately</td>
+                            <td>Active</td>
+                            <td>Check New Relic for error spikes (5 mins)</td>
+                            <td><span class="tag-yes">Yes (Alert Policies)</span></td>
+                        </tr>
+                    </tbody>
+                </table>`,
+
+            infra: `
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>TASK DESCRIPTION</th>
+                            <th>FREQUENCY</th>
+                            <th>STATUS</th>
+                            <th>NOTE</th>
+                            <th>CAN WE AUTOMATE?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td colspan="5">DigitalOcean (Backend)</td></tr>
+                        <tr>
+                            <td>Monitor Droplet CPU/RAM & Disk</td>
+                            <td>Daily (Auto)</td>
+                            <td>Active</td>
+                            <td>Alert if Usage > 85%</td>
+                            <td><span class="tag-yes">Yes (New Relic Infra)</span></td>
+                        </tr>
+                        <tr>
+                            <td>OS Security Updates (apt-get)</td>
+                            <td>Monthly</td>
+                            <td>Pending</td>
+                            <td>Schedule maintenance window</td>
+                            <td><span class="tag-yes">Yes (Unattended Upgrades)</span></td>
+                        </tr>
+                        <tr class="sub-header"><td colspan="5">GCP (Google Cloud)</td></tr>
+                        <tr>
+                            <td>Monitor API Quotas & Limits</td>
+                            <td>Weekly</td>
+                            <td>Active</td>
+                            <td>Prevent service denial</td>
+                            <td><span class="tag-yes">Yes (GCP Alerts)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Cost Analysis & Billing</td>
+                            <td>Monthly</td>
+                            <td>Active</td>
+                            <td>Check for cost anomalies</td>
+                            <td><span class="tag-yes">Yes (Budget Alerts)</span></td>
+                        </tr>
+                         <tr class="sub-header"><td colspan="5">Reporting & Action</td></tr>
+                        <tr>
+                            <td>Generate Weekly Infra Status Report</td>
+                            <td>Weekly</td>
+                            <td>Active</td>
+                            <td>Log uptime & cost changes</td>
+                            <td><span class="tag-no">No</span></td>
+                        </tr>
+                    </tbody>
+                </table>`,
+
+            app: `
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>TASK DESCRIPTION</th>
+                            <th>FREQUENCY</th>
+                            <th>STATUS</th>
+                            <th>NOTE</th>
+                            <th>CAN WE AUTOMATE?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="sub-header"><td colspan="5">Observability (New Relic)</td></tr>
+                        <tr>
+                            <td>Triage APM Error Rates (5xx)</td>
+                            <td>Daily</td>
+                            <td>Active</td>
+                            <td>Investigate if error rate > 1%</td>
+                            <td><span class="tag-yes">Yes (Slack Alerts)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Synthetics Uptime Check</td>
+                            <td>Daily</td>
+                            <td>Active</td>
+                            <td>Verify API endpoints</td>
+                            <td><span class="tag-yes">Yes</span></td>
+                        </tr>
+                        <tr class="sub-header"><td colspan="5">UX & SEO (Clarity / Search Console)</td></tr>
+                        <tr>
+                            <td>Review "Rage Clicks" (Clarity)</td>
+                            <td>Weekly</td>
+                            <td>Pending</td>
+                            <td>Identify broken UI elements</td>
+                            <td><span class="tag-no">No</span></td>
+                        </tr>
+                        <tr>
+                            <td>Check Indexing Errors (Search Console)</td>
+                            <td>Weekly</td>
+                            <td>Active</td>
+                            <td>Fix 404s and soft 404s</td>
+                            <td><span class="tag-yes">Yes (Email Digest)</span></td>
+                        </tr>
+                        <tr class="sub-header"><td colspan="5">Reporting & Action</td></tr>
+                        <tr>
+                            <td>Generate App Health Report</td>
+                            <td>Weekly</td>
+                            <td>Active</td>
+                            <td>Summarize bugs fixed vs found</td>
+                            <td><span class="tag-no">No</span></td>
+                        </tr>
+                    </tbody>
+                </table>`
+        };
+
+        function openModal(type) {
+            const titles = {
+                pipeline: "1. Pipeline Setup Process SOP",
+                ticket: "2. Ticket Deploy & Monitoring Process SOP",
+                infra: "3. Infrastructure Manage Routine SOP",
+                app: "4. Application Manage Routine SOP"
+            };
+
+            document.getElementById('modalTitle').innerText = titles[type];
+            document.getElementById('modalBody').innerHTML = sopData[type];
+            document.getElementById('modalOverlay').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalOverlay');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
