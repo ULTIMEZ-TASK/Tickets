@@ -53,6 +53,7 @@
             border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border-color);
+            margin-bottom: 30px;
         }
 
         /* Control Bar */
@@ -60,7 +61,37 @@
             max-width: 1100px;
             margin: 0 auto 20px auto;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .control-group label {
+            font-weight: 600; 
+            color: #334155;
+            font-size: 0.9rem;
+        }
+        
+        .control-group select, .control-group input {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+            color: var(--header-bg);
+            background-color: #f8fafc;
+        }
+        
+        .control-group input {
+            width: 200px;
         }
 
         .btn-reset {
@@ -71,7 +102,7 @@
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -80,6 +111,61 @@
         
         .btn-reset:hover {
             background-color: #dc2626;
+        }
+
+        /* Project Info Section - Compact */
+        .project-info {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fff;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-card {
+            background-color: #f8fafc;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .info-card h3 {
+            margin: 0 0 8px 0;
+            color: var(--secondary-color);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 5px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+        
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: var(--text-color);
+            text-align: right;
+            word-break: break-word;
         }
 
         /* Main Table Styles */
@@ -142,11 +228,11 @@
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
             box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
             width: 100%;
@@ -163,10 +249,10 @@
             background-color: white;
             color: var(--primary-color);
             border: 1px solid var(--primary-color);
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 4px;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             display: inline-block;
             transition: all 0.2s;
@@ -208,7 +294,7 @@
         }
 
         .modal-header {
-            padding: 20px 30px;
+            padding: 15px 25px;
             background-color: var(--header-bg);
             color: white;
             display: flex;
@@ -224,14 +310,14 @@
 
         .modal-header h2 {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
         }
 
         /* Modal Progress Bar */
         .modal-progress-bg {
             background: rgba(255,255,255,0.2);
             width: 200px;
-            height: 8px;
+            height: 6px;
             border-radius: 4px;
             overflow: hidden;
         }
@@ -247,10 +333,10 @@
             background: rgba(255,255,255,0.1);
             border: none;
             color: white;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -263,7 +349,7 @@
         }
 
         .modal-body {
-            padding: 30px;
+            padding: 20px;
             overflow-y: auto;
             background-color: #fff;
         }
@@ -282,19 +368,20 @@
             background-color: #f1f5f9;
             color: var(--text-color);
             font-weight: 700;
-            padding: 15px;
+            padding: 12px;
             border-bottom: 2px solid var(--border-color);
             text-align: left;
             position: sticky;
             top: 0;
             z-index: 10;
+            font-size: 0.85rem;
         }
 
         .detail-table td {
-            padding: 15px;
+            padding: 12px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .detail-table tr:last-child td {
@@ -303,8 +390,8 @@
 
         /* Checkbox & Row Styling */
         .task-checkbox {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
             accent-color: var(--success-text);
         }
@@ -314,16 +401,33 @@
         }
         
         .completed-row td {
-            color: #94a3b8;
+            color: #475569;
         }
 
         .completed-row .task-desc {
-            text-decoration: line-through;
-            color: #94a3b8;
+            color: #166534;
+            font-weight: 700;
         }
 
         .task-desc {
-            font-weight: 500;
+            font-weight: 600;
+            display: block;
+        }
+
+        .task-meta {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 8px;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #166534;
+            font-weight: 600;
+        }
+        
+        .task-meta strong {
+            color: #15803d;
         }
 
         /* Sub-header row styling */
@@ -332,17 +436,17 @@
             color: #475569;
             font-weight: 800;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             letter-spacing: 1px;
-            padding: 12px 15px;
+            padding: 10px 12px;
         }
 
         /* Tags */
         .tag {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             white-space: normal;
             line-height: 1.2;
@@ -366,6 +470,9 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             body { padding: 10px; }
+            .control-bar { flex-direction: column; gap: 15px; align-items: stretch; }
+            .control-group { flex-direction: column; align-items: stretch; }
+            .control-group input, .control-group select { width: 100%; }
             .main-table, .main-table tbody, .main-table tr, .main-table td {
                 display: block;
                 width: 100%;
@@ -390,6 +497,7 @@
                 padding: 5px 0;
                 border: none;
             }
+            .info-grid { grid-template-columns: 1fr; }
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -402,10 +510,57 @@
     <p class="subtitle">Interactive SOP Tracker for Solo Maintainer</p>
 
     <div class="control-bar">
+        <div class="control-group">
+            <label for="projectSelect">Project:</label>
+            <select id="projectSelect" onchange="switchProject(this.value)">
+                <option value="coinpedia">CoinPedia</option>
+                <option value="ultimez">ULTIMEZ</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="devopsName">DevOps Name:</label>
+            <input type="text" id="devopsName" placeholder="Enter Name (Req. for Tasks)" onchange="saveName(this.value)">
+        </div>
+
         <button class="btn-reset" onclick="resetDailyTasks()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/></svg>
             Start New Day (Reset Daily)
         </button>
+    </div>
+
+    <!-- Project Details Section -->
+    <div class="dashboard-container" id="projectDetailsPanel">
+        <div class="project-info">
+            <div class="info-grid">
+                <!-- Environment Info -->
+                <div class="info-card">
+                    <h3>Environment & Hosting</h3>
+                    <div class="info-item"><span class="info-label">Production Env:</span> <span class="info-value" id="info-prod">Vercel (FE) + DigitalOcean (BE)</span></div>
+                    <div class="info-item"><span class="info-label">Staging/Preview:</span> <span class="info-value" id="info-stage">Vercel Preview + DO App Dev</span></div>
+                    <div class="info-item"><span class="info-label">Domain:</span> <span class="info-value" id="info-domain">coinpedia.org</span></div>
+                    <div class="info-item"><span class="info-label">CDN / Storage:</span> <span class="info-value" id="info-cdn">DigitalOcean Spaces</span></div>
+                </div>
+
+                <!-- Tech Stack Info -->
+                <div class="info-card">
+                    <h3>Technology Stack</h3>
+                    <div class="info-item"><span class="info-label">Frontend:</span> <span class="info-value" id="info-fe">Next.js (React)</span></div>
+                    <div class="info-item"><span class="info-label">Backend:</span> <span class="info-value" id="info-be">Node.js (Express/Nest)</span></div>
+                    <div class="info-item"><span class="info-label">Database:</span> <span class="info-value" id="info-db">MongoDB Atlas</span></div>
+                    <div class="info-item"><span class="info-label">CI/CD:</span> <span class="info-value" id="info-ci">GitHub Actions</span></div>
+                </div>
+
+                <!-- Tools Info -->
+                <div class="info-card">
+                    <h3>Monitoring & Tools</h3>
+                    <div class="info-item"><span class="info-label">Observability:</span> <span class="info-value" id="info-obs">New Relic</span></div>
+                    <div class="info-item"><span class="info-label">UX Analytics:</span> <span class="info-value" id="info-ux">Microsoft Clarity</span></div>
+                    <div class="info-item"><span class="info-label">SEO Tools:</span> <span class="info-value" id="info-seo">Google Search Console</span></div>
+                    <div class="info-item"><span class="info-label">API Gateway:</span> <span class="info-value" id="info-api">Google Cloud Platform</span></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="dashboard-container">
@@ -486,6 +641,56 @@
     </div>
 
     <script>
+        // Project Data Definition
+        const projects = {
+            coinpedia: {
+                name: "CoinPedia",
+                env: {
+                    prod: "Vercel (FE) + DigitalOcean (BE)",
+                    stage: "Vercel Preview + DO App Dev",
+                    domain: "coinpedia.org",
+                    cdn: "DigitalOcean Spaces"
+                },
+                stack: {
+                    fe: "Next.js (React)",
+                    be: "Node.js (Express/Nest)",
+                    db: "MongoDB Atlas",
+                    ci: "GitHub Actions"
+                },
+                tools: {
+                    obs: "New Relic",
+                    ux: "Microsoft Clarity",
+                    seo: "Google Search Console",
+                    api: "Google Cloud Platform"
+                }
+            },
+            ultimez: {
+                name: "ULTIMEZ",
+                env: {
+                    prod: "DigitalOcean App Platform",
+                    stage: "DO Dev Container",
+                    domain: "ultimez.com",
+                    cdn: "AWS S3 / DO Spaces"
+                },
+                stack: {
+                    fe: "React.js / Next.js",
+                    be: "Node.js / Python",
+                    db: "PostgreSQL / MongoDB",
+                    ci: "GitLab CI / GitHub Actions"
+                },
+                tools: {
+                    obs: "Datadog / New Relic",
+                    ux: "Hotjar / Clarity",
+                    seo: "SEMrush / GSC",
+                    api: "AWS API Gateway"
+                }
+            }
+        };
+
+        // Current Project State
+        let currentProjectId = 'coinpedia';
+        let taskState = {};
+
         // Data Structure with Links and IDs
         const processes = {
             pipeline: {
@@ -573,11 +778,46 @@
             }
         };
 
-        // Initialize State from LocalStorage
-        let taskState = JSON.parse(localStorage.getItem('devops_dashboard_state')) || {};
+        // Init Project State
+        function switchProject(projectId) {
+            currentProjectId = projectId;
+            const data = projects[projectId];
 
-        // Render Initial Progress
-        updateAllProgress();
+            // Update UI Details
+            document.getElementById('info-prod').textContent = data.env.prod;
+            document.getElementById('info-stage').textContent = data.env.stage;
+            document.getElementById('info-domain').textContent = data.env.domain;
+            document.getElementById('info-cdn').textContent = data.env.cdn;
+            
+            document.getElementById('info-fe').textContent = data.stack.fe;
+            document.getElementById('info-be').textContent = data.stack.be;
+            document.getElementById('info-db').textContent = data.stack.db;
+            document.getElementById('info-ci').textContent = data.stack.ci;
+            
+            document.getElementById('info-obs').textContent = data.tools.obs;
+            document.getElementById('info-ux').textContent = data.tools.ux;
+            document.getElementById('info-seo').textContent = data.tools.seo;
+            document.getElementById('info-api').textContent = data.tools.api;
+
+            // Load State
+            taskState = JSON.parse(localStorage.getItem('devops_dashboard_state_' + projectId)) || {};
+            
+            // Re-render Progress
+            updateAllProgress();
+        }
+
+        // Save User Name
+        function saveName(name) {
+            localStorage.setItem('devops_user_name', name);
+        }
+        
+        // Load Name on Init
+        const savedName = localStorage.getItem('devops_user_name');
+        if(savedName) document.getElementById('devopsName').value = savedName;
+
+        // Force dropdown sync and load default
+        document.getElementById('projectSelect').value = currentProjectId;
+        switchProject(currentProjectId);
 
         function openModal(type) {
             const data = processes[type];
@@ -599,8 +839,15 @@
             data.sections.forEach(section => {
                 html += `<tr class="sub-header"><td colspan="6">${section.title}</td></tr>`;
                 section.tasks.forEach(task => {
-                    const isChecked = taskState[task.id] ? 'checked' : '';
-                    const rowClass = taskState[task.id] ? 'completed-row' : '';
+                    const taskData = taskState[task.id];
+                    const isChecked = taskData?.completed ? 'checked' : '';
+                    const rowClass = taskData?.completed ? 'completed-row' : '';
+                    
+                    // Meta Info String - Using the NEW Badge Style
+                    let metaInfo = '';
+                    if(taskData?.completed) {
+                        metaInfo = `<span class="task-meta">✓ Submitted by <strong>${taskData.user}</strong> on ${taskData.time}</span>`;
+                    }
                     
                     // Determine Automation Tag Style
                     const isAuto = task.auto.toLowerCase().includes('yes');
@@ -608,11 +855,14 @@
                     
                     html += `
                         <tr class="${rowClass}" id="row-${task.id}">
-                            <td style="text-align: center;">
-                                <input type="checkbox" class="task-checkbox" 
+                            <td style="text-align: center; vertical-align: top; padding-top: 20px;">
+                                <input type="checkbox" id="checkbox-${task.id}" class="task-checkbox" 
                                     onclick="toggleTask('${type}', '${task.id}')" ${isChecked}>
                             </td>
-                            <td><span class="task-desc">${task.desc}</span></td>
+                            <td>
+                                <span class="task-desc">${task.desc}</span>
+                                <div id="info-${task.id}">${metaInfo}</div>
+                            </td>
                             <td><span class="tag tag-freq">${task.freq}</span></td>
                             <td>${task.note}</td>
                             <td><span class="${autoClass}">${task.auto}</span></td>
@@ -630,19 +880,52 @@
         }
 
         function toggleTask(type, taskId) {
-            // Toggle state
-            if (taskState[taskId]) {
-                delete taskState[taskId];
-                document.getElementById(`row-${taskId}`).classList.remove('completed-row');
-            } else {
-                taskState[taskId] = true;
-                document.getElementById(`row-${taskId}`).classList.add('completed-row');
+            let userName = document.getElementById('devopsName').value.trim();
+            
+            // Check if name is entered before allowing check
+            if (!taskState[taskId]?.completed && !userName) {
+                // Try to get name via prompt if not set
+                const inputName = prompt("DevOps Name is required to submit tasks.\nPlease enter your name:");
+                if (inputName && inputName.trim()) {
+                    userName = inputName.trim();
+                    // Update the input field and save
+                    document.getElementById('devopsName').value = userName;
+                    saveName(userName);
+                } else {
+                    // User cancelled or entered nothing
+                    document.getElementById(`checkbox-${taskId}`).checked = false;
+                    return;
+                }
             }
 
-            // Save
-            localStorage.setItem('devops_dashboard_state', JSON.stringify(taskState));
+            // Toggle logic
+            if (taskState[taskId]?.completed) {
+                // Uncheck
+                delete taskState[taskId];
+                document.getElementById(`row-${taskId}`).classList.remove('completed-row');
+                const infoEl = document.getElementById(`info-${taskId}`);
+                if(infoEl) infoEl.innerHTML = '';
+            } else {
+                // Check
+                const now = new Date().toLocaleString();
+                taskState[taskId] = {
+                    completed: true,
+                    user: userName,
+                    time: now
+                };
+                document.getElementById(`row-${taskId}`).classList.add('completed-row');
+                
+                // Update info text immediately
+                const infoEl = document.getElementById(`info-${taskId}`);
+                if(infoEl) {
+                    infoEl.innerHTML = `<span class="task-meta">✓ Submitted by <strong>${userName}</strong> on ${now}</span>`;
+                }
+            }
+
+            // Save Per Project
+            localStorage.setItem('devops_dashboard_state_' + currentProjectId, JSON.stringify(taskState));
             
-            // Update UI
+            // Update UI Progress
             updateModalProgress(type);
             updateAllProgress();
         }
@@ -676,7 +959,7 @@
             processes[type].sections.forEach(sec => {
                 sec.tasks.forEach(task => {
                     total++;
-                    if (taskState[task.id]) done++;
+                    if (taskState[task.id]?.completed) done++;
                 });
             });
 
@@ -684,7 +967,7 @@
         }
 
         function resetDailyTasks() {
-            if(!confirm("Are you sure you want to reset all DAILY tasks for a new day?")) return;
+            if(!confirm(`Are you sure you want to reset all DAILY tasks for ${projects[currentProjectId].name}?`)) return;
 
             // Loop through all processes, find 'Daily' tasks, and uncheck them
             for (const key in processes) {
@@ -697,7 +980,7 @@
                 });
             }
             
-            localStorage.setItem('devops_dashboard_state', JSON.stringify(taskState));
+            localStorage.setItem('devops_dashboard_state_' + currentProjectId, JSON.stringify(taskState));
             updateAllProgress();
             
             // If modal is open, refresh it
