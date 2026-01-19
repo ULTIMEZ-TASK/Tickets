@@ -7,72 +7,175 @@
     <style>
         :root {
             --primary-color: #2563eb;
+            --secondary-color: #1e40af;
             --bg-color: #f8fafc;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-            --header-bg: #1e293b;
+            --text-color: #334155;
+            --header-bg: #0f172a;
             --header-text: #ffffff;
+            --border-color: #e2e8f0;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+            --danger-bg: #fee2e2;
+            --danger-text: #991b1b;
+            --progress-bg: #e2e8f0;
+            --progress-fill: #10b981;
+            --auto-bg: #ede9fe;
+            --auto-text: #5b21b6;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 40px;
+            padding: 40px 20px;
         }
 
         h1 {
             text-align: center;
             color: var(--header-bg);
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #64748b;
             margin-bottom: 40px;
         }
 
-        /* Main Dashboard Table Style */
-        .process-container {
-            max-width: 1000px;
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
             overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
+        /* Control Bar */
+        .control-bar {
+            max-width: 1100px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-reset {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .btn-reset:hover {
+            background-color: #dc2626;
+        }
+
+        /* Main Table Styles */
         .main-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .main-table th {
+        .main-table thead {
             background-color: var(--header-bg);
             color: var(--header-text);
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
         }
 
-        .main-table td {
-            padding: 16px;
+        .main-table th, .main-table td {
+            padding: 20px;
+            text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .main-table tr:hover {
-            background-color: #f1f5f9;
+        .main-table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
         }
 
-        .action-btn {
+        .main-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .main-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .category-cell {
+            font-weight: 700;
+            color: var(--secondary-color);
+            font-size: 1.05rem;
+        }
+
+        /* Progress Bar in Main Table */
+        .mini-progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            height: 8px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .mini-progress-bar {
+            height: 100%;
+            background-color: var(--progress-fill);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Button Styles */
+        .btn-view {
             background-color: var(--primary-color);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+            width: 100%;
+            text-align: center;
         }
 
-        .action-btn:hover {
-            background-color: #1d4ed8;
+        .btn-view:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-action {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-color);
+            color: white;
         }
 
         /* Modal Styles */
@@ -83,26 +186,29 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.2s ease-out;
         }
 
         .modal-content {
             background: white;
-            width: 90%;
-            max-width: 1200px;
+            width: 95%;
+            max-width: 1300px;
             max-height: 90vh;
-            border-radius: 8px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            animation: slideUp 0.3s ease-out;
         }
 
         .modal-header {
-            padding: 20px;
+            padding: 20px 30px;
             background-color: var(--header-bg);
             color: white;
             display: flex;
@@ -110,352 +216,515 @@
             align-items: center;
         }
 
+        .modal-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
         .modal-header h2 {
             margin: 0;
-            font-size: 1.25rem;
+            font-size: 1.4rem;
+        }
+
+        /* Modal Progress Bar */
+        .modal-progress-bg {
+            background: rgba(255,255,255,0.2);
+            width: 200px;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .modal-progress-fill {
+            background: #4ade80;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         .close-btn {
-            background: transparent;
+            background: rgba(255,255,255,0.1);
             border: none;
             color: white;
-            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.2rem;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .modal-body {
-            padding: 20px;
+            padding: 30px;
             overflow-y: auto;
+            background-color: #fff;
         }
 
-        /* Detail Table Styles inside Modal */
+        /* Detail Table Styles */
         .detail-table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-        }
-
-        .detail-table th, .detail-table td {
+            border-collapse: separate;
+            border-spacing: 0;
             border: 1px solid var(--border-color);
-            padding: 12px;
-            text-align: left;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .detail-table th {
             background-color: #f1f5f9;
             color: var(--text-color);
-            font-weight: 600;
+            font-weight: 700;
+            padding: 15px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .tag-yes {
-            background-color: #dcfce7;
-            color: #166534;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+        .detail-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.95rem;
         }
 
-        .tag-no {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+        .detail-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .sub-header {
+        /* Checkbox & Row Styling */
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--success-text);
+        }
+
+        .completed-row {
+            background-color: #f0fdf4;
+        }
+        
+        .completed-row td {
+            color: #94a3b8;
+        }
+
+        .completed-row .task-desc {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+
+        .task-desc {
+            font-weight: 500;
+        }
+
+        /* Sub-header row styling */
+        .sub-header td {
             background-color: #e2e8f0;
-            font-weight: bold;
-            text-align: center;
+            color: #475569;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 12px 15px;
         }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: normal;
+            line-height: 1.2;
+        }
+
+        .tag-freq {
+            background-color: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .tag-auto {
+            background-color: var(--auto-bg);
+            color: var(--auto-text);
+        }
+        
+        .tag-manual {
+            background-color: #fff1f2;
+            color: #be123c;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .main-table, .main-table tbody, .main-table tr, .main-table td {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .main-table thead { display: none; }
+            .main-table tr { margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            .modal-content { width: 100%; height: 100%; border-radius: 0; }
+            
+            /* Responsive Modal Table */
+            .detail-table, .detail-table tbody, .detail-table tr, .detail-table td {
+                display: block;
+                width: 100%;
+            }
+            .detail-table thead { display: none; }
+            .detail-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid #e2e8f0;
+                padding: 10px;
+            }
+            .detail-table td {
+                padding: 5px 0;
+                border: none;
+            }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <h1>DevOps & Infrastructure SOP Dashboard</h1>
+    <h1>DevOps Functional Dashboard</h1>
+    <p class="subtitle">Interactive SOP Tracker for Solo Maintainer</p>
 
-    <div class="process-container">
+    <div class="control-bar">
+        <button class="btn-reset" onclick="resetDailyTasks()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74-2.74L3 12"/></svg>
+            Start New Day (Reset Daily)
+        </button>
+    </div>
+
+    <div class="dashboard-container">
         <table class="main-table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Process Category</th>
-                    <th>Components Included</th>
-                    <th>Action</th>
+                    <th style="width: 5%">#</th>
+                    <th style="width: 35%">Process Category</th>
+                    <th style="width: 35%">Progress</th>
+                    <th style="width: 25%">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td>1</td>
-                    <td><strong>Pipeline Setup Process</strong></td>
-                    <td>Environment Config, Tech Stack (CI/CD), 3rd Party Resources</td>
-                    <td><button class="action-btn" onclick="openModal('pipeline')">View Details</button></td>
+                    <td class="category-cell">Pipeline Setup Process</td>
+                    <td>
+                        <div class="mini-progress-container">
+                            <div id="prog-pipeline" class="mini-progress-bar"></div>
+                        </div>
+                        <small id="text-pipeline" style="color: #64748b;">0% Complete</small>
+                    </td>
+                    <td><button class="btn-view" onclick="openModal('pipeline')">Manage & Track</button></td>
                 </tr>
                 <tr>
                     <td>2</td>
-                    <td><strong>Ticket Deploy & Monitoring</strong></td>
-                    <td>Ticket Creation, Branching, Deployment, Post-Deploy Checks</td>
-                    <td><button class="action-btn" onclick="openModal('ticket')">View Details</button></td>
+                    <td class="category-cell">Ticket Deploy & Monitoring</td>
+                    <td>
+                        <div class="mini-progress-container">
+                            <div id="prog-ticket" class="mini-progress-bar"></div>
+                        </div>
+                        <small id="text-ticket" style="color: #64748b;">0% Complete</small>
+                    </td>
+                    <td><button class="btn-view" onclick="openModal('ticket')">Manage & Track</button></td>
                 </tr>
                 <tr>
                     <td>3</td>
-                    <td><strong>Infrastructure Management Routine</strong></td>
-                    <td>Server Health, Costs, Updates (DO/GCP), Reporting</td>
-                    <td><button class="action-btn" onclick="openModal('infra')">View Details</button></td>
+                    <td class="category-cell">Infrastructure Management</td>
+                    <td>
+                        <div class="mini-progress-container">
+                            <div id="prog-infra" class="mini-progress-bar"></div>
+                        </div>
+                        <small id="text-infra" style="color: #64748b;">0% Complete</small>
+                    </td>
+                    <td><button class="btn-view" onclick="openModal('infra')">Manage & Track</button></td>
                 </tr>
                 <tr>
                     <td>4</td>
-                    <td><strong>Application Management Routine</strong></td>
-                    <td>UX (Clarity), Errors (New Relic), SEO (Console), Reporting</td>
-                    <td><button class="action-btn" onclick="openModal('app')">View Details</button></td>
+                    <td class="category-cell">Application Management</td>
+                    <td>
+                        <div class="mini-progress-container">
+                            <div id="prog-app" class="mini-progress-bar"></div>
+                        </div>
+                        <small id="text-app" style="color: #64748b;">0% Complete</small>
+                    </td>
+                    <td><button class="btn-view" onclick="openModal('app')">Manage & Track</button></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
+    <!-- POPUP MODAL -->
     <div id="modalOverlay" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Process Details</h2>
+                <div class="modal-header-left">
+                    <h2 id="modalTitle">Process Details</h2>
+                    <div class="modal-progress-bg">
+                        <div id="modalProgressBar" class="modal-progress-fill"></div>
+                    </div>
+                </div>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody">
-                </div>
+                <!-- Content injected via JS -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Data Store for the SOPs
-        const sopData = {
-            pipeline: `
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>TASK DESCRIPTION</th>
-                            <th>FREQUENCY</th>
-                            <th>STATUS</th>
-                            <th>NOTE</th>
-                            <th>CAN WE AUTOMATE?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="sub-header"><td colspan="5">Based On Environment</td></tr>
-                        <tr>
-                            <td>Configure Local Docker Environments</td>
-                            <td>One-time / Ad-hoc</td>
-                            <td>Active</td>
-                            <td>Ensure parity with Prod DB versions</td>
-                            <td><span class="tag-yes">Yes (Docker Compose)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Setup Vercel Preview Deployments</td>
-                            <td>Per PR</td>
-                            <td>Active</td>
-                            <td>Auto-generates URLs for QA</td>
-                            <td><span class="tag-yes">Yes (Vercel Git)</span></td>
-                        </tr>
-                        <tr class="sub-header"><td colspan="5">Based On Tech Stack</td></tr>
-                        <tr>
-                            <td>Configure GitHub Actions (Backend Build)</td>
-                            <td>Per Push</td>
-                            <td>Active</td>
-                            <td>Run Tests -> Build Docker -> Push Registry</td>
-                            <td><span class="tag-yes">Yes (YAML Workflows)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Vercel Frontend Build Config</td>
-                            <td>Per Push</td>
-                            <td>Active</td>
-                            <td>Output dir: .next, Build: npm run build</td>
-                            <td><span class="tag-yes">Yes</span></td>
-                        </tr>
-                        <tr class="sub-header"><td colspan="5">3rd Party Resources</td></tr>
-                        <tr>
-                            <td>Sync Secrets/API Keys (GCP, Mongo)</td>
-                            <td>Ad-hoc</td>
-                            <td>Pending</td>
-                            <td>Add to Github Secrets & Vercel Env Vars</td>
-                            <td><span class="tag-yes">Yes (Doppler/Vault)</span></td>
-                        </tr>
-                    </tbody>
-                </table>`,
-            
-            ticket: `
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>TASK DESCRIPTION</th>
-                            <th>FREQUENCY</th>
-                            <th>STATUS</th>
-                            <th>NOTE</th>
-                            <th>CAN WE AUTOMATE?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Create Feature Branch (fix/xyz)</td>
-                            <td>Per Ticket</td>
-                            <td>Active</td>
-                            <td>Never push directly to main</td>
-                            <td><span class="tag-no">No</span></td>
-                        </tr>
-                        <tr>
-                            <td>Review Vercel Preview URL</td>
-                            <td>Per PR</td>
-                            <td>Active</td>
-                            <td>Verify UI changes before merge</td>
-                            <td><span class="tag-no">No (Manual QA)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Merge to Main (Trigger Deploy)</td>
-                            <td>Per Ticket</td>
-                            <td>Active</td>
-                            <td>Triggers CI/CD Pipeline</td>
-                            <td><span class="tag-yes">Yes (Github Actions)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Post-Deploy Health Check</td>
-                            <td>Immediately</td>
-                            <td>Active</td>
-                            <td>Check New Relic for error spikes (5 mins)</td>
-                            <td><span class="tag-yes">Yes (Alert Policies)</span></td>
-                        </tr>
-                    </tbody>
-                </table>`,
-
-            infra: `
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>TASK DESCRIPTION</th>
-                            <th>FREQUENCY</th>
-                            <th>STATUS</th>
-                            <th>NOTE</th>
-                            <th>CAN WE AUTOMATE?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="sub-header"><td colspan="5">DigitalOcean (Backend)</td></tr>
-                        <tr>
-                            <td>Monitor Droplet CPU/RAM & Disk</td>
-                            <td>Daily (Auto)</td>
-                            <td>Active</td>
-                            <td>Alert if Usage > 85%</td>
-                            <td><span class="tag-yes">Yes (New Relic Infra)</span></td>
-                        </tr>
-                        <tr>
-                            <td>OS Security Updates (apt-get)</td>
-                            <td>Monthly</td>
-                            <td>Pending</td>
-                            <td>Schedule maintenance window</td>
-                            <td><span class="tag-yes">Yes (Unattended Upgrades)</span></td>
-                        </tr>
-                        <tr class="sub-header"><td colspan="5">GCP (Google Cloud)</td></tr>
-                        <tr>
-                            <td>Monitor API Quotas & Limits</td>
-                            <td>Weekly</td>
-                            <td>Active</td>
-                            <td>Prevent service denial</td>
-                            <td><span class="tag-yes">Yes (GCP Alerts)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Cost Analysis & Billing</td>
-                            <td>Monthly</td>
-                            <td>Active</td>
-                            <td>Check for cost anomalies</td>
-                            <td><span class="tag-yes">Yes (Budget Alerts)</span></td>
-                        </tr>
-                         <tr class="sub-header"><td colspan="5">Reporting & Action</td></tr>
-                        <tr>
-                            <td>Generate Weekly Infra Status Report</td>
-                            <td>Weekly</td>
-                            <td>Active</td>
-                            <td>Log uptime & cost changes</td>
-                            <td><span class="tag-no">No</span></td>
-                        </tr>
-                    </tbody>
-                </table>`,
-
-            app: `
-                <table class="detail-table">
-                    <thead>
-                        <tr>
-                            <th>TASK DESCRIPTION</th>
-                            <th>FREQUENCY</th>
-                            <th>STATUS</th>
-                            <th>NOTE</th>
-                            <th>CAN WE AUTOMATE?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="sub-header"><td colspan="5">Observability (New Relic)</td></tr>
-                        <tr>
-                            <td>Triage APM Error Rates (5xx)</td>
-                            <td>Daily</td>
-                            <td>Active</td>
-                            <td>Investigate if error rate > 1%</td>
-                            <td><span class="tag-yes">Yes (Slack Alerts)</span></td>
-                        </tr>
-                        <tr>
-                            <td>Synthetics Uptime Check</td>
-                            <td>Daily</td>
-                            <td>Active</td>
-                            <td>Verify API endpoints</td>
-                            <td><span class="tag-yes">Yes</span></td>
-                        </tr>
-                        <tr class="sub-header"><td colspan="5">UX & SEO (Clarity / Search Console)</td></tr>
-                        <tr>
-                            <td>Review "Rage Clicks" (Clarity)</td>
-                            <td>Weekly</td>
-                            <td>Pending</td>
-                            <td>Identify broken UI elements</td>
-                            <td><span class="tag-no">No</span></td>
-                        </tr>
-                        <tr>
-                            <td>Check Indexing Errors (Search Console)</td>
-                            <td>Weekly</td>
-                            <td>Active</td>
-                            <td>Fix 404s and soft 404s</td>
-                            <td><span class="tag-yes">Yes (Email Digest)</span></td>
-                        </tr>
-                        <tr class="sub-header"><td colspan="5">Reporting & Action</td></tr>
-                        <tr>
-                            <td>Generate App Health Report</td>
-                            <td>Weekly</td>
-                            <td>Active</td>
-                            <td>Summarize bugs fixed vs found</td>
-                            <td><span class="tag-no">No</span></td>
-                        </tr>
-                    </tbody>
-                </table>`
+        // Data Structure with Links and IDs
+        const processes = {
+            pipeline: {
+                title: "1. Pipeline Setup Process",
+                sections: [
+                    { title: "Environment (Node/React)", tasks: [
+                        { id: "p1", desc: "Docker Local Env", freq: "One-time", note: "Containerize Node.js API & Mongo", auto: "Yes (Docker)", link: "https://docs.docker.com/compose/", linkText: "Docs" },
+                        { id: "p2", desc: "Vercel Preview Config", freq: "One-time", note: "Auto-deploy Next.js on PRs", auto: "Yes (Vercel)", link: "https://vercel.com/dashboard", linkText: "Vercel" },
+                        { id: "p3", desc: "DO App Spec Config", freq: "Ad-hoc", note: "Update App Platform YAML", auto: "No", link: "https://cloud.digitalocean.com/apps", linkText: "DO App" }
+                    ]},
+                    { title: "Tech Stack (CI/CD)", tasks: [
+                        { id: "p4", desc: "Node.js CI Pipeline", freq: "Per Push", note: "Github Actions: Lint, Test, Build", auto: "Yes (Actions)", link: "https://github.com/", linkText: "GitHub" },
+                        { id: "p5", desc: "Container Registry", freq: "Ad-hoc", note: "Push Node.js Docker images to DO", auto: "Yes (Actions)", link: "https://cloud.digitalocean.com/registry", linkText: "Registry" }
+                    ]},
+                    { title: "3rd Party Secrets", tasks: [
+                        { id: "p7", desc: "Sync GCP/API Keys", freq: "Ad-hoc", note: "Update Github Secrets & Vercel Env", auto: "No", link: "https://github.com/", linkText: "Secrets" }
+                    ]}
+                ]
+            },
+            ticket: {
+                title: "2. Ticket Deploy & Monitoring Process",
+                sections: [
+                    { title: "Development", tasks: [
+                        { id: "t1", desc: "Create Feature Branch", freq: "Per Ticket", note: "fix/auth-bug or feat/user-profile", auto: "No", link: "https://github.com/", linkText: "GitHub" },
+                        { id: "t2", desc: "Verify Vercel Preview", freq: "Per PR", note: "Test Next.js UI on preview URL", auto: "No", link: "https://vercel.com/dashboard", linkText: "Vercel" }
+                    ]},
+                    { title: "Deployment (Production)", tasks: [
+                        { id: "t3", desc: "Merge to Main", freq: "Per Ticket", note: "Triggers Vercel (FE) & DO App (BE)", auto: "Yes (Git)", link: "https://github.com/", linkText: "Merge PR" },
+                        { id: "t4", desc: "Smoke Test APIs", freq: "Immediate", note: "Check Login/Location APIs", auto: "Yes (Alerts)", link: "https://one.newrelic.com", linkText: "New Relic" }
+                    ]}
+                ]
+            },
+            infra: {
+                title: "3. Infrastructure Management Routine",
+                sections: [
+                    { title: "DigitalOcean (Via New Relic)", tasks: [
+                        { id: "i1", desc: "Droplet: Monitor Disk Usage & Load", freq: "Daily", note: "Alert if >85% Scale if Necessary only", auto: "Yes (New Relic Infra)", link: "https://cloud.digitalocean.com/droplets", linkText: "Droplets" },
+                        { id: "i2", desc: "App Platform: Check Deployment stability", freq: "Daily", note: "Monitor health checks", auto: "Yes (New Relic)", link: "https://cloud.digitalocean.com/apps", linkText: "Apps" },
+                        { id: "i3", desc: "Databases: Check Connection counts", freq: "Weekly", note: "Monitor pool usage", auto: "Yes (New Relic)", link: "https://cloud.digitalocean.com/databases", linkText: "DBs" },
+                        { id: "i4", desc: "Droplet: Apply OS security updates", freq: "Monthly", note: "Critical patches asap", auto: "Yes (Unattended Upgrades)", link: "https://cloud.digitalocean.com/droplets", linkText: "Console" },
+                        { id: "i5", desc: "App Platform: Review build logs & failures", freq: "Daily", note: "Check recent commits", auto: "Yes (Slack/Email)", link: "https://cloud.digitalocean.com/apps", linkText: "Logs" },
+                        { id: "i6", desc: "Active Connections", freq: "Daily", note: "Check connection limit", auto: "Yes", link: "#", linkText: "Monitor" },
+                        { id: "i7", desc: "DB health & status", freq: "Daily", note: "Primary/replica status", auto: "Yes", link: "#", linkText: "DB Status" }
+                    ]},
+                    { title: "GCP (Google Cloud)", tasks: [
+                        { id: "i8", desc: "BigQuery: Cost & Slot Usage Analysis", freq: "Weekly", note: "Optimize expensive queries", auto: "Yes (Billing Alerts)", link: "https://console.cloud.google.com/bigquery", linkText: "BigQuery" },
+                        { id: "i9", desc: "APIs: Monitor Quota usage, Errors & Latency", freq: "Weekly", note: "Check Limits", auto: "Yes (GCP Alerts)", link: "https://console.cloud.google.com/apis/dashboard", linkText: "GCP APIs" }
+                    ]},
+                    { title: "Vercel", tasks: [
+                        { id: "i10", desc: "Project: Review Build Logs for errors", freq: "Daily", note: "Check for build errors", auto: "Yes (Vercel Integration)", link: "https://vercel.com/dashboard", linkText: "Vercel" },
+                        { id: "i11", desc: "Access Logs: Monitor 4xx/5xx", freq: "Daily", note: "Focus on Error fixing", auto: "No (Manual)", link: "https://vercel.com/dashboard/usage", linkText: "Logs" },
+                        { id: "i12", desc: "Functions: Monitor Execution duration", freq: "Weekly", note: "Optimize serverless fns", auto: "Yes (New Relic)", link: "https://vercel.com/dashboard/usage", linkText: "Functions" }
+                    ]},
+                    { title: "MongoDB Atlas", tasks: [
+                        { id: "i13", desc: "Clusters: Monitor CPU, IOPS, Connections", freq: "Daily", note: "Auto-scale if needed", auto: "Yes (Atlas Alerts)", link: "https://cloud.mongodb.com/", linkText: "Atlas" },
+                        { id: "i14", desc: "Performance Advisor (Slow queries)", freq: "Monthly", note: "Add suggested indexes", auto: "No (Decision Req)", link: "https://cloud.mongodb.com/", linkText: "Advisor" },
+                        { id: "i15", desc: "Security: Review DB Access", freq: "Quarterly", note: "Remove old devs/IPs", auto: "No (Manual)", link: "https://cloud.mongodb.com/", linkText: "Security" }
+                    ]},
+                    { title: "General", tasks: [
+                        { id: "i16", desc: "Regular Backup (App & DB)", freq: "Weekly/On demand", note: "Have a Rollback plan", auto: "Yes (Auto Backup)", link: "#", linkText: "Backups" },
+                        { id: "i17", desc: "Application Uptime monitor", freq: "Daily", note: "Check status pages", auto: "Yes", link: "https://betterstack.com/", linkText: "Uptime" }
+                    ]}
+                ]
+            },
+            app: {
+                title: "4. Application Management Routine",
+                sections: [
+                    { title: "New Relic (Observability)", tasks: [
+                        { id: "a1", desc: "APM: Review Error Rate & Traces", freq: "Daily", note: "Investigation needed if >1%", auto: "Yes (Alert Policies)", link: "https://one.newrelic.com", linkText: "APM" },
+                        { id: "a2", desc: "Synthetics: Monitor API Uptime", freq: "Daily", note: "Check ping locations", auto: "Yes (Slack/Email)", link: "https://one.newrelic.com/synthetics", linkText: "Synthetics" },
+                        { id: "a3", desc: "Browser: Core Web Vitals (LCP, CLS)", freq: "Weekly", note: "Performance optimization", auto: "Yes (Dashboards)", link: "https://one.newrelic.com/browser", linkText: "Browser" },
+                        { id: "a4", desc: "Infra: Review Host CPU/RAM thresholds", freq: "Weekly", note: "Adjust alert thresholds", auto: "Yes (Infra Alerts)", link: "https://one.newrelic.com/infrastructure", linkText: "Infra" },
+                        { id: "a5", desc: "Slow APIs and their Components", freq: "Daily", note: "Alerts on slow API Response", auto: "Yes (Investigate)", link: "https://one.newrelic.com", linkText: "APIs" }
+                    ]},
+                    { title: "Google Search Console (SEO)", tasks: [
+                        { id: "a6", desc: "Check Pages for Indexing Errors (404/5xx)", freq: "Weekly", note: "Fix broken links/redirects", auto: "Yes (Email Digest)", link: "https://search.google.com/search-console", linkText: "GSC" },
+                        { id: "a7", desc: "Review Performance (Clicks/Impressions)", freq: "Monthly", note: "Compare vs previous month", auto: "No (Manual)", link: "https://search.google.com/search-console/performance", linkText: "Performance" },
+                        { id: "a8", desc: "Inspect URL for new critical pages", freq: "Ad-hoc", note: "Ensure rapid indexing", auto: "No", link: "https://search.google.com/search-console", linkText: "Inspect" }
+                    ]},
+                    { title: "Microsoft Clarity (UX)", tasks: [
+                        { id: "a9", desc: "Review Rage Clicks & Dead Clicks", freq: "Weekly", note: "ID broken UI elements", auto: "No (Manual)", link: "https://clarity.microsoft.com/projects", linkText: "Clarity" },
+                        { id: "a10", desc: "Watch Session Recordings", freq: "Weekly", note: "ID checkout/login friction", auto: "No", link: "https://clarity.microsoft.com/recordings", linkText: "Recordings" }
+                    ]}
+                ]
+            }
         };
 
-        function openModal(type) {
-            const titles = {
-                pipeline: "1. Pipeline Setup Process SOP",
-                ticket: "2. Ticket Deploy & Monitoring Process SOP",
-                infra: "3. Infrastructure Manage Routine SOP",
-                app: "4. Application Manage Routine SOP"
-            };
+        // Initialize State from LocalStorage
+        let taskState = JSON.parse(localStorage.getItem('devops_dashboard_state')) || {};
 
-            document.getElementById('modalTitle').innerText = titles[type];
-            document.getElementById('modalBody').innerHTML = sopData[type];
+        // Render Initial Progress
+        updateAllProgress();
+
+        function openModal(type) {
+            const data = processes[type];
+            document.getElementById('modalTitle').innerText = data.title;
+            
+            let html = `<table class="detail-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%">Done</th>
+                                <th style="width: 30%">Task Description</th>
+                                <th style="width: 10%">Freq</th>
+                                <th style="width: 25%">Note</th>
+                                <th style="width: 20%">Automation?</th>
+                                <th style="width: 10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            data.sections.forEach(section => {
+                html += `<tr class="sub-header"><td colspan="6">${section.title}</td></tr>`;
+                section.tasks.forEach(task => {
+                    const isChecked = taskState[task.id] ? 'checked' : '';
+                    const rowClass = taskState[task.id] ? 'completed-row' : '';
+                    
+                    // Determine Automation Tag Style
+                    const isAuto = task.auto.toLowerCase().includes('yes');
+                    const autoClass = isAuto ? 'tag tag-auto' : 'tag tag-manual';
+                    
+                    html += `
+                        <tr class="${rowClass}" id="row-${task.id}">
+                            <td style="text-align: center;">
+                                <input type="checkbox" class="task-checkbox" 
+                                    onclick="toggleTask('${type}', '${task.id}')" ${isChecked}>
+                            </td>
+                            <td><span class="task-desc">${task.desc}</span></td>
+                            <td><span class="tag tag-freq">${task.freq}</span></td>
+                            <td>${task.note}</td>
+                            <td><span class="${autoClass}">${task.auto}</span></td>
+                            <td><a href="${task.link}" target="_blank" class="btn-action">${task.linkText} &nearr;</a></td>
+                        </tr>
+                    `;
+                });
+            });
+
+            html += `</tbody></table>`;
+            
+            document.getElementById('modalBody').innerHTML = html;
             document.getElementById('modalOverlay').style.display = 'flex';
+            updateModalProgress(type);
+        }
+
+        function toggleTask(type, taskId) {
+            // Toggle state
+            if (taskState[taskId]) {
+                delete taskState[taskId];
+                document.getElementById(`row-${taskId}`).classList.remove('completed-row');
+            } else {
+                taskState[taskId] = true;
+                document.getElementById(`row-${taskId}`).classList.add('completed-row');
+            }
+
+            // Save
+            localStorage.setItem('devops_dashboard_state', JSON.stringify(taskState));
+            
+            // Update UI
+            updateModalProgress(type);
+            updateAllProgress();
+        }
+
+        function updateModalProgress(type) {
+            const stats = calculateProgress(type);
+            const percent = stats.total === 0 ? 0 : Math.round((stats.done / stats.total) * 100);
+            document.getElementById('modalProgressBar').style.width = `${percent}%`;
+        }
+
+        function updateAllProgress() {
+            for (const key in processes) {
+                const stats = calculateProgress(key);
+                const percent = stats.total === 0 ? 0 : Math.round((stats.done / stats.total) * 100);
+                
+                // Update Main Dashboard Bars
+                const bar = document.getElementById(`prog-${key}`);
+                const text = document.getElementById(`text-${key}`);
+                
+                if(bar && text) {
+                    bar.style.width = `${percent}%`;
+                    text.innerText = `${percent}% Complete (${stats.done}/${stats.total})`;
+                }
+            }
+        }
+
+        function calculateProgress(type) {
+            let total = 0;
+            let done = 0;
+            
+            processes[type].sections.forEach(sec => {
+                sec.tasks.forEach(task => {
+                    total++;
+                    if (taskState[task.id]) done++;
+                });
+            });
+
+            return { total, done };
+        }
+
+        function resetDailyTasks() {
+            if(!confirm("Are you sure you want to reset all DAILY tasks for a new day?")) return;
+
+            // Loop through all processes, find 'Daily' tasks, and uncheck them
+            for (const key in processes) {
+                processes[key].sections.forEach(sec => {
+                    sec.tasks.forEach(task => {
+                        if (task.freq.includes("Daily")) {
+                            delete taskState[task.id];
+                        }
+                    });
+                });
+            }
+            
+            localStorage.setItem('devops_dashboard_state', JSON.stringify(taskState));
+            updateAllProgress();
+            
+            // If modal is open, refresh it
+            const modalTitle = document.getElementById('modalTitle').innerText;
+            if(document.getElementById('modalOverlay').style.display === 'flex') {
+                for(const key in processes) {
+                    if(processes[key].title === modalTitle) {
+                        openModal(key);
+                        break;
+                    }
+                }
+            }
         }
 
         function closeModal() {
             document.getElementById('modalOverlay').style.display = 'none';
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('modalOverlay');
-            if (event.target == modal) {
-                modal.style.display = "none";
+            if (event.target == document.getElementById('modalOverlay')) {
+                closeModal();
             }
         }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") closeModal();
+        });
     </script>
 </body>
 </html>
