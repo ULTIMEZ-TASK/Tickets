@@ -11,7 +11,7 @@
     <!-- FIREBASE SDKs (Realtime Database Version) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update, push, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // --- LIVE CONFIGURATION (Pre-filled with your credentials) ---
         const firebaseConfig = {
@@ -88,6 +88,43 @@
                 update(ref(db), updates);
             };
 
+            // NEW: Add Custom Task Function
+            window.addNewTaskDB = () => {
+                const taskText = document.getElementById('newTaskInput').value;
+                const taskFreq = document.getElementById('newFreqSelect').value;
+
+                if (!taskText.trim()) {
+                    alert("Please enter a task description");
+                    return;
+                }
+
+                const newId = `custom-${Date.now()}`;
+                const updates = {};
+                
+                // Create the task object
+                const newTask = {
+                    task: taskText,
+                    freq: taskFreq,
+                    platform: window.currentPlatform,
+                    tab: window.currentTab,
+                    isCustom: true,
+                    done: false,
+                    note: ""
+                };
+
+                updates['strategies/events_tracker_v1/' + newId] = newTask;
+
+                update(ref(db), updates).then(() => {
+                    // Reset Form
+                    document.getElementById('newTaskInput').value = "";
+                    document.getElementById('addTaskForm').classList.add('hidden');
+                    document.getElementById('addTaskBtn').classList.remove('hidden');
+                }).catch((error) => {
+                    console.error("Error adding task: ", error);
+                    alert("Failed to add task.");
+                });
+            };
+
         } catch (e) {
             console.error("Firebase Init Failed:", e);
             enableLocalFallback("Init Error");
@@ -120,6 +157,10 @@
                 window.dbData[id] = { ...current, note: noteValue };
                 localStorage.setItem('events_tracker_v1', JSON.stringify(window.dbData));
             };
+            
+            window.addNewTaskDB = () => {
+                alert("Adding new tasks is only available in Online Mode.");
+            }
         }
     </script>
 
@@ -212,12 +253,35 @@
                 </div>
             </div>
 
+            <!-- Tabs -->
             <div class="flex p-1 mx-6 mt-4 bg-slate-100 rounded-lg">
                 <button id="tabRoutine" onclick="switchTab('routine')" class="flex-1 py-2 text-sm font-semibold rounded-md transition-all shadow-sm bg-white text-slate-900">Routine Tasks (Daily/Weekly)</button>
                 <button id="tabSOPs" onclick="switchTab('sops')" class="flex-1 py-2 text-sm font-semibold rounded-md transition-all text-slate-500 hover:text-slate-700">Strategy SOPs (Monthly)</button>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-0 custom-scrollbar bg-white">
+            <!-- Add Task UI -->
+            <div class="mx-6 mt-4">
+                <button id="addTaskBtn" onclick="toggleAddForm()" class="flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Add Custom Task
+                </button>
+                
+                <div id="addTaskForm" class="hidden mt-2 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <div class="flex gap-2">
+                        <input type="text" id="newTaskInput" placeholder="Enter task description..." class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-blue-500">
+                        <select id="newFreqSelect" class="px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:border-blue-500 bg-white">
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Ad-hoc">Ad-hoc</option>
+                        </select>
+                        <button onclick="addNewTaskDB()" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">Add</button>
+                        <button onclick="toggleAddForm()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="flex-1 overflow-y-auto p-0 custom-scrollbar bg-white mt-4">
                 <table class="min-w-full divide-y divide-slate-100">
                     <thead class="bg-slate-50 sticky top-0 z-10">
                         <tr>
@@ -284,7 +348,7 @@
                     { task: "Plan 'Live Coverage' logistics", freq: "Monthly" }
                 ]
             }
-            // Note: Add full list from previous prompt here for brevity in this specific file display
+            // Add other platforms as needed based on previous context, truncated for brevity
         };
 
         // --- UI LOGIC ---
@@ -321,6 +385,21 @@
 
         window.closeModal = () => {
             document.getElementById('platformModal').classList.remove('active');
+            toggleAddForm(false); // Reset form visibility
+        }
+
+        window.toggleAddForm = (show) => {
+            const form = document.getElementById('addTaskForm');
+            const btn = document.getElementById('addTaskBtn');
+            if (show === undefined) show = form.classList.contains('hidden');
+            
+            if (show) {
+                form.classList.remove('hidden');
+                btn.classList.add('hidden');
+            } else {
+                form.classList.add('hidden');
+                btn.classList.remove('hidden');
+            }
         }
 
         window.switchTab = (tab) => {
@@ -342,42 +421,67 @@
             const tableBody = document.getElementById('taskTableBody');
             tableBody.innerHTML = '';
             
-            // Fallback if strategy data isn't full populated in this demo
-            const tasks = strategies[window.currentPlatform] ? strategies[window.currentPlatform][window.currentTab] : [{task: "Tasks loading or not defined", freq: "-"}];
+            // 1. Get Hardcoded Strategy Tasks
+            const hardcodedList = strategies[window.currentPlatform] ? strategies[window.currentPlatform][window.currentTab] : [];
+            const taskList = hardcodedList.map((t, i) => ({
+                ...t,
+                id: `${window.currentPlatform}-${window.currentTab}-${i}`.replace(/[^a-zA-Z0-9-]/g, ''),
+                isCustom: false
+            }));
+
+            // 2. Get Custom Tasks from DB
+            Object.keys(window.dbData).forEach(key => {
+                const item = window.dbData[key];
+                // Filter for current platform/tab and ensure it's a custom task (has 'task' text property stored)
+                if (item.isCustom && item.platform === window.currentPlatform && item.tab === window.currentTab) {
+                    taskList.push({
+                        id: key,
+                        task: item.task,
+                        freq: item.freq,
+                        isCustom: true
+                    });
+                }
+            });
             
             let completedCount = 0;
 
-            tasks.forEach((item, index) => {
-                const uniqueId = `${window.currentPlatform}-${window.currentTab}-${index}`.replace(/[^a-zA-Z0-9-]/g, '');
+            taskList.forEach((item, index) => {
+                // Get Live Data Status/Note
+                // If it's custom, the data is already in 'item' via DB fetch above, but we normalize access
+                const dbEntry = window.dbData[item.id] || {};
+                const isDone = dbEntry.done || false;
+                const note = dbEntry.note || "";
                 
-                // Get Live Data
-                const taskData = window.dbData[uniqueId] || { done: false, note: "" };
-                if (taskData.done) completedCount++;
+                if (isDone) completedCount++;
 
                 const tr = document.createElement('tr');
-                tr.className = `hover-row transition-colors ${taskData.done ? 'bg-blue-50/50' : ''}`;
+                tr.className = `hover-row transition-colors ${isDone ? 'bg-blue-50/50' : ''}`;
                 tr.innerHTML = `
                     <td class="px-6 py-4 text-sm text-slate-400 font-mono">${(index + 1).toString().padStart(2, '0')}</td>
-                    <td class="px-6 py-4 text-sm font-medium text-slate-700 ${taskData.done ? 'line-through text-slate-400' : ''}">${item.task}</td>
-                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 text-xs rounded-md font-medium bg-slate-100 text-slate-600">${item.freq}</span></td>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-700 ${isDone ? 'line-through text-slate-400' : ''}">
+                        ${item.task}
+                        ${item.isCustom ? '<span class="ml-2 text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">Custom</span>' : ''}
+                    </td>
+                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 text-xs rounded-md font-medium bg-slate-100 text-slate-600">${item.freq || '-'}</span></td>
                     <td class="px-6 py-4 text-center">
                         <div class="flex justify-center">
-                            <div onclick="toggleTaskDB('${uniqueId}')" class="cursor-pointer w-5 h-5 rounded border-2 ${taskData.done ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300'} flex items-center justify-center transition-all">
-                                <i data-lucide="check" class="w-3.5 h-3.5 text-white ${taskData.done ? 'opacity-100' : 'opacity-0'}"></i>
+                            <div onclick="toggleTaskDB('${item.id}')" class="cursor-pointer w-5 h-5 rounded border-2 ${isDone ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300'} flex items-center justify-center transition-all">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-white ${isDone ? 'opacity-100' : 'opacity-0'}"></i>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4">
-                        <input type="text" class="note-input" placeholder="Add note..." value="${taskData.note}" onchange="saveNoteDB('${uniqueId}', this.value)">
+                        <input type="text" class="note-input" placeholder="Add note..." value="${note}" onchange="saveNoteDB('${item.id}', this.value)">
                     </td>
                 `;
                 tableBody.appendChild(tr);
             });
 
             // Update Progress
-            const percent = Math.round((completedCount / tasks.length) * 100) || 0;
+            const total = taskList.length;
+            const percent = total === 0 ? 0 : Math.round((completedCount / total) * 100);
             document.getElementById('progressBar').style.width = `${percent}%`;
-            document.getElementById('progressText').innerText = `${completedCount}/${tasks.length} Done`;
+            document.getElementById('progressText').innerText = `${completedCount}/${total} Tasks Completed`;
             document.getElementById('progressPercent').innerText = `${percent}%`;
 
             if(typeof lucide !== 'undefined') lucide.createIcons();
