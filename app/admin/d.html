@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Task Manager</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; font-size: 0.875rem; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Hover Effects */
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .dept-row { transition: background-color 0.15s ease; }
+        .dept-row:hover { background-color: #f8fafc; }
+
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 h-screen flex overflow-hidden">
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-slate-900 text-white w-56 flex-shrink-0 flex flex-col fixed lg:relative z-30 h-full transition-transform duration-300 transform -translate-x-full lg:translate-x-0">
+        <!-- Brand -->
+        <div class="h-14 flex items-center justify-between px-4 bg-slate-950 shadow-md">
+            <div class="flex items-center gap-2 font-bold text-lg tracking-wide text-blue-400">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>TaskHub</span>
+            </div>
+            <button class="lg:hidden text-gray-400 hover:text-white" onclick="toggleSidebar()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Department List -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar py-3">
+             <div class="px-2 mb-3">
+                <button id="nav-overview" onclick="loadView('overview')" class="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-colors text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <div class="w-5 flex justify-center"><i class="fa-solid fa-table-columns"></i></div>
+                    <span>Departments</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">AD</div>
+            <div class="text-xs">
+                <p class="font-medium">Admin User</p>
+                <p class="text-slate-500 text-[10px]">Manager</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full relative w-full">
+        
+        <!-- Header -->
+        <header class="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6">
+            <div class="flex items-center gap-3">
+                <button class="lg:hidden text-gray-600 hover:text-blue-600" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div id="breadcrumbs" class="flex items-center text-xs sm:text-sm"></div>
+            </div>
+            
+            <button id="new-task-btn" onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 transition-colors shadow-sm">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">New Task</span>
+            </button>
+        </header>
+
+        <!-- Stats Bar -->
+        <div class="px-4 sm:px-6 py-4 pb-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-xs text-gray-500 font-medium">Total Tasks</p><p id="stat-total" class="text-lg font-bold text-slate-800">0</p></div>
+                    <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm"><i class="fa-solid fa-list"></i></div>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-xs text-gray-500 font-medium">Pending</p><p id="stat-pending" class="text-lg font-bold text-orange-600">0</p></div>
+                    <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm"><i class="fa-regular fa-clock"></i></div>
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                    <div><p class="text-xs text-gray-500 font-medium">Completed</p><p id="stat-completed" class="text-lg font-bold text-emerald-600">0</p></div>
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm"><i class="fa-solid fa-check"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 pt-3">
+            <div id="task-filters" class="flex items-center gap-4 border-b border-gray-200 mb-4 hidden">
+                <button class="px-1 py-1.5 text-xs font-medium text-blue-600 border-b-2 border-blue-600">All Tasks</button>
+            </div>
+            <div id="main-container" class="space-y-2"></div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Task Modal -->
+    <div id="task-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-sm relative z-10 animate-fade-in overflow-hidden">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                <h3 id="modal-title" class="text-sm font-bold text-gray-800">Add New Task</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times"></i></button>
+            </div>
+            
+            <form id="task-form" onsubmit="handleAddTask(event)" class="p-4 space-y-3">
+                <input type="hidden" id="task-id">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Task Name</label>
+                    <input type="text" id="task-title" required class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="e.g., Weekly Report">
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Task Type</label>
+                        <select id="task-type" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white">
+                            <option value="System Set">System Set</option>
+                            <option value="Routine Task">Routine Task</option>
+                            <option value="Strategy SOPs">Strategy SOPs</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Points</label>
+                        <input type="number" id="task-points" min="0" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none" placeholder="0">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Frequency</label>
+                        <select id="task-frequency" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white">
+                            <option value="Once">Once</option>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Note</label>
+                    <textarea id="task-note" rows="2" class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="Add notes here..."></textarea>
+                </div>
+                
+                <div class="pt-2">
+                    <button type="submit" id="modal-submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded shadow-sm text-xs transition-colors">
+                        Create Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration & Data ---
+        const departments = [
+            { id: 'author', name: 'Author', icon: 'fa-pen-nib', employees: 12 },
+            { id: 'editor', name: 'Editor', icon: 'fa-file-pen', employees: 5 },
+            { id: 'backlinks', name: 'Backlinks', icon: 'fa-link', employees: 4 },
+            { id: 'community', name: 'Community', icon: 'fa-users', employees: 6 },
+            { id: 'leads', name: 'Leads', icon: 'fa-magnet', employees: 3 },
+            { id: 'partnership', name: 'Partnership', icon: 'fa-handshake', employees: 2 },
+            { id: 'partner', name: 'Partner', icon: 'fa-user-group', employees: 4 },
+            { id: 'listing', name: 'Listing Executive', icon: 'fa-clipboard-list', employees: 5 },
+            { id: 'designer', name: 'Designer', icon: 'fa-palette', employees: 3 },
+            { id: 'developer', name: 'Developer', icon: 'fa-code', employees: 8 },
+            { id: 'testing', name: 'Testing', icon: 'fa-bug', employees: 4 },
+            { id: 'devops', name: 'DevOps', icon: 'fa-server', employees: 2 },
+            { id: 'pm', name: 'Project Manager', icon: 'fa-briefcase', employees: 2 },
+            { id: 'sysadmin', name: 'System Administrator', icon: 'fa-terminal', employees: 2 },
+            { id: 'data', name: 'Data Analytics', icon: 'fa-chart-line', employees: 3 },
+            { id: 'hr', name: 'HR Management', icon: 'fa-user-tie', employees: 2 }
+        ];
+
+        let currentView = 'overview';
+        let tasks = JSON.parse(localStorage.getItem('dept_dashboard_tasks')) || {};
+        let editingTaskId = null; // Track if we are editing
+
+        // --- SEED DATA ---
+        function seedDataIfEmpty(deptId, newTasks) {
+            if (!tasks[deptId] || tasks[deptId].length === 0) {
+                tasks[deptId] = newTasks.map((t, index) => ({
+                    ...t,
+                    id: `${deptId}-${Date.now()}-${index}`,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                }));
+                localStorage.setItem('dept_dashboard_tasks', JSON.stringify(tasks));
+            }
+        }
+
+        // Author
+        seedDataIfEmpty('author', [
+            { title: 'Submit New Article', type: 'Routine Task', points: 10, frequency: 'Daily', note: 'Standard article submission process' },
+            { title: 'Submit Re Update Article', type: 'Routine Task', points: 5, frequency: 'Weekly', note: 'Update existing articles' },
+            { title: 'Add Backlink', type: 'Routine Task', points: 2, frequency: 'Daily', note: 'Insert backlinks into content' },
+            { title: 'Add Opportunity Backlink', type: 'Strategy SOPs', points: 15, frequency: 'Weekly', note: 'Identify potential partners' },
+            { title: 'Add Opportunity Topic', type: 'Strategy SOPs', points: 8, frequency: 'Weekly', note: 'Research topics' }
+        ]);
+
+        // Editor
+        seedDataIfEmpty('editor', [
+            { title: 'Add New Feed Source', type: 'System Set', points: 5, frequency: 'Monthly', note: 'Research content sources' },
+            { title: 'Assign Task (Article)', type: 'Routine Task', points: 2, frequency: 'Daily', note: 'Distribute topics' },
+            { title: 'Approve & publish Content', type: 'Routine Task', points: 5, frequency: 'Daily', note: 'Quality check and publish' }
+        ]);
+
+        // Backlinks
+        seedDataIfEmpty('backlinks', [
+            { title: 'Broken Link Checking', type: 'Routine Task', points: 5, frequency: 'Daily', note: 'Scan for 404s' },
+            { title: 'Guest Post Outreach', type: 'Strategy SOPs', points: 10, frequency: 'Weekly', note: 'Contact 10 new sites' },
+            { title: 'Competitor Analysis', type: 'Strategy SOPs', points: 15, frequency: 'Monthly', note: 'Analyze competitor links' }
+        ]);
+
+        // HR Management
+        seedDataIfEmpty('hr', [
+            { title: 'Payroll Processing', type: 'System Set', points: 20, frequency: 'Monthly', note: 'Process monthly salaries' },
+            { title: 'Onboarding New Hires', type: 'Routine Task', points: 10, frequency: 'Weekly', note: 'Setup accounts for new joiners' },
+            { title: 'Employee Engagement', type: 'Strategy SOPs', points: 5, frequency: 'Monthly', note: 'Plan team activities' }
+        ]);
+
+        // DevOps
+        seedDataIfEmpty('devops', [
+            { title: 'Server Health Check', type: 'Routine Task', points: 5, frequency: 'Daily', note: 'Check CPU/RAM usage' },
+            { title: 'Backup Verification', type: 'System Set', points: 10, frequency: 'Weekly', note: 'Ensure backups are valid' },
+            { title: 'Security Audit', type: 'Strategy SOPs', points: 20, frequency: 'Monthly', note: 'Review firewall and access logs' }
+        ]);
+
+        // Community
+        seedDataIfEmpty('community', [
+            { title: 'Reply to Comments', type: 'Routine Task', points: 5, frequency: 'Daily', note: 'Engage with user comments' },
+            { title: 'Schedule Weekly Posts', type: 'Routine Task', points: 8, frequency: 'Weekly', note: 'Plan content calendar' },
+            { title: 'Engagement Strategy', type: 'Strategy SOPs', points: 15, frequency: 'Monthly', note: 'Analyze growth metrics' }
+        ]);
+
+
+        // --- DOM Elements ---
+        const breadcrumbsEl = document.getElementById('breadcrumbs');
+        const mainContainerEl = document.getElementById('main-container');
+        const taskFiltersEl = document.getElementById('task-filters');
+        const newTaskBtnEl = document.getElementById('new-task-btn');
+        const navOverviewBtn = document.getElementById('nav-overview');
+        const modal = document.getElementById('task-modal');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('mobile-overlay');
+
+        const statTotalEl = document.getElementById('stat-total');
+        const statPendingEl = document.getElementById('stat-pending');
+        const statCompletedEl = document.getElementById('stat-completed');
+
+        // --- Initialization ---
+        function init() {
+            renderSidebar();
+            loadView('overview');
+        }
+
+        // --- Routing ---
+        function loadView(viewId) {
+            currentView = viewId;
+            renderSidebar(); 
+            renderBreadcrumbs(viewId);
+            
+            if (viewId === 'overview') {
+                taskFiltersEl.classList.add('hidden');
+                newTaskBtnEl.classList.add('hidden');
+                renderOverviewTable();
+                updateGlobalStats();
+            } else {
+                taskFiltersEl.classList.remove('hidden');
+                newTaskBtnEl.classList.remove('hidden');
+                renderTasks(viewId);
+                updateDeptStats(viewId);
+            }
+
+            if(window.innerWidth < 1024) {
+                 sidebar.classList.add('-translate-x-full');
+                 overlay.classList.add('hidden');
+            }
+        }
+
+        // --- Rendering ---
+        function renderBreadcrumbs(viewId) {
+            let html = `<span class="font-medium text-gray-500 hover:text-gray-900 transition-colors cursor-pointer flex items-center gap-1" onclick="loadView('overview')"><i class="fa-solid fa-house text-[10px]"></i></span>`;
+            const chevron = `<i class="fa-solid fa-chevron-right text-[9px] text-gray-400 mx-1.5"></i>`;
+
+            if (viewId === 'overview') {
+                html += `${chevron} <span class="font-bold text-gray-800">Departments</span>`;
+            } else {
+                const dept = departments.find(d => d.id === viewId);
+                html += `${chevron} <span class="font-medium text-gray-500 hover:text-blue-600 transition-colors cursor-pointer" onclick="loadView('overview')">Departments</span>${chevron}<span class="font-bold text-blue-600 flex items-center gap-1.5"><i class="fa-solid ${dept.icon}"></i> ${dept.name}</span>`;
+            }
+            breadcrumbsEl.innerHTML = html;
+        }
+
+        function renderSidebar() {
+            if (currentView === 'overview') {
+                navOverviewBtn.className = "w-full flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-colors bg-blue-600 text-white shadow-md";
+            } else {
+                navOverviewBtn.className = "w-full flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-lg transition-colors text-slate-300 hover:bg-slate-800 hover:text-white";
+            }
+        }
+
+        function renderOverviewTable() {
+            let html = `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                                    <th class="px-4 py-2.5">Department Name</th>
+                                    <th class="px-4 py-2.5 text-center">Total Tasks</th>
+                                    <th class="px-4 py-2.5 text-center">Employees</th>
+                                    <th class="px-4 py-2.5 text-center">Performance</th>
+                                    <th class="px-4 py-2.5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+            `;
+
+            departments.forEach(dept => {
+                const deptTasks = tasks[dept.id] || [];
+                const total = deptTasks.length;
+                const completed = deptTasks.filter(t => t.completed).length;
+                
+                let score = total > 0 ? Math.round((completed / total) * 100) : 0;
+                let scoreColor = 'bg-gray-100 text-gray-600';
+                if (total > 0) {
+                    if (score >= 80) scoreColor = 'bg-emerald-100 text-emerald-700';
+                    else if (score >= 50) scoreColor = 'bg-orange-100 text-orange-700';
+                    else scoreColor = 'bg-red-100 text-red-700';
+                }
+
+                html += `
+                    <tr class="dept-row cursor-pointer group text-xs" onclick="loadView('${dept.id}')">
+                        <td class="px-4 py-2.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid ${dept.icon}"></i></div>
+                                <span class="font-medium text-gray-800 group-hover:text-blue-600 transition-colors">${dept.name}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-2.5 text-center"><span class="inline-block px-2 py-0.5 bg-gray-100 rounded text-[10px] font-bold text-gray-700">${total}</span></td>
+                        <td class="px-4 py-2.5 text-center"><span class="text-xs font-semibold text-gray-600 flex items-center justify-center gap-1"><i class="fa-solid fa-user-group text-gray-400 text-[10px]"></i> ${dept.employees}</span></td>
+                        <td class="px-4 py-2.5 text-center"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${scoreColor}">${score}%</span></td>
+                        <td class="px-4 py-2.5 text-right"><button class="text-gray-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-arrow-right-long"></i></button></td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table></div></div>`;
+            mainContainerEl.innerHTML = html;
+        }
+
+        function renderTasks(deptId) {
+            const deptTasks = tasks[deptId] || [];
+            if (deptTasks.length === 0) {
+                mainContainerEl.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12 text-gray-400 bg-white rounded-lg border border-dashed border-gray-300">
+                        <div class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3"><i class="fa-solid fa-check-double text-lg text-gray-300"></i></div>
+                        <p class="font-medium text-sm">No tasks found for this department.</p>
+                        <button onclick="openModal()" class="mt-3 text-blue-600 hover:text-blue-800 text-xs font-semibold">+ Create the first task</button>
+                    </div>`;
+                return;
+            }
+
+            const sortedTasks = [...deptTasks].sort((a, b) => (a.completed === b.completed) ? 0 : a.completed ? 1 : -1);
+
+            let html = `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
+                                    <th class="px-4 py-2.5 w-10">Status</th>
+                                    <th class="px-4 py-2.5">Task Name</th>
+                                    <th class="px-4 py-2.5">Task Type</th>
+                                    <th class="px-4 py-2.5 text-center">Points</th>
+                                    <th class="px-4 py-2.5">Frequency</th>
+                                    <th class="px-4 py-2.5 w-1/3">Note</th>
+                                    <th class="px-4 py-2.5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+            `;
+
+            sortedTasks.forEach(task => {
+                const isCompleted = task.completed;
+                const rowClass = isCompleted ? 'bg-gray-50 text-gray-400' : 'hover:bg-gray-50';
+                const strikeClass = isCompleted ? 'line-through text-gray-400' : 'text-gray-800 font-medium';
+                
+                const tType = task.type || 'Routine Task';
+                const tFreq = task.frequency || 'Once';
+                const tNote = task.note || task.desc || '-';
+                const tPoints = task.points || '-';
+
+                html += `
+                    <tr class="dept-row transition-colors text-xs ${rowClass}">
+                        <td class="px-4 py-2.5">
+                             <button onclick="toggleTask('${task.id}')" class="w-4 h-4 rounded border flex items-center justify-center transition-colors ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300 hover:border-blue-500 text-transparent bg-white'}">
+                                <i class="fa-solid fa-check text-[8px]"></i>
+                            </button>
+                        </td>
+                        <td class="px-4 py-2.5"><span class="${strikeClass}">${task.title}</span></td>
+                        <td class="px-4 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-100">${tType}</span></td>
+                        <td class="px-4 py-2.5 text-center"><span class="font-bold text-slate-700 ${isCompleted ? 'text-gray-400' : ''}">${tPoints}</span></td>
+                        <td class="px-4 py-2.5"><span class="text-gray-600">${tFreq}</span></td>
+                        <td class="px-4 py-2.5"><p class="text-gray-500 truncate max-w-xs" title="${tNote}">${tNote}</p></td>
+                        <td class="px-4 py-2.5 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="editTask('${task.id}')" class="text-gray-400 hover:text-blue-500 transition-colors" title="Edit Task">
+                                    <i class="fa-solid fa-pencil"></i>
+                                </button>
+                                <button onclick="deleteTask('${task.id}')" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete Task">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            html += `</tbody></table></div></div>`;
+            mainContainerEl.innerHTML = html;
+        }
+
+        function updateGlobalStats() {
+            let total = 0, completed = 0;
+            Object.values(tasks).forEach(deptTasks => {
+                total += deptTasks.length;
+                completed += deptTasks.filter(t => t.completed).length;
+            });
+            updateStatsUI(total, total - completed, completed);
+        }
+
+        function updateDeptStats(deptId) {
+            const deptTasks = tasks[deptId] || [];
+            const total = deptTasks.length;
+            const completed = deptTasks.filter(t => t.completed).length;
+            updateStatsUI(total, total - completed, completed);
+        }
+
+        function updateStatsUI(total, pending, completed) {
+            statTotalEl.innerText = total;
+            statPendingEl.innerText = pending;
+            statCompletedEl.innerText = completed;
+        }
+
+        // --- Actions ---
+
+        function handleAddTask(e) {
+            e.preventDefault();
+            if(currentView === 'overview') return;
+
+            const title = document.getElementById('task-title').value;
+            const type = document.getElementById('task-type').value;
+            const points = document.getElementById('task-points').value;
+            const frequency = document.getElementById('task-frequency').value;
+            const note = document.getElementById('task-note').value;
+            
+            if (!tasks[currentView]) tasks[currentView] = [];
+
+            if (editingTaskId) {
+                // UPDATE Existing Task
+                const taskIndex = tasks[currentView].findIndex(t => t.id === editingTaskId);
+                if (taskIndex > -1) {
+                    tasks[currentView][taskIndex] = {
+                        ...tasks[currentView][taskIndex],
+                        title, type, points, frequency, note
+                    };
+                }
+            } else {
+                // CREATE New Task
+                const newTask = {
+                    id: Date.now().toString(),
+                    title, type, points, frequency, note,
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                tasks[currentView].unshift(newTask);
+            }
+
+            saveData();
+            closeModal();
+            renderTasks(currentView);
+            updateDeptStats(currentView);
+        }
+
+        function editTask(taskId) {
+            const deptTasks = tasks[currentView];
+            const task = deptTasks.find(t => t.id === taskId);
+            if (task) {
+                openModal(task);
+            }
+        }
+
+        function toggleTask(taskId) {
+            const deptTasks = tasks[currentView];
+            const task = deptTasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                saveData();
+                renderTasks(currentView);
+                updateDeptStats(currentView);
+            }
+        }
+
+        function deleteTask(taskId) {
+            if(confirm('Are you sure you want to delete this task?')) {
+                tasks[currentView] = tasks[currentView].filter(t => t.id !== taskId);
+                saveData();
+                renderTasks(currentView);
+                updateDeptStats(currentView);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('dept_dashboard_tasks', JSON.stringify(tasks));
+        }
+
+        // --- UI Interaction ---
+
+        function openModal(taskToEdit = null) {
+            if (currentView === 'overview') {
+                alert("Please select a department first.");
+                return;
+            }
+            
+            modal.classList.remove('hidden');
+            
+            if (taskToEdit) {
+                // Edit Mode
+                editingTaskId = taskToEdit.id;
+                document.getElementById('modal-title').innerText = "Edit Task";
+                document.getElementById('modal-submit-btn').innerText = "Update Task";
+                
+                document.getElementById('task-title').value = taskToEdit.title;
+                document.getElementById('task-type').value = taskToEdit.type || 'Routine Task';
+                document.getElementById('task-points').value = taskToEdit.points || '';
+                document.getElementById('task-frequency').value = taskToEdit.frequency || 'Once';
+                document.getElementById('task-note').value = taskToEdit.note || taskToEdit.desc || '';
+            } else {
+                // Create Mode
+                editingTaskId = null;
+                document.getElementById('modal-title').innerText = "Add New Task";
+                document.getElementById('modal-submit-btn').innerText = "Create Task";
+                document.getElementById('task-form').reset();
+            }
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            editingTaskId = null;
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+        });
+
+        init();
+    </script>
+</body>
+</html>
