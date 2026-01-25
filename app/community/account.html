@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Post Scheduler</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Modal Transitions */
+        .modal-overlay { transition: opacity 0.2s ease-in-out; }
+        .modal-content { transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out; }
+        .hidden-modal { opacity: 0; pointer-events: none; }
+        .hidden-modal .modal-content { transform: scale(0.95); opacity: 0; }
+        .visible-modal { opacity: 1; pointer-events: auto; }
+        .visible-modal .modal-content { transform: scale(1); opacity: 1; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 h-screen overflow-hidden flex">
+
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-20 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+        <!-- Logo -->
+        <div class="h-16 flex items-center px-6 border-b border-gray-100">
+            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white mr-3">
+                <i data-lucide="hash" class="w-5 h-5"></i>
+            </div>
+            <span class="text-lg font-bold text-gray-800">CommPost</span>
+        </div>
+
+        <!-- Nav Links -->
+        <nav class="flex-1 p-4 space-y-1">
+            <button onclick="switchTab('accounts')" id="nav-accounts" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-indigo-50 text-indigo-700">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                Community Accounts
+            </button>
+            <button onclick="switchTab('schedule')" id="nav-schedule" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+                <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                Scheduled Posts
+                <span id="scheduled-count" class="ml-auto bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">0</span>
+            </button>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="p-4 border-t border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500"></div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">Alex Community Mgr</p>
+                    <p class="text-xs text-gray-500 truncate">alex@tech.co</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- Mobile Header -->
+        <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:hidden shrink-0">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="p-2 -ml-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <span id="mobile-title" class="font-semibold text-gray-900">Accounts</span>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Container -->
+        <div id="content-area" class="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
+            <!-- Content injected by JS -->
+        </div>
+    </main>
+
+    <!-- Connect Account Modal -->
+    <div id="connect-modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center">
+        <div class="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('connect-modal')"></div>
+        <div class="modal-content relative bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden m-4">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="font-semibold text-lg">Connect Account</h3>
+                <button onclick="closeModal('connect-modal')" class="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <p class="text-sm text-gray-500">Select a platform to connect to your community dashboard.</p>
+                <div class="grid grid-cols-2 gap-3" id="platform-grid">
+                    <!-- Platforms injected by JS -->
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button onclick="closeModal('connect-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Details Modal -->
+    <div id="details-modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center">
+        <div class="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('details-modal')"></div>
+        <div class="modal-content relative bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden m-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b shrink-0">
+                <h3 class="font-semibold text-lg">Account Details</h3>
+                <button onclick="closeModal('details-modal')" class="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+            <div id="details-content" class="overflow-y-auto">
+                <!-- Details injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Data ---
+        const accounts = [
+            { id: 1, name: 'Company Twitter', platform: 'Twitter', type: 'Social Media', handle: '@tech_company', icon: 'twitter', color: 'bg-blue-500', followers: '12.5k', growth: '+2.4%', status: 'connected', avgLikes: '142', avgComments: '28', apiGuide: 'https://developer.twitter.com/en/docs' },
+            { id: 2, name: 'Tech Blog', platform: 'WordPress', type: 'Blogging', handle: 'techcompany.blog', icon: 'globe', color: 'bg-blue-700', followers: '45k', growth: '+12%', status: 'connected', avgLikes: '1.2k', avgComments: '45', apiGuide: 'https://developer.wordpress.org/rest-api/' },
+            { id: 3, name: 'Weekly Digest', platform: 'Substack', type: 'Newsletters', handle: 'digest.substack.com', icon: 'mail', color: 'bg-orange-500', followers: '8.2k', growth: '+5.1%', status: 'warning', avgLikes: 'N/A', avgComments: '12', apiGuide: 'https://substackapi.com/' },
+            { id: 4, name: 'Dev Community', platform: 'Reddit', type: 'Forums', handle: 'r/tech_company', icon: 'message-square', color: 'bg-orange-600', followers: '15k', growth: '-0.5%', status: 'connected', avgLikes: '85', avgComments: '150', apiGuide: 'https://www.reddit.com/dev/api/' },
+            { id: 5, name: 'LinkedIn Page', platform: 'LinkedIn', type: 'Social Media', handle: '/company/tech', icon: 'linkedin', color: 'bg-blue-800', followers: '50k', growth: '+1.2%', status: 'error', avgLikes: '320', avgComments: '14', apiGuide: 'https://learn.microsoft.com/en-us/linkedin/' },
+            { id: 6, name: 'Customer Forum', platform: 'Discourse', type: 'Forums', handle: 'forum.tech.co', icon: 'message-square', color: 'bg-slate-600', followers: '3.4k', growth: '+8.5%', status: 'connected', avgLikes: '45', avgComments: '8', apiGuide: 'https://docs.discourse.org/' },
+        ];
+
+        const posts = [
+            { id: 101, title: 'Q1 Product Roadmap Reveal', platformId: 2, content: 'Excited to share what we have been building...', date: '2023-10-25T10:00:00', status: 'Scheduled', type: 'Article' },
+            { id: 102, title: 'Server Maintenance Notice', platformId: 1, content: 'Heads up! Scheduled maintenance tonight at 2AM UTC.', date: '2023-10-24T14:30:00', status: 'Published', type: 'Post' },
+            { id: 103, title: 'October Newsletter', platformId: 3, content: 'This month: AI trends and new features.', date: '2023-10-28T09:00:00', status: 'Draft', type: 'Email' },
+            { id: 104, title: 'AMA Session Announcement', platformId: 4, content: 'Join us for an AMA with the CEO this Friday!', date: '2023-10-26T16:00:00', status: 'Scheduled', type: 'Thread' },
+            { id: 105, title: 'New Feature Teaser', platformId: 5, content: 'Something big is coming... #innovation', date: '2023-10-27T11:00:00', status: 'Scheduled', type: 'Post' },
+        ];
+
+        const platformTypes = ['All', 'Social Media', 'Blogging', 'Newsletters', 'Forums'];
+
+        // --- State ---
+        let activeTab = 'accounts';
+        let filters = { search: '', platform: 'All', status: 'All', type: 'All' };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderView();
+            updateSidebarCount();
+            populateConnectModal();
+        });
+
+        // --- Navigation Logic ---
+        function switchTab(tabName) {
+            activeTab = tabName;
+            
+            // Update Sidebar UI
+            const navAccounts = document.getElementById('nav-accounts');
+            const navSchedule = document.getElementById('nav-schedule');
+            
+            if (tabName === 'accounts') {
+                navAccounts.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-indigo-50 text-indigo-700";
+                navSchedule.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900";
+                document.getElementById('mobile-title').textContent = 'Accounts';
+            } else {
+                navAccounts.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-50 hover:text-gray-900";
+                navSchedule.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors bg-indigo-50 text-indigo-700";
+                document.getElementById('mobile-title').textContent = 'Schedule';
+            }
+            
+            renderView();
+            // Close mobile sidebar if open
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function updateSidebarCount() {
+            const count = posts.filter(p => p.status === 'Scheduled').length;
+            document.getElementById('scheduled-count').textContent = count;
+        }
+
+        // --- Render Logic ---
+        function renderView() {
+            const container = document.getElementById('content-area');
+            if (activeTab === 'accounts') {
+                container.innerHTML = getAccountsPageHTML();
+                setupFilterListeners();
+            } else {
+                container.innerHTML = getSchedulePageHTML();
+            }
+            lucide.createIcons();
+        }
+
+        // --- Accounts Page ---
+        function getAccountsPageHTML() {
+            // Filter Data
+            const availablePlatforms = ['All', ...new Set(accounts.map(acc => acc.platform))];
+            
+            const filteredAccounts = accounts.filter(acc => {
+                const matchesType = filters.type === 'All' || acc.type === filters.type;
+                const matchesPlatform = filters.platform === 'All' || acc.platform === filters.platform;
+                const matchesStatus = filters.status === 'All' ? true : (filters.status === 'Issues' ? acc.status !== 'connected' : acc.status === filters.status);
+                const matchesSearch = acc.name.toLowerCase().includes(filters.search.toLowerCase()) || acc.platform.toLowerCase().includes(filters.search.toLowerCase());
+                return matchesType && matchesPlatform && matchesStatus && matchesSearch;
+            });
+
+            return `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Connected Accounts</h1>
+                            <p class="text-gray-500 text-sm mt-1">Manage your community presence across platforms.</p>
+                        </div>
+                        <button onclick="openModal('connect-modal')" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Connect Account
+                        </button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="flex flex-col gap-4 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <div class="relative flex-1">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                                <input id="search-input" type="text" placeholder="Search accounts..." value="${filters.search}" class="w-full pl-9 pr-4 py-2 bg-gray-50 border-transparent focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg text-sm transition-all">
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="platform-filter" class="bg-gray-50 border-transparent rounded-lg text-sm py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="All">All Platforms</option>
+                                    ${availablePlatforms.filter(p => p !== 'All').map(p => `<option value="${p}" ${filters.platform === p ? 'selected' : ''}>${p}</option>`).join('')}
+                                </select>
+                                <select id="status-filter" class="bg-gray-50 border-transparent rounded-lg text-sm py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="All" ${filters.status === 'All' ? 'selected' : ''}>All Status</option>
+                                    <option value="connected" ${filters.status === 'connected' ? 'selected' : ''}>Synced</option>
+                                    <option value="Issues" ${filters.status === 'Issues' ? 'selected' : ''}>Issues Only</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex overflow-x-auto pb-1 gap-2 no-scrollbar border-t border-gray-100 pt-3">
+                            ${platformTypes.map(type => `
+                                <button onclick="setFilterType('${type}')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${filters.type === type ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'}">
+                                    ${type}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${filteredAccounts.map(account => getAccountCardHTML(account)).join('')}
+                        
+                        <!-- Add New Placeholder -->
+                        <button onclick="openModal('connect-modal')" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-xl text-gray-400 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50/30 transition-all group h-full min-h-[220px]">
+                            <div class="p-3 rounded-full bg-gray-50 group-hover:bg-white mb-3 transition-colors">
+                                <i data-lucide="plus" class="w-6 h-6"></i>
+                            </div>
+                            <span class="font-medium">Connect New Account</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getAccountCardHTML(account) {
+            const isConnected = account.status === 'connected';
+            const statusBadge = !isConnected 
+                ? (account.status === 'warning' 
+                    ? `<span class="flex items-center gap-1 text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-100"><i data-lucide="clock" class="w-3 h-3"></i> Expired</span>`
+                    : `<span class="flex items-center gap-1 text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full border border-red-100"><i data-lucide="alert-triangle" class="w-3 h-3"></i> Error</span>`)
+                : '';
+            
+            const growthClass = account.growth.startsWith('+') ? 'text-green-600' : 'text-red-500';
+            const growthIcon = account.growth.startsWith('+') ? 'trending-up' : 'trending-down';
+
+            return `
+                <div class="group bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-300 hover:shadow-md transition-all duration-200 flex flex-col">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="p-2.5 rounded-lg text-white ${account.color}">
+                            <i data-lucide="${account.icon}" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex gap-1">
+                            ${statusBadge}
+                            <button class="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-50 rounded-full">
+                                <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-gray-900 leading-tight">${account.name}</h3>
+                        <p class="text-sm text-gray-500 font-mono mt-0.5">${account.handle}</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-xs font-medium px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">${account.platform}</span>
+                        <span class="text-xs text-gray-400">•</span>
+                        <span class="text-xs text-gray-500">${account.type}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-4 py-3 border-t border-b border-gray-50">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-0.5">Audience</p>
+                            <p class="font-bold text-gray-900">${account.followers}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-0.5">Growth (30d)</p>
+                            <div class="flex items-center text-xs font-bold ${growthClass}">
+                                <i data-lucide="${growthIcon}" class="w-3 h-3 mr-1"></i>
+                                ${account.growth}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-auto pt-2">
+                        <button onclick="openDetailsModal(${account.id})" class="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-3 py-1.5 -ml-3 rounded-lg transition-colors">
+                            View Details
+                        </button>
+                        ${isConnected 
+                            ? `<span class="flex items-center text-xs text-green-600 font-medium shrink-0"><div class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></div>Synced</span>` 
+                            : `<button class="flex items-center gap-1.5 text-xs font-medium text-white bg-gray-900 hover:bg-black px-3 py-1.5 rounded-md transition-colors shadow-sm shrink-0"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Reconnect</button>`}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupFilterListeners() {
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                filters.search = e.target.value;
+                renderView();
+                // Refocus input after re-render (since re-render wipes DOM)
+                const input = document.getElementById('search-input');
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            });
+            document.getElementById('platform-filter').addEventListener('change', (e) => {
+                filters.platform = e.target.value;
+                renderView();
+            });
+            document.getElementById('status-filter').addEventListener('change', (e) => {
+                filters.status = e.target.value;
+                renderView();
+            });
+        }
+
+        function setFilterType(type) {
+            filters.type = type;
+            renderView();
+        }
+
+        // --- Schedule Page ---
+        function getSchedulePageHTML() {
+            const sortedPosts = [...posts].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const hasPosts = sortedPosts.length > 0;
+
+            if (!hasPosts) {
+                return `
+                    <div class="max-w-6xl mx-auto space-y-6">
+                        <h1 class="text-2xl font-bold text-gray-900">Scheduled Posts</h1>
+                        <div class="p-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
+                            <i data-lucide="calendar-days" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                            <h3 class="text-lg font-medium text-gray-900">No posts scheduled</h3>
+                            <p>Get started by creating your first post.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Scheduled Posts</h1>
+                            <p class="text-gray-500 text-sm mt-1">Overview of your upcoming content timeline.</p>
+                        </div>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                                <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                            </button>
+                            <button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Create Post
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="divide-y divide-gray-100">
+                            ${sortedPosts.map(post => {
+                                const account = accounts.find(a => a.id === post.platformId);
+                                const dateObj = new Date(post.date);
+                                const isToday = dateObj.toDateString() === new Date().toDateString();
+                                const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+                                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                                
+                                let statusStyles = 'bg-gray-100 text-gray-700 border-gray-200';
+                                let statusIcon = 'file-text';
+                                if(post.status === 'Published') { statusStyles = 'bg-green-100 text-green-700 border-green-200'; statusIcon = 'check-circle-2'; }
+                                if(post.status === 'Scheduled') { statusStyles = 'bg-blue-100 text-blue-700 border-blue-200'; statusIcon = 'clock'; }
+
+                                return `
+                                    <div class="p-4 sm:p-5 hover:bg-gray-50 transition-colors group flex flex-col sm:flex-row gap-4 sm:items-center">
+                                        <div class="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-0 sm:w-24 shrink-0">
+                                            <span class="text-xs font-bold uppercase tracking-wider ${isToday ? 'text-indigo-600' : 'text-gray-500'}">
+                                                ${isToday ? 'Today' : dayStr}
+                                            </span>
+                                            <span class="text-sm font-semibold text-gray-900">${dateStr}</span>
+                                            <span class="text-xs text-gray-400 hidden sm:block">${timeStr}</span>
+                                        </div>
+                                        
+                                        <div class="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-500 shrink-0 border border-gray-200">
+                                            <i data-lucide="${account ? account.icon : 'help-circle'}" class="w-5 h-5"></i>
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="text-xs font-medium text-gray-500 flex items-center gap-1">
+                                                    <span class="sm:hidden"><i data-lucide="${account ? account.icon : 'help-circle'}" class="w-3 h-3"></i></span>
+                                                    ${account ? account.name : 'Unknown'}
+                                                </span>
+                                                <span class="text-gray-300">•</span>
+                                                <span class="text-xs text-gray-400">${post.type}</span>
+                                            </div>
+                                            <h4 class="text-base font-semibold text-gray-900 truncate pr-4">${post.title}</h4>
+                                            <p class="text-sm text-gray-500 truncate mt-0.5">${post.content}</p>
+                                        </div>
+
+                                        <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 mt-2 sm:mt-0">
+                                            <span class="flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles}">
+                                                <i data-lucide="${statusIcon}" class="w-3 h-3 mr-1"></i> ${post.status}
+                                            </span>
+                                            <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                                <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Modals ---
+        function populateConnectModal() {
+            const grid = document.getElementById('platform-grid');
+            const platforms = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram', 'WordPress', 'Substack', 'Reddit', 'Discord'];
+            grid.innerHTML = platforms.map(p => `
+                <button class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 text-left text-sm font-medium text-gray-700 transition-colors">
+                    <div class="w-2 h-2 rounded-full bg-gray-400"></div> ${p}
+                </button>
+            `).join('');
+        }
+
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden-modal');
+            modal.classList.add('visible-modal');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('visible-modal');
+            modal.classList.add('hidden-modal');
+        }
+
+        function openDetailsModal(accountId) {
+            const account = accounts.find(a => a.id === accountId);
+            if (!account) return;
+
+            const content = document.getElementById('details-content');
+            const isConnected = account.status === 'connected';
+            const growthClass = account.growth.startsWith('+') ? 'text-green-600' : 'text-red-500';
+            const growthIcon = account.growth.startsWith('+') ? 'trending-up' : 'trending-down';
+
+            content.innerHTML = `
+                <div class="divide-y divide-gray-100">
+                    <!-- Header -->
+                    <div class="p-6">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-4 rounded-xl text-white ${account.color} shadow-sm shrink-0">
+                                <i data-lucide="${account.icon}" class="w-8 h-8"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900">${account.name}</h3>
+                                <div class="flex flex-wrap items-center gap-2 mt-1">
+                                    <span class="font-mono text-sm text-gray-600">${account.handle}</span>
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-800 p-1 rounded hover:bg-indigo-50"><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+                                    <span class="text-gray-300">•</span>
+                                    <span class="text-sm px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full font-medium">${account.type}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-lg border ${isConnected ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="${isConnected ? 'check-circle-2' : 'alert-triangle'}" class="w-5 h-5 ${isConnected ? 'text-green-600' : 'text-red-600'}"></i>
+                                    <span class="font-medium text-sm ${isConnected ? 'text-green-900' : 'text-red-900'}">
+                                        ${isConnected ? 'Data sync active' : 'Token expired - reconnection required'}
+                                    </span>
+                                </div>
+                                ${!isConnected ? `<button class="px-3 py-1 bg-white border border-red-200 text-red-700 text-xs font-bold uppercase tracking-wide rounded shadow-sm hover:bg-red-50">Reconnect</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="p-6 bg-gray-50/50">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4 text-gray-500"></i>
+                            <h4 class="font-semibold text-gray-900">Performance Overview</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Total Audience</p>
+                                <p class="text-2xl font-bold text-gray-900">${account.followers}</p>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Growth (30d)</p>
+                                <div class="flex items-center text-xl font-bold ${growthClass}">
+                                    <i data-lucide="${growthIcon}" class="w-5 h-5 mr-2"></i> ${account.growth}
+                                </div>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Avg. Likes</p>
+                                <p class="text-lg font-bold text-gray-900">${account.avgLikes}</p>
+                            </div>
+                            <div class="p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Avg. Comments</p>
+                                <p class="text-lg font-bold text-gray-900">${account.avgComments}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logs -->
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <i data-lucide="activity" class="w-4 h-4 text-gray-500"></i>
+                            <h4 class="font-semibold text-gray-900">Recent System Activity</h4>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex gap-3 text-sm">
+                                <div class="w-2 h-2 mt-1.5 rounded-full bg-green-500 shrink-0"></div>
+                                <div><p class="text-gray-900 font-medium">Synced analytics data</p><p class="text-xs text-gray-500">Today at 10:42 AM</p></div>
+                            </div>
+                            <div class="flex gap-3 text-sm">
+                                <div class="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0"></div>
+                                <div><p class="text-gray-900 font-medium">Post published successfully</p><p class="text-xs text-gray-500">Yesterday at 2:00 PM</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Guide -->
+                    <div class="p-6 bg-gray-50 border-t border-gray-100">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="code" class="w-4 h-4 text-gray-500"></i>
+                            <h4 class="font-semibold text-gray-900">Developer API Guide</h4>
+                        </div>
+                        <a href="${account.apiGuide}" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-indigo-300 hover:shadow-sm transition-all group">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i data-lucide="book-open" class="w-4 h-4"></i></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">${account.platform} API Documentation</p>
+                                    <p class="text-xs text-gray-500">View official integration guides</p>
+                                </div>
+                            </div>
+                            <i data-lucide="external-link" class="w-4 h-4 text-gray-400 group-hover:text-indigo-600"></i>
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="p-4 bg-gray-50 flex justify-between items-center border-t border-gray-200">
+                        <button class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-2 py-1 rounded hover:bg-gray-100 transition-colors">
+                            <i data-lucide="settings" class="w-4 h-4"></i> Configure Settings
+                        </button>
+                        <button onclick="closeModal('details-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm">Done</button>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+            openModal('details-modal');
+        }
+    </script>
+</body>
+</html>
