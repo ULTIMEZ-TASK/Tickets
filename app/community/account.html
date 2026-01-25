@@ -23,6 +23,29 @@
         .hidden-modal .modal-content { transform: scale(0.95); opacity: 0; }
         .visible-modal { opacity: 1; pointer-events: auto; }
         .visible-modal .modal-content { transform: scale(1); opacity: 1; }
+
+        /* Tooltip */
+        .tooltip-trigger:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 8px;
+            background: #1f2937;
+            color: white;
+            font-size: 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            margin-bottom: 6px;
+            z-index: 10;
+        }
+
+        /* Calendar Styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 h-screen overflow-hidden flex">
@@ -121,6 +144,26 @@
         </div>
     </div>
 
+    <!-- Post/Cluster Details Modal -->
+    <div id="post-details-modal" class="hidden-modal fixed inset-0 z-50 flex items-center justify-center">
+        <div class="modal-overlay absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeModal('post-details-modal')"></div>
+        <div class="modal-content relative bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden m-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center p-4 border-b shrink-0 bg-gray-50">
+                <h3 class="font-semibold text-lg" id="post-modal-title">Post Details</h3>
+                <button onclick="closeModal('post-details-modal')" class="p-1 hover:bg-gray-200 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+            <div id="post-details-content" class="overflow-y-auto p-6 space-y-6">
+                <!-- Content injected by JS -->
+            </div>
+            <div class="p-4 bg-gray-50 flex justify-end items-center border-t border-gray-200 gap-2">
+                <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors">Edit Content</button>
+                <button onclick="closeModal('post-details-modal')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Logic -->
     <script>
         // --- Data ---
@@ -133,19 +176,30 @@
             { id: 6, name: 'Customer Forum', platform: 'Discourse', type: 'Forums', handle: 'forum.tech.co', icon: 'message-square', color: 'bg-slate-600', followers: '3.4k', growth: '+8.5%', status: 'connected', avgLikes: '45', avgComments: '8', apiGuide: 'https://docs.discourse.org/' },
         ];
 
+        // Added clusterId and topic for grouping demo
         const posts = [
-            { id: 101, title: 'Q1 Product Roadmap Reveal', platformId: 2, content: 'Excited to share what we have been building...', date: '2023-10-25T10:00:00', status: 'Scheduled', type: 'Article' },
-            { id: 102, title: 'Server Maintenance Notice', platformId: 1, content: 'Heads up! Scheduled maintenance tonight at 2AM UTC.', date: '2023-10-24T14:30:00', status: 'Published', type: 'Post' },
-            { id: 103, title: 'October Newsletter', platformId: 3, content: 'This month: AI trends and new features.', date: '2023-10-28T09:00:00', status: 'Draft', type: 'Email' },
-            { id: 104, title: 'AMA Session Announcement', platformId: 4, content: 'Join us for an AMA with the CEO this Friday!', date: '2023-10-26T16:00:00', status: 'Scheduled', type: 'Thread' },
-            { id: 105, title: 'New Feature Teaser', platformId: 5, content: 'Something big is coming... #innovation', date: '2023-10-27T11:00:00', status: 'Scheduled', type: 'Post' },
+            // Cluster: Q1 Roadmap
+            { id: 101, clusterId: 1, topic: 'Q1 Roadmap Launch', title: 'Q1 Product Roadmap Reveal', platformId: 2, content: 'Excited to share what we have been building. Our Q1 roadmap includes 5 major features requested by the community...', date: '2023-10-25T10:00:00', status: 'Scheduled', type: 'Article' },
+            { id: 106, clusterId: 1, topic: 'Q1 Roadmap Launch', title: 'Roadmap Thread Breakdown', platformId: 1, content: '1/5 Here is what is coming in Q1. We are focusing on speed and stability. 🧵👇', date: '2023-10-25T10:05:00', status: 'Scheduled', type: 'Thread' },
+            
+            // Single Posts
+            { id: 102, title: 'Server Maintenance Notice', platformId: 1, content: 'Heads up! Scheduled maintenance tonight at 2AM UTC. Expected downtime is approx 15 mins.', date: '2023-10-24T14:30:00', status: 'Published', type: 'Post' },
+            { id: 104, title: 'AMA Session Announcement', platformId: 4, content: 'Join us for an AMA with the CEO this Friday! Drop your questions in the thread below.', date: '2023-10-26T16:00:00', status: 'Scheduled', type: 'Thread' },
+            { id: 105, title: 'New Feature Teaser', platformId: 5, content: 'Something big is coming... #innovation #tech', date: '2023-10-27T11:00:00', status: 'Scheduled', type: 'Post' },
+            
+            // Drafts
+            { id: 103, title: 'October Newsletter', platformId: 3, content: 'This month: AI trends and new features. Don\'t miss out on the latest updates from our dev team.', date: '2023-10-28T09:00:00', status: 'Draft', type: 'Email' },
+            { id: 107, title: 'Holiday Promo Ideas', platformId: 1, content: 'Thinking about a discount code for the holidays... maybe 20% off?', date: '2023-11-01T09:00:00', status: 'Draft', type: 'Post' }
         ];
 
         const platformTypes = ['All', 'Social Media', 'Blogging', 'Newsletters', 'Forums'];
 
         // --- State ---
         let activeTab = 'accounts';
+        let activeScheduleTab = 'Queue'; // Queue, Drafts, History
+        let scheduleView = 'list'; // 'list' or 'calendar'
         let filters = { search: '', platform: 'All', status: 'All', type: 'All' };
+        let calendarDate = new Date('2023-10-01T00:00:00'); // Default to Oct 2023 for Mock Data
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -175,6 +229,21 @@
             renderView();
             // Close mobile sidebar if open
             if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function switchScheduleTab(tabName) {
+            activeScheduleTab = tabName;
+            renderView();
+        }
+
+        function setScheduleView(view) {
+            scheduleView = view;
+            renderView();
+        }
+
+        function changeMonth(offset) {
+            calendarDate.setMonth(calendarDate.getMonth() + offset);
+            renderView();
         }
 
         function toggleSidebar() {
@@ -345,7 +414,6 @@
             document.getElementById('search-input').addEventListener('input', (e) => {
                 filters.search = e.target.value;
                 renderView();
-                // Refocus input after re-render (since re-render wipes DOM)
                 const input = document.getElementById('search-input');
                 input.focus();
                 input.setSelectionRange(input.value.length, input.value.length);
@@ -365,95 +433,318 @@
             renderView();
         }
 
-        // --- Schedule Page ---
+        // --- Schedule Page (Updated for Tabs, Clusters, and Calendar) ---
         function getSchedulePageHTML() {
-            const sortedPosts = [...posts].sort((a, b) => new Date(a.date) - new Date(b.date));
-            const hasPosts = sortedPosts.length > 0;
-
-            if (!hasPosts) {
-                return `
-                    <div class="max-w-6xl mx-auto space-y-6">
-                        <h1 class="text-2xl font-bold text-gray-900">Scheduled Posts</h1>
-                        <div class="p-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
-                            <i data-lucide="calendar-days" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
-                            <h3 class="text-lg font-medium text-gray-900">No posts scheduled</h3>
-                            <p>Get started by creating your first post.</p>
-                        </div>
-                    </div>
-                `;
-            }
-
             return `
                 <div class="max-w-6xl mx-auto space-y-6">
+                    <!-- Header & Controls -->
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">Scheduled Posts</h1>
                             <p class="text-gray-500 text-sm mt-1">Overview of your upcoming content timeline.</p>
                         </div>
                         <div class="flex gap-2 w-full sm:w-auto">
-                            <button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                                <i data-lucide="filter" class="w-4 h-4"></i> Filter
-                            </button>
+                            <!-- View Toggle -->
+                            <div class="bg-gray-100 p-1 rounded-lg flex gap-1">
+                                <button onclick="setScheduleView('list')" class="p-1.5 rounded-md transition-all ${scheduleView === 'list' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}">
+                                    <i data-lucide="list" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="setScheduleView('calendar')" class="p-1.5 rounded-md transition-all ${scheduleView === 'calendar' ? 'bg-white shadow text-indigo-600' : 'text-gray-500 hover:text-gray-700'}">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
                             <button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-sm">
                                 <i data-lucide="plus" class="w-4 h-4"></i> Create Post
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                        <div class="divide-y divide-gray-100">
-                            ${sortedPosts.map(post => {
-                                const account = accounts.find(a => a.id === post.platformId);
-                                const dateObj = new Date(post.date);
-                                const isToday = dateObj.toDateString() === new Date().toDateString();
-                                const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-                                const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                                const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                                
-                                let statusStyles = 'bg-gray-100 text-gray-700 border-gray-200';
-                                let statusIcon = 'file-text';
-                                if(post.status === 'Published') { statusStyles = 'bg-green-100 text-green-700 border-green-200'; statusIcon = 'check-circle-2'; }
-                                if(post.status === 'Scheduled') { statusStyles = 'bg-blue-100 text-blue-700 border-blue-200'; statusIcon = 'clock'; }
+                    ${scheduleView === 'list' ? getListViewHTML() : getCalendarViewHTML()}
+                </div>
+            `;
+        }
 
-                                return `
-                                    <div class="p-4 sm:p-5 hover:bg-gray-50 transition-colors group flex flex-col sm:flex-row gap-4 sm:items-center">
-                                        <div class="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-0 sm:w-24 shrink-0">
-                                            <span class="text-xs font-bold uppercase tracking-wider ${isToday ? 'text-indigo-600' : 'text-gray-500'}">
-                                                ${isToday ? 'Today' : dayStr}
-                                            </span>
-                                            <span class="text-sm font-semibold text-gray-900">${dateStr}</span>
-                                            <span class="text-xs text-gray-400 hidden sm:block">${timeStr}</span>
-                                        </div>
-                                        
-                                        <div class="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-500 shrink-0 border border-gray-200">
-                                            <i data-lucide="${account ? account.icon : 'help-circle'}" class="w-5 h-5"></i>
-                                        </div>
+        function getListViewHTML() {
+             // 1. Filter posts based on active tab
+            let displayPosts = [];
+            const now = new Date('2023-10-25T00:00:00'); // Simulated 'Current Time' for demo logic
+            
+            if (activeScheduleTab === 'Queue') {
+                displayPosts = posts.filter(p => p.status === 'Scheduled' || (p.status === 'Published' && new Date(p.date) > now));
+            } else if (activeScheduleTab === 'Drafts') {
+                displayPosts = posts.filter(p => p.status === 'Draft');
+            } else if (activeScheduleTab === 'History') {
+                displayPosts = posts.filter(p => p.status === 'Published' && new Date(p.date) <= now);
+            }
 
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="text-xs font-medium text-gray-500 flex items-center gap-1">
-                                                    <span class="sm:hidden"><i data-lucide="${account ? account.icon : 'help-circle'}" class="w-3 h-3"></i></span>
-                                                    ${account ? account.name : 'Unknown'}
-                                                </span>
-                                                <span class="text-gray-300">•</span>
-                                                <span class="text-xs text-gray-400">${post.type}</span>
-                                            </div>
-                                            <h4 class="text-base font-semibold text-gray-900 truncate pr-4">${post.title}</h4>
-                                            <p class="text-sm text-gray-500 truncate mt-0.5">${post.content}</p>
-                                        </div>
+            // 2. Sort by date
+            displayPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-                                        <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 mt-2 sm:mt-0">
-                                            <span class="flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles}">
-                                                <i data-lucide="${statusIcon}" class="w-3 h-3 mr-1"></i> ${post.status}
-                                            </span>
-                                            <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                                                <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+            // 3. Group by Cluster
+            const groupedItems = [];
+            const processedIds = new Set();
+
+            displayPosts.forEach(post => {
+                if (processedIds.has(post.id)) return;
+
+                if (post.clusterId) {
+                    const clusterPosts = displayPosts.filter(p => p.clusterId === post.clusterId);
+                    groupedItems.push({ type: 'cluster', items: clusterPosts, topic: post.topic, date: post.date });
+                    clusterPosts.forEach(p => processedIds.add(p.id));
+                } else {
+                    groupedItems.push({ type: 'single', ...post });
+                    processedIds.add(post.id);
+                }
+            });
+
+            const hasItems = groupedItems.length > 0;
+            const tabs = ['Queue', 'Drafts', 'History'];
+
+            return `
+                 <!-- Tab Navigation -->
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                        ${tabs.map(tab => `
+                            <button 
+                                onclick="switchScheduleTab('${tab}')"
+                                class="${activeScheduleTab === tab 
+                                    ? 'border-indigo-500 text-indigo-600' 
+                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} 
+                                    whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors"
+                            >
+                                ${tab}
+                                ${tab === 'Queue' ? `<span class="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">${posts.filter(p=>p.status==='Scheduled').length}</span>` : ''}
+                            </button>
+                        `).join('')}
+                    </nav>
+                </div>
+
+                <!-- Content List -->
+                <div class="space-y-4">
+                    ${!hasItems 
+                        ? getEmptyStateHTML(activeScheduleTab)
+                        : groupedItems.map(item => item.type === 'cluster' ? getClusterHTML(item) : getPostItemHTML(item)).join('')
+                    }
+                </div>
+            `;
+        }
+
+        function getCalendarViewHTML() {
+            const year = calendarDate.getFullYear();
+            const month = calendarDate.getMonth();
+            const monthName = calendarDate.toLocaleString('default', { month: 'long' });
+            
+            const firstDay = new Date(year, month, 1).getDay(); // 0 = Sun
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Header for Days
+            const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const headerHTML = weekDays.map(day => `<div class="text-center text-xs font-semibold text-gray-500 py-2">${day}</div>`).join('');
+
+            let daysHTML = '';
+            for (let i = 0; i < firstDay; i++) {
+                daysHTML += `<div class="min-h-[100px] border-b border-r bg-gray-50/30"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const currentDateStr = new Date(year, month, day).toDateString();
+                const isToday = new Date().toDateString() === currentDateStr; 
+                
+                const daysPosts = posts.filter(p => {
+                    const pDate = new Date(p.date);
+                    return pDate.getFullYear() === year && pDate.getMonth() === month && pDate.getDate() === day;
+                });
+
+                let postsHTML = daysPosts.map(post => {
+                    const account = accounts.find(a => a.id === post.platformId);
+                    const bgColor = post.status === 'Published' ? 'bg-green-100 text-green-700' : (post.status === 'Draft' ? 'bg-gray-100 text-gray-600' : 'bg-blue-100 text-blue-700');
+                    return `
+                        <div onclick="openPostDetailsModal(${post.id})" class="mb-1 text-[10px] p-1 rounded ${bgColor} truncate cursor-pointer hover:opacity-80 flex items-center gap-1 transition-opacity">
+                            <i data-lucide="${account ? account.icon : 'circle'}" class="w-2.5 h-2.5 shrink-0"></i>
+                            ${post.title}
+                        </div>
+                    `;
+                }).join('');
+
+                daysHTML += `
+                    <div class="min-h-[100px] border-b border-r p-2 bg-white hover:bg-gray-50 transition-colors">
+                        <div class="text-sm font-medium ${isToday ? 'text-indigo-600 bg-indigo-50 w-6 h-6 rounded-full flex items-center justify-center' : 'text-gray-700'} mb-2">${day}</div>
+                        <div class="space-y-1">
+                            ${postsHTML}
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                        <h2 class="text-lg font-bold text-gray-900">${monthName} ${year}</h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeMonth(-1)" class="p-1 hover:bg-gray-100 rounded-lg text-gray-600">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="changeMonth(1)" class="p-1 hover:bg-gray-100 rounded-lg text-gray-600">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-grid border-l border-t border-gray-200">
+                        ${headerHTML}
+                        ${daysHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getEmptyStateHTML(tabName) {
+            return `
+                <div class="p-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
+                    <i data-lucide="${tabName === 'Drafts' ? 'file-edit' : 'calendar-days'}" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                    <h3 class="text-lg font-medium text-gray-900">No ${tabName.toLowerCase()} found</h3>
+                    <p class="mt-1">Your content queue is currently empty.</p>
+                </div>
+            `;
+        }
+
+        function getClusterHTML(cluster) {
+            const dateObj = new Date(cluster.date);
+            const isToday = dateObj.toDateString() === new Date('2023-10-25').toDateString(); 
+            const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            const accountIcons = cluster.items.map(post => {
+                const account = accounts.find(a => a.id === post.platformId);
+                return `
+                    <div class="w-6 h-6 rounded-full text-white ${account.color} flex items-center justify-center border border-white ring-1 ring-gray-100 relative group/icon">
+                        <i data-lucide="${account.icon}" class="w-3.5 h-3.5"></i>
+                    </div>
+                `;
+            }).join('<div class="w-1"></div>'); 
+
+            return `
+                <div class="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 sm:p-5 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row gap-4 sm:items-center relative overflow-hidden group">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+
+                    <div class="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-0 sm:w-24 shrink-0 pl-2">
+                         <span class="text-xs font-bold uppercase tracking-wider ${isToday ? 'text-indigo-600' : 'text-gray-500'}">
+                            ${isToday ? 'Today' : dayStr}
+                        </span>
+                        <span class="text-sm font-semibold text-gray-900">${dateStr}</span>
+                        <span class="text-xs text-gray-400 hidden sm:block">${timeStr}</span>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-base font-bold text-gray-900 truncate pr-4 flex items-center gap-2">
+                            ${cluster.topic}
+                            <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] uppercase tracking-wider font-bold">Cluster</span>
+                        </h4>
+                        <p class="text-sm text-gray-500 truncate mt-0.5 mb-2">${cluster.items[0].content}</p>
+
+                        <div class="flex items-center mt-2">
+                             <span class="text-xs text-gray-400 mr-2">Publishing to:</span>
+                             <div class="flex items-center -space-x-1 hover:space-x-0 transition-all duration-200">
+                                ${accountIcons}
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 mt-2 sm:mt-0">
+                        <span class="flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-blue-100 text-blue-700 border-blue-200">
+                            <i data-lucide="clock" class="w-3 h-3 mr-1"></i> Scheduled (${cluster.items.length})
+                        </span>
+
+                        <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="Post All Now"><i data-lucide="zap" class="w-4 h-4"></i></button>
+                            <button onclick="openClusterDetailsModal(${cluster.items[0].clusterId})" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="View Cluster"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getPostItemHTML(post) {
+            const account = accounts.find(a => a.id === post.platformId);
+            const dateObj = new Date(post.date);
+            const isToday = dateObj.toDateString() === new Date('2023-10-25').toDateString(); 
+            const dayStr = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const timeStr = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let statusStyles = 'bg-gray-100 text-gray-700 border-gray-200';
+            let statusIcon = 'file-text';
+            let stripColor = 'bg-gray-400';
+            
+            if(post.status === 'Published') { 
+                statusStyles = 'bg-green-100 text-green-700 border-green-200'; 
+                statusIcon = 'check-circle-2'; 
+                stripColor = 'bg-green-500';
+            }
+            if(post.status === 'Scheduled') { 
+                statusStyles = 'bg-blue-100 text-blue-700 border-blue-200'; 
+                statusIcon = 'clock'; 
+                stripColor = 'bg-blue-500';
+            }
+
+            let actionsHTML = '';
+            if (post.status === 'Draft') {
+                 actionsHTML = `
+                    <button class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="Approve & Schedule"><i data-lucide="check-circle" class="w-4 h-4"></i></button>
+                    <button onclick="openPostDetailsModal(${post.id})" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="View Details"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                 `;
+            } else {
+                 actionsHTML = `
+                    <button class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="Post Now"><i data-lucide="zap" class="w-4 h-4"></i></button>
+                    <button class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="Duplicate"><i data-lucide="copy" class="w-4 h-4"></i></button>
+                    <button onclick="openPostDetailsModal(${post.id})" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="View Details"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                 `;
+            }
+
+            const accountIcon = `
+                <div class="w-6 h-6 rounded-full text-white ${account ? account.color : 'bg-gray-400'} flex items-center justify-center border border-white ring-1 ring-gray-100 relative group/icon" title="${account ? account.name : 'Unknown'}">
+                    <i data-lucide="${account ? account.icon : 'help-circle'}" class="w-3.5 h-3.5"></i>
+                </div>
+                <span class="text-xs text-gray-600 ml-2 font-medium">${account ? account.name : 'Unknown'}</span>
+            `;
+
+            return `
+                <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row gap-4 sm:items-center relative overflow-hidden group">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 ${stripColor}"></div>
+
+                    <div class="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-0 sm:w-24 shrink-0 pl-2">
+                        <span class="text-xs font-bold uppercase tracking-wider ${isToday ? 'text-indigo-600' : 'text-gray-500'}">
+                            ${isToday ? 'Today' : dayStr}
+                        </span>
+                        <span class="text-sm font-semibold text-gray-900">${dateStr}</span>
+                        <span class="text-xs text-gray-400 hidden sm:block">${timeStr}</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <h4 class="text-base font-bold text-gray-900 truncate">${post.title}</h4>
+                            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[10px] uppercase tracking-wider font-bold">${post.type}</span>
+                        </div>
+                        <p class="text-sm text-gray-500 truncate mt-0.5 mb-2">${post.content}</p>
+                        
+                        <div class="flex items-center mt-2">
+                             <span class="text-xs text-gray-400 mr-2">Publishing to:</span>
+                             <div class="flex items-center">
+                                ${accountIcon}
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 mt-2 sm:mt-0">
+                        <span class="flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles}">
+                            <i data-lucide="${statusIcon}" class="w-3 h-3 mr-1"></i> ${post.status}
+                        </span>
+                        
+                        <div class="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                            ${actionsHTML}
+                            <button class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors tooltip-trigger relative" data-tooltip="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </div>
                 </div>
@@ -600,6 +891,89 @@
             
             lucide.createIcons();
             openModal('details-modal');
+        }
+
+        function openPostDetailsModal(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            const account = accounts.find(a => a.id === post.platformId);
+            const contentDiv = document.getElementById('post-details-content');
+            const modalTitle = document.getElementById('post-modal-title');
+            
+            modalTitle.innerText = "Post Details";
+            const dateObj = new Date(post.date);
+            const dateStr = dateObj.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+
+            contentDiv.innerHTML = `
+                <div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-1">${post.title}</h4>
+                    <p class="text-sm text-gray-500">${dateStr} • ${post.status}</p>
+                </div>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                    <p class="text-gray-800 whitespace-pre-line text-sm leading-relaxed">${post.content}</p>
+                </div>
+
+                <div class="flex items-center gap-4 bg-white border border-gray-100 p-3 rounded-lg shadow-sm">
+                    <div class="w-10 h-10 rounded-full text-white ${account.color} flex items-center justify-center">
+                        <i data-lucide="${account.icon}" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <p class="font-medium text-sm text-gray-900">${account.name}</p>
+                        <p class="text-xs text-gray-500">${account.platform} • ${post.type}</p>
+                    </div>
+                </div>
+            `;
+            
+            openModal('post-details-modal');
+            lucide.createIcons();
+        }
+
+        function openClusterDetailsModal(clusterId) {
+            const clusterPosts = posts.filter(p => p.clusterId === clusterId);
+            if (clusterPosts.length === 0) return;
+            
+            const contentDiv = document.getElementById('post-details-content');
+            const modalTitle = document.getElementById('post-modal-title');
+            modalTitle.innerText = "Cluster Details";
+            
+            const topic = clusterPosts[0].topic;
+            const dateObj = new Date(clusterPosts[0].date);
+            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            const postsHTML = clusterPosts.map(post => {
+                const account = accounts.find(a => a.id === post.platformId);
+                return `
+                    <div class="border-b border-gray-100 last:border-0 pb-4 last:pb-0 pt-4 first:pt-0">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 rounded-full text-white ${account.color} flex items-center justify-center text-[10px]">
+                                <i data-lucide="${account.icon}" class="w-3 h-3"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-900">${account.name}</span>
+                            <span class="text-xs text-gray-400">• ${post.type}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 pl-8">${post.content}</p>
+                    </div>
+                `;
+            }).join('');
+
+            contentDiv.innerHTML = `
+                <div>
+                    <h4 class="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                        ${topic}
+                        <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[10px] uppercase tracking-wider font-bold">Cluster</span>
+                    </h4>
+                    <p class="text-sm text-gray-500">Scheduled for ${dateStr} • ${clusterPosts.length} Posts</p>
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    ${postsHTML}
+                </div>
+            `;
+            
+            openModal('post-details-modal');
+            lucide.createIcons();
         }
     </script>
 </body>
