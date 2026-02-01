@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMEZ ACADEMY | Technical Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --brand-primary: #4f46e5;
+            --brand-secondary: #818cf8;
+            --bg-quiz: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        .quiz-card {
+            background: white;
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #f1f5f9;
+        }
+
+        .path-card {
+            border: 2px solid #f1f5f9;
+            border-radius: 24px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .path-card:hover {
+            border-color: var(--brand-secondary);
+            background: #f8fafc;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.1);
+        }
+
+        .path-card.active { border-color: var(--brand-primary); background: #f5f3ff; }
+
+        .option-card {
+            border: 2px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .option-card:hover:not(.locked) { border-color: var(--brand-secondary); background: #f8fafc; transform: translateY(-2px); }
+        .option-card.correct { border-color: #22c55e; background: #f0fdf4; }
+        .option-card.wrong { border-color: #ef4444; background: #fef2f2; }
+
+        .option-letter {
+            width: 40px; height: 40px; border-radius: 12px; background: #f1f5f9;
+            display: flex; align-items: center; justify-content: center; font-weight: 800; color: #64748b;
+        }
+
+        .option-card.correct .option-letter { background: #22c55e; color: white; }
+        .option-card.wrong .option-letter { background: #ef4444; color: white; }
+
+        .code-editor {
+            width: 100%; height: 300px; background: #0f172a; border-radius: 24px;
+            padding: 24px; color: #94a3b8; font-family: 'Fira Code', monospace;
+            font-size: 14px; border: 4px solid #1e293b; outline: none;
+            resize: none; caret-color: #818cf8;
+        }
+
+        .progress-fill { height: 100%; background: var(--brand-primary); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chart-bar { width: 100%; background: #e2e8f0; border-radius: 8px 8px 0 0; height: 0; transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #testResultBadge {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(5px);
+        }
+        #testResultBadge.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-card animate-fade-in">
+        <header class="p-8 border-b border-slate-50">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.989-2.386l-.548-.547z"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-900 leading-none" id="pathTitle">Technical Assessment</h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-2" id="difficultyLabel">Adaptive Challenge • AI Monitored</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="streakBadge" class="hidden items-center gap-1.5 px-4 py-2 bg-orange-50 text-orange-600 rounded-xl border border-orange-100 animate-bounce">
+                        <span class="text-xs font-black uppercase tracking-tighter">Streak!</span>
+                        <span id="streakCount" class="font-bold">🔥 0</span>
+                    </div>
+                    <div id="timerContainer" class="bg-red-500 text-white px-5 py-2.5 rounded-2xl font-mono font-bold shadow-xl shadow-red-100 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span id="timer">00:10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <main class="flex-1 p-10 overflow-y-auto custom-scroll" id="quizMainContent">
+                
+                <div id="selectionView" class="py-4 max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-black text-slate-900 mb-4">Choose Your Career Path</h2>
+                        <p class="text-slate-500 font-medium">Select a track to begin the 20-question assessment.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="pathGrid"></div>
+                </div>
+
+                <div id="questionView" class="hidden max-w-3xl mx-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-black text-indigo-500 uppercase tracking-[0.3em]" id="qCounter">Challenge 01 / 20</span>
+                        <span id="taskTypeBadge" class="text-[9px] font-bold px-2 py-1 bg-slate-100 text-slate-400 rounded-full uppercase tracking-widest">Logic Task</span>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 mb-8 leading-snug" id="qText">Analyzing...</h2>
+                    
+                    <div class="grid grid-cols-1 gap-4" id="optionsGrid"></div>
+
+                    <div id="codingWorkspace" class="hidden space-y-4">
+                        <textarea id="editor" class="code-editor" spellcheck="false"></textarea>
+                        <div class="flex items-center justify-between gap-4">
+                            <div id="testResultBadge" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase"></div>
+                            <div class="flex gap-3">
+                                <button id="verifyBtn" class="bg-white border-2 border-slate-200 text-slate-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition">Run Test Cases</button>
+                                <button id="submitCodeBtn" class="bg-indigo-600 text-white px-8 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Submit Logic</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reviewBox" class="mt-10 hidden transform transition-all duration-500">
+                        <div class="bg-slate-900 rounded-[32px] p-8 shadow-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                                    <span class="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Technical Explanation</span>
+                                </div>
+                                <span id="correctFlag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/10 text-green-500 uppercase hidden">Correct</span>
+                            </div>
+                            <pre id="reviewContent" class="font-mono text-sm text-slate-300 leading-relaxed whitespace-pre-wrap"></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultView" class="hidden py-4 space-y-12 max-w-4xl mx-auto">
+                    <div class="text-center">
+                        <div class="w-24 h-24 bg-indigo-600 text-white rounded-[32px] mx-auto flex items-center justify-center shadow-2xl rotate-6 mb-8">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Performance Summary</h2>
+                        <p class="text-slate-500 font-medium mt-2">Metrics for <span id="resPath" class="text-indigo-600 font-bold">Current</span> path</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Accuracy</p>
+                            <p class="text-5xl font-black text-slate-900" id="resAccuracy">0%</p>
+                        </div>
+                        <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Time</p>
+                            <p class="text-5xl font-black text-slate-900" id="resTime">0s</p>
+                        </div>
+                        <div class="bg-slate-50 p-8 rounded-3xl border border-slate-100 text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Rank</p>
+                            <p class="text-5xl font-black text-indigo-600" id="resGrade">--</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="p-8 bg-white border-t border-slate-50 flex items-center justify-between">
+            <button id="cancelQuiz" class="text-slate-400 text-sm font-bold hover:text-red-500 transition-colors">Discard</button>
+            <div class="flex items-center gap-10">
+                <div class="hidden sm:block text-right" id="footerHintArea">
+                    <p class="text-[10px] font-black text-slate-400 uppercase" id="fStatus">Awaiting Path</p>
+                    <p class="text-xs text-slate-500 font-medium" id="fAction">Select track to begin</p>
+                </div>
+                <button id="nextBtn" class="bg-indigo-600 text-white font-black px-16 py-4 rounded-2xl transition-all shadow-xl shadow-indigo-100 opacity-50 cursor-not-allowed hidden" disabled>Next</button>
+                <button id="startBtn" class="bg-indigo-600 text-white font-black px-16 py-4 rounded-2xl transition-all shadow-xl shadow-indigo-100 opacity-50 cursor-not-allowed disabled">Begin</button>
+                <button id="finalBtn" class="bg-slate-900 text-white font-black px-16 py-4 rounded-2xl hidden shadow-xl shadow-slate-100">Close</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const PATHS = [
+            { id: "Frontend Developer", icon: "🎨", count: 328 },
+            { id: "Backend Developer", icon: "⚙️", count: 142 },
+            { id: "Digital Marketer", icon: "📈", count: 210 },
+            { id: "UX Designer", icon: "✨", count: 176 },
+            { id: "DevOps Engineer", icon: "🚀", count: 86 }
+        ];
+
+        const QUIZ_DATA = {
+            "Frontend Developer": [
+                { type: "mc", q: "Which CSS property is used for stacking order?", options: ["float", "z-index", "position", "display"], correct: 1, review: "z-index handles depth overlapping." },
+                { type: "coding", q: "Write a CSS rule to center '.child' inside '.parent' using flexbox.", duration: 60, validation: (c) => c && c.includes('display: flex') && c.includes('justify-content: center'), review: "display: flex; justify-content: center; align-items: center;" },
+                { type: "mc", q: "What does HTML stand for?", options: ["High Text", "HyperText Markup Language", "Hyperlink Text", "None"], correct: 1, review: "Standard markup for web." },
+                { type: "coding", q: "Write a JS function 'double' that returns num * 2.", duration: 60, validation: (c) => c && c.includes('function double') && c.includes('* 2'), review: "function double(n) { return n * 2; }" },
+                { type: "mc", q: "Which hook is used for state in React?", options: ["useEffect", "useMemo", "useState", "useRef"], correct: 2, review: "useState manages component state." },
+                { type: "mc", q: "What is 'rem' relative to?", options: ["Parent element", "Root font-size", "Viewport width", "Browser window"], correct: 1, review: "Relative to the <html> tag size." },
+                { type: "coding", q: "Write a JS array filter to keep numbers > 10. (Input: arr)", duration: 60, validation: (c) => c && c.includes('.filter') && c.includes('> 10'), review: "arr.filter(n => n > 10);" },
+                { type: "mc", q: "Which property makes text italic?", options: ["font-weight", "text-decoration", "font-style", "italic"], correct: 2, review: "font-style: italic." },
+                { type: "mc", q: "Default display of <div>?", options: ["inline", "block", "flex", "inline-block"], correct: 1, review: "Divs are block-level." },
+                { type: "coding", q: "Change text color to red in CSS for ID '#title'.", duration: 60, validation: (c) => c && c.includes('#title') && c.includes('color: red'), review: "#title { color: red; }" },
+                { type: "mc", q: "Which attribute opens link in new tab?", options: ["src", "href", "target='_blank'", "alt"], correct: 2, review: "target='_blank' is used." },
+                { type: "mc", q: "JavaScript 'typeof []' returns?", options: ["array", "list", "object", "undefined"], correct: 2, review: "Arrays are objects in JS." },
+                { type: "mc", q: "Which tag is used for images?", options: ["<picture>", "<img>", "<media>", "<graph>"], correct: 1, review: "<img> is standard." },
+                { type: "mc", q: "CSS property for transparency?", options: ["blur", "opacity", "visible", "alpha"], correct: 1, review: "opacity ranges 0 to 1." },
+                { type: "mc", q: "What does 'npm' stand for?", options: ["Node Package Manager", "New Project Model", "Node Plus Media", "None"], correct: 0, review: "The package registry for Node." },
+                { type: "coding", q: "Log 'Hello World' to console in JS.", duration: 60, validation: (c) => c && c.includes('console.log') && c.includes('Hello World'), review: "console.log('Hello World');" },
+                { type: "mc", q: "Which is a JS framework?", options: ["Django", "Laravel", "React", "Rails"], correct: 2, review: "React is JS library/framework." },
+                { type: "mc", q: "Symbol for Class selector in CSS?", options: ["#", ".", "*", "@"], correct: 1, review: ". is for classes." },
+                { type: "mc", q: "What is the result of 2 + '2' in JS?", options: ["4", "22", "undefined", "Error"], correct: 1, review: "String concatenation results in '22'." },
+                { type: "mc", q: "Which tag is used for an ordered list?", options: ["<ul>", "<li>", "<ol>", "<list>"], correct: 2, review: "<ol> provides numbered items." }
+            ],
+            "Backend Developer": [
+                { type: "mc", q: "What does ACID stand for?", options: ["Atomicity, Consistency, Isolation, Durability", "Action, Data, Input, Flow", "Auto, Command, Index, Disk", "None"], correct: 0, review: "ACID ensures reliable DB transactions." },
+                { type: "coding", q: "Write a SQL query: Select name from users where age > 18.", duration: 60, validation: (c) => c && c.toLowerCase().includes('select name from users') && c.toLowerCase().includes('where age > 18'), review: "SELECT name FROM users WHERE age > 18;" },
+                { type: "mc", q: "HTTP Status for 'Internal Server Error'?", options: ["404", "500", "200", "403"], correct: 1, review: "500 series are server errors." },
+                { type: "coding", q: "Write an Express route app.get('/hi') that returns 'hello'.", duration: 60, validation: (c) => c && c.includes("app.get('/hi'") && c.includes("res.send"), review: "app.get('/hi', (req, res) => res.send('hello'));" },
+                { type: "mc", q: "What is NoSQL?", options: ["Old SQL", "Relational", "Non-relational", "None"], correct: 2, review: "Flexible document-based storage." },
+                { type: "mc", q: "Default Node.js package manager?", options: ["yarn", "pip", "npm", "composer"], correct: 2, review: "npm is bundled with Node." },
+                { type: "coding", q: "Write a SQL Insert: users table, name='John'.", duration: 60, validation: (c) => c && c.toLowerCase().includes('insert into users') && c.toLowerCase().includes('values'), review: "INSERT INTO users (name) VALUES ('John');" },
+                { type: "mc", q: "What is JWT used for?", options: ["Styling", "Authentication", "Routing", "Compression"], correct: 1, review: "Secure token-based auth." },
+                { type: "mc", q: "Node.js is built on which engine?", options: ["V8", "SpiderMonkey", "Chakra", "Nitro"], correct: 0, review: "Google's V8 engine." },
+                { type: "coding", q: "Verify if variable 'x' is an object in JS.", duration: 60, validation: (c) => c && c.includes('typeof x') && c.includes('object'), review: "typeof x === 'object';" },
+                { type: "mc", q: "Which HTTP method is idempotent?", options: ["POST", "GET", "PATCH", "None"], correct: 1, review: "GET does not change state." },
+                { type: "mc", q: "What does API stand for?", options: ["App Process Input", "Application Programming Interface", "Auto Prog Info", "None"], correct: 1, review: "System communication bridge." },
+                { type: "mc", q: "Redis is primarily used for?", options: ["Long term storage", "Caching", "Styling", "Front-end"], correct: 1, review: "Fast in-memory cache." },
+                { type: "mc", q: "What is Middleware?", options: ["Database", "Functions between req/res", "Frontend component", "OS"], correct: 1, review: "Runs logic during the request lifecycle." },
+                { type: "mc", q: "Port for HTTP?", options: ["443", "21", "80", "22"], correct: 2, review: "80 is default for HTTP." },
+                { type: "coding", q: "Write an async function 'fetchData' returning null.", duration: 60, validation: (c) => c && c.includes('async function') && c.includes('return null'), review: "async function fetchData() { return null; }" },
+                { type: "mc", q: "Docker is for?", options: ["Styling", "Containerization", "Word processing", "SEO"], correct: 1, review: "Isolation of environments." },
+                { type: "mc", q: "What is a Primary Key?", options: ["Password", "Unique identifier", "Main folder", "Search term"], correct: 1, review: "Uniquely identifies a record." },
+                { type: "mc", q: "What is 'Salt' in hashing?", options: ["Double encryption", "Random data for hashing", "Storage key", "Error code"], correct: 1, review: "Protects against rainbow tables." },
+                { type: "mc", q: "Extension for Node modules?", options: [".nd", ".node", ".js", ".html"], correct: 2, review: "Standard JS files." }
+            ],
+            "Digital Marketer": [
+                { type: "mc", q: "What is CTR?", options: ["Rate", "Clicks/Impressions", "Cost", "Time"], correct: 1, review: "Click-Through Rate calculation." },
+                { type: "mc", q: "SEO stands for?", options: ["Search Engine Opt", "Site Entry Order", "Social Engagement", "None"], correct: 0, review: "Organic search visibility." },
+                { type: "mc", q: "PPC is used in?", options: ["SEO", "Google Ads", "Email", "Offline"], correct: 1, review: "Pay-Per-Click model." },
+                { type: "mc", q: "Which tool is for analytics?", options: ["Word", "Photoshop", "Google Analytics", "NPM"], correct: 2, review: "Traffic monitoring tool." },
+                { type: "mc", q: "What is a 'Backlink'?", options: ["Old link", "Link from external site", "Internal link", "Error"], correct: 1, review: "Important for domain authority." },
+                { type: "mc", q: "CAC stands for?", options: ["Cost Per Clicks", "Customer Acquisition Cost", "Content Area", "None"], correct: 1, review: "Cost to get one new user." },
+                { type: "mc", q: "What is a landing page?", options: ["Home page", "Specific page for a campaign", "About page", "Contact"], correct: 1, review: "Optimized for conversion." },
+                { type: "mc", q: "Which platform is B2B oriented?", options: ["Instagram", "Snapchat", "LinkedIn", "TikTok"], correct: 2, review: "Professional network." },
+                { type: "mc", q: "Bounce rate is?", options: ["Click count", "Exit after 1 page", "Load time", "Font size"], correct: 1, review: "Indicates single-page sessions." },
+                { type: "mc", q: "What is A/B testing?", options: ["Testing colors", "Comparing two versions", "Sorting list", "None"], correct: 1, review: "Scientific optimization." },
+                { type: "mc", q: "LSI keywords are?", options: ["Long", "Related words", "Locked", "Short"], correct: 1, review: "Contextually related terms." },
+                { type: "mc", q: "ROI calculation?", options: ["Clicks*Cost", "Profit/Investment", "Users/Impressions", "None"], correct: 1, review: "Return on Investment." },
+                { type: "mc", q: "CPM stands for?", options: ["Clicks per minute", "Cost per 1000 impressions", "Content per media", "None"], correct: 1, review: "Impression based pricing." },
+                { type: "mc", q: "Meta tags are for?", options: ["Users", "Search Engines", "Designers", "Printers"], correct: 1, review: "Provides metadata to bots." },
+                { type: "mc", q: "Influencer marketing uses?", options: ["Ads", "Famous people", "Newspapers", "Billboards"], correct: 1, review: "Social proof strategy." },
+                { type: "mc", q: "What is an 'Alt' tag?", options: ["Filter", "Image description", "Heading", "Logo"], correct: 1, review: "Accessibility for images." },
+                { type: "mc", q: "Content marketing goal?", options: ["Spam", "Value and Trust", "Fast money", "None"], correct: 1, review: "Attract and retain audience." },
+                { type: "mc", q: "Email automation trigger?", options: ["Manual click", "User action", "Random", "Never"], correct: 1, review: "Triggered workflows." },
+                { type: "mc", q: "What is a 'Lead'?", options: ["Manager", "Potential customer", "Sales pitch", "Website"], correct: 1, review: "Prospect interested in brand." },
+                { type: "mc", q: "Retargeting shows ads to?", options: ["New users", "Past visitors", "Competitors", "Nobody"], correct: 1, review: "Follows users who left site." }
+            ],
+            "UX Designer": [
+                { type: "mc", q: "Persona is?", options: ["Real user", "Fictional character", "Designer", "Employee"], correct: 1, review: "Represents user segment." },
+                { type: "mc", q: "Wireframe is?", options: ["Color draft", "Structure blueprint", "Final code", "3D model"], correct: 1, review: "Low-fidelity layout." },
+                { type: "mc", q: "What is Accessibility?", options: ["Fast load", "Inclusive design", "Cheap price", "Login"], correct: 1, review: "Use by people with disabilities." },
+                { type: "mc", q: "Hick's law relates to?", options: ["Color", "Decision time", "Font", "Weight"], correct: 1, review: "Choices vs decision speed." },
+                { type: "mc", q: "Empathy map tracks?", options: ["Clicks", "User feelings/thoughts", "Revenue", "Speed"], correct: 1, review: "User-centric analysis." },
+                { type: "mc", q: "Jakob's law says users expect?", options: ["Red links", "Familiarity with other sites", "Big logos", "Animations"], correct: 1, review: "Expectation of standard UI." },
+                { type: "mc", q: "Fitts's law relates to?", options: ["Typography", "Target size and distance", "SEO", "Cost"], correct: 1, review: "Acquiring UI targets." },
+                { type: "mc", q: "Information Architecture is?", options: ["Building houses", "Organizing content", "Database code", "Painting"], correct: 1, review: "Findability and structure." },
+                { type: "mc", q: "Affordance is?", options: ["Price", "Visual hint of function", "CSS style", "Error"], correct: 1, review: "E.g., button looks pushable." },
+                { type: "mc", q: "Visual hierarchy is for?", options: ["Ranking people", "Directing attention", "Mixing colors", "Font count"], correct: 1, review: "Size/Color importance." },
+                { type: "mc", q: "Prototype is for?", options: ["Final release", "Testing ideas", "Selling", "Coding"], correct: 1, review: "Simulation of product." },
+                { type: "mc", q: "Iterative design is?", options: ["One-time", "Repeating cycle", "Automatic", "Copying"], correct: 1, review: "Refinement loop." },
+                { type: "mc", q: "Micro-interactions provide?", options: ["Money", "Feedback", "Images", "Links"], correct: 1, review: "Functional animations." },
+                { type: "mc", q: "Gestalt principles relate to?", options: ["Coding", "Perception of patterns", "Management", "Speed"], correct: 1, review: "How we group visuals." },
+                { type: "mc", q: "White space is for?", options: ["Mistakes", "Breathing room", "Empty code", "Errors"], correct: 1, review: "Negative space balance." },
+                { type: "mc", q: "Mobile-first means?", options: ["Only mobile", "Designing smallest first", "Buying phones", "Apps"], correct: 1, review: "Progressive enhancement." },
+                { type: "mc", q: "User journey is?", options: ["Trip", "Path to goal", "Update", "Login"], correct: 1, review: "Visualization of experience." },
+                { type: "mc", q: "Typography affects?", options: ["Database", "Legibility", "Price", "NPM"], correct: 1, review: "Readability of text." },
+                { type: "mc", q: "Usability testing is with?", options: ["Bots", "Representative users", "Managers", "Nobody"], correct: 1, review: "Validation with real people." },
+                { type: "mc", q: "Constraint in design means?", options: ["Freedom", "Limitations", "Colors", "Speed"], correct: 1, review: "Reducing errors via UI." }
+            ],
+            "DevOps Engineer": [
+                { type: "mc", q: "What is Docker?", options: ["Boat", "Container platform", "Language", "OS"], correct: 1, review: "Standard for isolation." },
+                { type: "mc", q: "CI/CD stands for?", options: ["Code Input", "Continuous Integration/Deploy", "Core Idea", "None"], correct: 1, review: "Automated pipeline." },
+                { type: "mc", q: "Kubernetes is for?", options: ["Writing", "Orchestration", "Images", "SEO"], correct: 1, review: "Managing containers." },
+                { type: "mc", q: "IaC means?", options: ["Code buildings", "Infrastructure as Code", "Idea Core", "None"], correct: 1, review: "Automating hardware setup." },
+                { type: "mc", q: "Git is a?", options: ["Browser", "Version Control", "Editor", "Server"], correct: 1, review: "Distributed VCS." },
+                { type: "mc", q: "Terraform is for?", options: ["Plants", "Provisioning", "Styling", "Word"], correct: 1, review: "Standard IaC tool." },
+                { type: "mc", q: "YAML is commonly used for?", options: ["Styling", "Config files", "Logic", "Encryption"], correct: 1, review: "Data serialization format." },
+                { type: "mc", q: "Monitoring tool?", options: ["Excel", "Prometheus", "NPM", "React"], correct: 1, review: "System health tracking." },
+                { type: "mc", q: "What is a Pipeline?", options: ["Tube", "Sequence of steps", "Water system", "None"], correct: 1, review: "Build/Test/Deploy flow." },
+                { type: "mc", q: "Nginx is?", options: ["Language", "Web Server", "Database", "CSS"], correct: 1, review: "Reverse proxy/Server." },
+                { type: "mc", q: "Zero downtime deployment?", options: ["No sleep", "Blue-Green", "Random", "Never"], correct: 1, review: "Update with no service break." },
+                { type: "mc", q: "SSH is for?", options: ["Sound", "Secure Access", "CSS", "Storage"], correct: 1, review: "Secure Shell." },
+                { type: "mc", q: "Artifact is?", options: ["History", "Deployable output", "Bug", "Note"], correct: 1, review: "The build product." },
+                { type: "mc", q: "Bash is a?", options: ["Party", "Shell", "Database", "Image"], correct: 1, review: "Unix command language." },
+                { type: "mc", q: "Virtualization means?", options: ["VR", "Running multiple OS", "Zoom", "None"], correct: 1, review: "Hardware abstracting." },
+                { type: "mc", q: "ELK stack is for?", options: ["Building", "Logging/Analysis", "Managers", "Images"], correct: 1, review: "Elasticsearch, Logstash, Kibana." },
+                { type: "mc", q: "Ansible is for?", options: ["Design", "Config Management", "Blogs", "SEO"], correct: 1, review: "Automation tool." },
+                { type: "mc", q: "What is a Microservice?", options: ["Small PC", "Modular architecture", "Big app", "Error"], correct: 1, review: "Small independent services." },
+                { type: "mc", q: "AWS is a?", options: ["Language", "Cloud Provider", "Database", "Framework"], correct: 1, review: "Amazon Web Services." },
+                { type: "mc", q: "What is an Image in Docker?", options: ["Photo", "Read-only template", "CSS", "Logo"], correct: 1, review: "Blueprint for container." }
+            ]
+        };
+
+        const state = { activePath: null, qIdx: 0, score: 0, timer: null, timeLeft: 10, locked: false, totalTime: 0, qStartTime: 0, streak: 0 };
+
+        const el = {};
+
+        function init() {
+            // Robust assignment of elements
+            el.sView = document.getElementById('selectionView');
+            el.qView = document.getElementById('questionView');
+            el.rView = document.getElementById('resultView');
+            el.pathGrid = document.getElementById('pathGrid');
+            el.qText = document.getElementById('qText');
+            el.qCounter = document.getElementById('qCounter');
+            el.optionsGrid = document.getElementById('optionsGrid');
+            el.codingWorkspace = document.getElementById('codingWorkspace');
+            el.editor = document.getElementById('editor');
+            el.submitBtn = document.getElementById('submitCodeBtn');
+            el.verifyBtn = document.getElementById('verifyBtn');
+            el.testBadge = document.getElementById('testResultBadge');
+            el.progress = document.getElementById('progressBar');
+            el.timer = document.getElementById('timer');
+            el.timerContainer = document.getElementById('timerContainer');
+            el.review = document.getElementById('reviewBox');
+            el.reviewText = document.getElementById('reviewContent');
+            el.nextBtn = document.getElementById('nextBtn');
+            el.startBtn = document.getElementById('startBtn');
+            el.finalBtn = document.getElementById('finalBtn');
+            el.footerHint = document.getElementById('footerHintArea');
+            el.fStatus = document.getElementById('fStatus');
+            el.fAction = document.getElementById('fAction');
+            el.streakBadge = document.getElementById('streakBadge');
+            el.streakCount = document.getElementById('streakCount');
+            el.correctFlag = document.getElementById('correctFlag');
+            el.taskType = document.getElementById('taskTypeBadge');
+
+            renderPaths();
+            el.startBtn.onclick = startAssessment;
+            el.nextBtn.onclick = handleNext;
+            el.verifyBtn.onclick = verifyLogicOnly;
+            el.submitBtn.onclick = () => checkAnswer(el.editor.value);
+            el.finalBtn.onclick = () => location.reload();
+            document.getElementById('cancelQuiz').onclick = () => location.reload();
+        }
+
+        function renderPaths() {
+            el.pathGrid.innerHTML = PATHS.map(p => `
+                <div class="path-card group" id="card-${p.id.replace(/\s+/g, '')}" onclick="selectPath('${p.id}')">
+                    <div class="text-4xl mb-4">${p.icon}</div>
+                    <h3 class="font-black text-slate-800 mb-2">${p.id}</h3>
+                    <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase">${p.count} Candidates</span>
+                </div>
+            `).join('');
+        }
+
+        window.selectPath = (pathId) => {
+            state.activePath = pathId;
+            document.querySelectorAll('.path-card').forEach(c => c.classList.remove('active'));
+            const card = document.getElementById(`card-${pathId.replace(/\s+/g, '')}`);
+            if (card) card.classList.add('active');
+            
+            el.startBtn.disabled = false;
+            el.startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            if (el.fStatus) el.fStatus.innerText = "Path Selected";
+            if (el.fAction) el.fAction.innerText = "Ready to begin assessment";
+        };
+
+        function startAssessment() {
+            el.sView.classList.add('hidden');
+            el.qView.classList.remove('hidden');
+            el.startBtn.classList.add('hidden');
+            el.nextBtn.classList.remove('hidden');
+            document.getElementById('pathTitle').innerText = `${state.activePath} Assessment`;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const list = QUIZ_DATA[state.activePath];
+            const q = list[state.qIdx];
+            state.locked = false;
+            state.timeLeft = q.duration || 10;
+            state.qStartTime = Date.now();
+            
+            el.qCounter.innerText = `Challenge ${String(state.qIdx + 1).padStart(2, '0')} / ${list.length}`;
+            el.qText.innerText = q.q;
+            el.progress.style.width = `${((state.qIdx + 1) / list.length) * 100}%`;
+            el.review.classList.add('hidden');
+            el.correctFlag.classList.add('hidden');
+            el.testBadge.classList.remove('show');
+            el.nextBtn.disabled = true;
+            el.nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            if(q.type === 'coding') {
+                el.optionsGrid.classList.add('hidden');
+                el.codingWorkspace.classList.remove('hidden');
+                el.editor.value = "// Start writing solution...";
+                el.taskType.innerText = "Code Task";
+                el.taskType.className = "text-[9px] font-black px-2 py-1 bg-indigo-600 text-white rounded-full uppercase tracking-widest";
+                el.timerContainer.className = "bg-indigo-600 text-white px-5 py-2.5 rounded-2xl font-mono font-bold shadow-xl shadow-indigo-100 flex items-center gap-2";
+            } else {
+                el.optionsGrid.classList.remove('hidden');
+                el.codingWorkspace.classList.add('hidden');
+                el.taskType.innerText = "Logic Task";
+                el.taskType.className = "text-[9px] font-bold px-2 py-1 bg-slate-100 text-slate-400 rounded-full uppercase tracking-widest";
+                el.timerContainer.className = "bg-red-500 text-white px-5 py-2.5 rounded-2xl font-mono font-bold shadow-xl shadow-red-100 flex items-center gap-2";
+                el.optionsGrid.innerHTML = q.options.map((opt, i) => `
+                    <div class="option-card group animate-fade-in" style="animation-delay: ${i * 0.1}s" onclick="checkAnswer(${i})">
+                        <span class="option-letter transition-colors">${String.fromCharCode(65+i)}</span>
+                        <span class="font-bold text-slate-700">${opt}</span>
+                    </div>
+                `).join('');
+            }
+            startTimer();
+        }
+
+        function verifyLogicOnly() {
+            if(state.locked) return;
+            const q = QUIZ_DATA[state.activePath][state.qIdx];
+            const isCorrect = q.validation(el.editor.value);
+            el.testBadge.innerText = isCorrect ? "✓ Passed" : "✕ Failed";
+            el.testBadge.className = isCorrect ? "px-4 py-2 rounded-xl text-xs font-bold bg-green-50 text-green-600 show" : "px-4 py-2 rounded-xl text-xs font-bold bg-red-50 text-red-600 show";
+        }
+
+        window.checkAnswer = (input) => {
+            if(state.locked) return;
+            state.locked = true;
+            clearInterval(state.timer);
+            
+            const list = QUIZ_DATA[state.activePath];
+            const q = list[state.qIdx];
+            let isCorrect = false;
+
+            if(q.type === 'coding') {
+                isCorrect = (input && typeof input === 'string') ? q.validation(input) : false;
+            } else {
+                if(input === q.correct) isCorrect = true;
+                if(input !== null && input !== undefined) el.optionsGrid.children[input].classList.add(isCorrect ? 'correct' : 'wrong');
+                el.optionsGrid.children[q.correct].classList.add('correct');
+            }
+
+            if(isCorrect) { state.score++; state.streak++; el.correctFlag.classList.remove('hidden'); } else { state.streak = 0; }
+            updateStreak();
+            el.reviewText.innerText = q.review;
+            el.review.classList.remove('hidden');
+            el.nextBtn.disabled = false;
+            el.nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            state.totalTime += (Date.now() - state.qStartTime) / 1000;
+        };
+
+        function updateStreak() {
+            if(state.streak >= 2) { el.streakBadge.classList.replace('hidden', 'flex'); el.streakCount.innerText = `🔥 ${state.streak}`; } 
+            else { el.streakBadge.classList.replace('flex', 'hidden'); }
+        }
+
+        function handleNext() {
+            if(state.qIdx < QUIZ_DATA[state.activePath].length - 1) { state.qIdx++; loadQuestion(); } else { showResults(); }
+        }
+
+        function showResults() {
+            clearInterval(state.timer);
+            const acc = Math.round((state.score / QUIZ_DATA[state.activePath].length) * 100);
+            el.qView.classList.add('hidden'); el.rView.classList.remove('hidden'); el.finalBtn.classList.remove('hidden'); el.nextBtn.classList.add('hidden');
+            document.getElementById('resAccuracy').innerText = acc + '%';
+            document.getElementById('resTime').innerText = Math.round(state.totalTime) + 's';
+            let grade = 'F';
+            if(acc >= 90) grade = 'A+'; else if(acc >= 80) grade = 'A'; else if(acc >= 50) grade = 'B';
+            document.getElementById('resGrade').innerText = grade;
+            document.getElementById('resPath').innerText = state.activePath;
+            setTimeout(() => {
+                document.getElementById('barLogic').style.height = acc + '%';
+                document.getElementById('barSyntax').style.height = Math.max(30, acc - 10) + '%';
+                document.getElementById('barSpeed').style.height = '85%';
+            }, 300);
+        }
+
+        function startTimer() {
+            clearInterval(state.timer);
+            const update = () => { el.timer.innerText = `00:${String(state.timeLeft).padStart(2, '0')}`; };
+            update();
+            state.timer = setInterval(() => {
+                state.timeLeft--; update();
+                if(state.timeLeft <= 0) { clearInterval(state.timer); checkAnswer(null); }
+            }, 1000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
