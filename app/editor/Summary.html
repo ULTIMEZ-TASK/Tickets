@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SEO Summary Card - QD Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        /* Custom Scrollbar for the card content */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        /* Sparkle animation for AI icon */
+        @keyframes pulse-purple {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        }
+        .ai-pulse {
+            animation: pulse-purple 2s infinite;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- MAIN CARD COMPONENT STARTS HERE -->
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 border-b border-indigo-100 flex justify-between items-start">
+            <div class="flex gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg ai-pulse">
+                    <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">AI Performance Insight</h2>
+                    <p class="text-sm text-gray-500 mt-1">Analyzing GSC, GA4, Matomo & Clarity Data</p>
+                </div>
+            </div>
+            
+            <!-- Overall Health Badge -->
+            <div class="flex flex-col items-end">
+                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full border border-amber-200 uppercase tracking-wide">
+                    Potential Gem
+                </span>
+                <span class="text-xs text-gray-400 mt-1">Last updated: Just now</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="p-6">
+            
+            <!-- High Level Summary -->
+            <div class="mb-6">
+                <p class="text-gray-700 leading-relaxed">
+                    <span class="font-semibold text-gray-900">Summary:</span> 
+                    This article is ranking well (Avg Pos <span class="font-medium text-gray-900">8.2</span>) but losing traffic due to a low CTR. 
+                    Users who click are engaging well, but we detected friction points causing <span class="font-medium text-red-500">Rage Clicks</span> on mobile devices.
+                </p>
+            </div>
+
+            <!-- Action Plan (The SEO Expert's To-Do List) -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-check text-indigo-500"></i> Recommended Actions
+                </h3>
+                
+                <div class="space-y-3">
+                    
+                    <!-- Action Item 1 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Rewrite Meta Title & Description</span>
+                                <span class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">High Impact</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Target CTR improvement. Add a curiosity gap or specific number (e.g., "7 Ways to...")</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Item 2 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Fix Broken Interaction (Rage Clicks)</span>
+                                <span class="text-[10px] font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Critical</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Investigate the pricing table area on Mobile. Make the image a link or remove the button-style design.</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Item 3 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Increase Scroll Depth</span>
+                                <span class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Quick Win</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Add a Table of Contents (TOC) after the intro to help users navigate long content.</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Item 4 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Improve Core Web Vitals (LCP)</span>
+                                <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">Technical</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">LCP is 3.2s (Poor). Optimize the hero image size and serve it in WebP format.</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Item 5 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Update Content Freshness</span>
+                                <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Maintenance</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Traffic is dipping for 2024 keywords. Update statistics and year references to current year.</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Item 6 -->
+                    <div class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+                        <div class="mt-0.5">
+                            <input type="checkbox" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <span class="font-medium text-gray-800 text-sm group-hover:text-indigo-600 transition-colors">Boost Authority (Internal Links)</span>
+                                <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Growth</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">This page is close to Page 1. Add 2-3 links from high-authority parent pages to boost ranking.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        
+        <!-- Footer / Actions -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center">
+            <button class="text-xs font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
+                <i class="fa-solid fa-thumbs-up"></i> Helpful
+            </button>
+            
+            <div class="flex gap-2">
+                <button class="text-xs bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded hover:bg-gray-50 transition">
+                    View Raw Data
+                </button>
+                <button class="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded shadow-sm hover:bg-indigo-700 transition flex items-center gap-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i> Re-Analyze
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
