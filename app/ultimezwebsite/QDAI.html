@@ -137,10 +137,19 @@
             margin-top: 10px;
             font-size: 0.9rem;
             background: white;
-            border-radius: 8px;
-            overflow: hidden;
+            /* overflow: hidden; Removed to prevent dropdown clipping */
             width: 100%;
+            border-collapse: separate; 
+            border-spacing: 0;
+            border: 1px solid #e3e6f0;
+            border-radius: 8px;
         }
+
+        /* Manual border radius for table corners since overflow is visible */
+        .ai-result-table tr:first-child th:first-child { border-top-left-radius: 8px; }
+        .ai-result-table tr:first-child th:last-child { border-top-right-radius: 8px; }
+        .ai-result-table tr:last-child td:first-child { border-bottom-left-radius: 8px; }
+        .ai-result-table tr:last-child td:last-child { border-bottom-right-radius: 8px; }
 
         .ai-result-table thead {
             background-color: #f1f3f9;
@@ -150,6 +159,11 @@
         .ai-result-table th, .ai-result-table td {
             vertical-align: middle;
             padding: 12px;
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .ai-result-table tr:last-child td {
+            border-bottom: none;
         }
 
         .page-link-text {
@@ -366,14 +380,15 @@
         function appendAiTable(introText, data) {
             const container = document.getElementById('chatContainer');
             
+            // Note: Removed 'table-responsive' wrapper to prevent dropdown clipping inside chat bubble
             let tableHtml = `
-                <div class="table-responsive">
+                <div>
                     <table class="table ai-result-table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Page URL</th>
                                 <th>Impressions</th>
-                                <th class="text-center">Action</th>
+                                <th class="text-center" style="width: 140px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -390,14 +405,14 @@
                         <td><span class="badge bg-light text-dark border">${row.impressions}</span></td>
                         <td class="text-center">
                             <div class="dropdown">
-                                <button class="btn btn-sm btn-primary dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-plus-circle me-1"></i> Add to SOP
+                                <button class="btn btn-sm btn-primary dropdown-toggle shadow-sm w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
+                                    <i class="fas fa-plus-circle me-1"></i> Add
                                 </button>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
                                     <li><h6 class="dropdown-header">Select SOP Strategy</h6></li>
-                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'High Impressions (> 5k)')">High Impressions (> 5k)</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'CTR Optimization')">CTR Optimization</a></li>
-                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'Content Refresh')">Content Refresh</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'High Impressions (> 5k)')"><i class="fas fa-chart-line me-2 text-primary"></i>High Impressions</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'CTR Optimization')"><i class="fas fa-mouse-pointer me-2 text-success"></i>CTR Optimization</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'Content Refresh')"><i class="fas fa-sync me-2 text-warning"></i>Content Refresh</a></li>
                                 </ul>
                             </div>
                         </td>
@@ -415,7 +430,7 @@
                         <p>${introText}</p>
                         ${tableHtml}
                         <div class="mt-3 p-2 bg-white border rounded border-start border-4 border-info">
-                            <small class="text-muted"><i class="fas fa-info-circle text-info me-1"></i> <b>System Note:</b> Clicking "Add to SOP" will automatically create a Task in "SOP > More than 5,000 Impressions" with a solution guide attached.</small>
+                            <small class="text-muted"><i class="fas fa-info-circle text-info me-1"></i> <b>System Note:</b> Selecting a strategy will create a specific Task with a customized solution guide.</small>
                         </div>
                     </div>
                 </div>
