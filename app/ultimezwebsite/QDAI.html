@@ -389,10 +389,17 @@
                         </td>
                         <td><span class="badge bg-light text-dark border">${row.impressions}</span></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary btn-add-task shadow-sm" 
-                                onclick="addToSop(this, '${row.url}', '${row.impressions}')">
-                                <i class="fas fa-plus-circle me-1"></i> Add to SOP
-                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-primary dropdown-toggle shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-plus-circle me-1"></i> Add to SOP
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><h6 class="dropdown-header">Select SOP Strategy</h6></li>
+                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'High Impressions (> 5k)')">High Impressions (> 5k)</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'CTR Optimization')">CTR Optimization</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="addToSop(this, '${row.url}', '${row.impressions}', 'Content Refresh')">Content Refresh</a></li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -419,21 +426,26 @@
         }
 
         // --- CORE LOGIC: "Add to SOP" Action ---
-        function addToSop(btn, url, metrics) {
-            const button = $(btn);
+        function addToSop(element, url, metrics, sopName) {
+            // Find the main button for this specific dropdown
+            // element is the <a> tag clicked in the dropdown
+            const mainButton = $(element).closest('.dropdown').find('button.dropdown-toggle');
             
             // 1. Change Button State to Loading
-            button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+            mainButton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
 
             // 2. Simulate AJAX call to CodeIgniter Backend
-            // In real app: $.ajax({ url: '/tasks/auto_create_sop_task', data: {...} })
+            // In real app: $.ajax({ url: '/tasks/auto_create_sop_task', data: { url: url, metric: metrics, category: sopName } })
             setTimeout(() => {
                 // 3. Update Button to Success State
-                button.removeClass('btn-primary').addClass('btn-success text-white')
+                mainButton.removeClass('btn-primary dropdown-toggle').addClass('btn-success text-white')
                       .html('<i class="fas fa-check"></i> Added')
-                      .prop('disabled', true);
+                      .prop('disabled', true); // Keep disabled to prevent re-adding
                 
-                // 4. Show Toast Notification
+                // 4. Update and Show Toast Notification
+                const toastBody = document.querySelector('#successToast .toast-body');
+                toastBody.innerHTML = `<i class="fas fa-check-circle me-2"></i> Added to <strong>${sopName}</strong> successfully!`;
+
                 const toast = new bootstrap.Toast(document.getElementById('successToast'));
                 toast.show();
 
