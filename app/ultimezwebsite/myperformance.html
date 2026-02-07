@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Performance Dashboard - QD AI</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-bg: #f3f4f6;
+            --sidebar-bg: #1e293b; /* Dark Slate */
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-purple: #8b5cf6;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            min-height: 100vh;
+            color: #fff;
+            position: fixed;
+            transition: all 0.3s;
+        }
+
+        .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 12px 20px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            border-right: 4px solid var(--accent-blue);
+        }
+
+        .sidebar .nav-link i {
+            width: 25px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 25px;
+        }
+
+        /* Cards */
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Tables */
+        .table-custom th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .badge-trend {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .trend-up { background: #dcfce7; color: #166534; }
+        .trend-down { background: #fee2e2; color: #991b1b; }
+
+        /* AI Forecast Section */
+        .ai-forecast-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+        }
+        
+        .forecast-badge {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Navigation Tabs (Top) */
+        .nav-tabs .nav-link {
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            padding-bottom: 15px;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--accent-blue);
+            border-bottom: 2px solid var(--accent-blue);
+            background: transparent;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="d-flex">
+    
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="p-4 mb-3">
+            <h4 class="fw-bold"><i class="fas fa-chart-network me-2"></i>QD Analytics</h4>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-bs-target="#overview" data-bs-toggle="tab">
+                    <i class="fas fa-home"></i> Executive Pulse
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-target="#seo-strategy" data-bs-toggle="tab">
+                    <i class="fas fa-search"></i> SEO Strategy
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-target="#content-intel" data-bs-toggle="tab">
+                    <i class="fas fa-file-alt"></i> Content Audit
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-bs-target="#ai-insights" data-bs-toggle="tab">
+                    <i class="fas fa-robot"></i> QD AI Forecast
+                    <span class="badge bg-primary ms-auto">New</span>
+                </a>
+            </li>
+            <li class="nav-item mt-5 border-top border-secondary pt-3">
+                <a class="nav-link" href="#">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content w-100">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark">Performance Overview</h3>
+                <p class="text-muted">Data Source: Google Search Console, GA4 & BigQuery ML</p>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select shadow-sm">
+                    <option>Last 7 Days</option>
+                    <option selected>Last 30 Days</option>
+                    <option>Last 3 Months</option>
+                </select>
+                <button class="btn btn-primary shadow-sm"><i class="fas fa-download me-2"></i>Export Report</button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+
+            <!-- TAB 1: EXECUTIVE PULSE -->
+            <div class="tab-pane fade show active" id="overview">
+                
+                <!-- KPI Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-muted mb-1 text-uppercase small fw-bold">Total Impressions</p>
+                                    <h3 class="fw-bold mb-0">1.2M</h3>
+                                    <span class="badge-trend trend-up mt-2 d-inline-block"><i class="fas fa-arrow-up me-1"></i>12% vs last mo</span>
+                                </div>
+                                <div class="icon-box bg-light text-primary">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-muted mb-1 text-uppercase small fw-bold">Organic Clicks</p>
+                                    <h3 class="fw-bold mb-0">45.2K</h3>
+                                    <span class="badge-trend trend-up mt-2 d-inline-block"><i class="fas fa-arrow-up me-1"></i>5% vs last mo</span>
+                                </div>
+                                <div class="icon-box bg-light text-success">
+                                    <i class="fas fa-mouse-pointer"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-muted mb-1 text-uppercase small fw-bold">Avg Engagement</p>
+                                    <h3 class="fw-bold mb-0">1m 45s</h3>
+                                    <span class="badge-trend trend-down mt-2 d-inline-block"><i class="fas fa-arrow-down me-1"></i>2% vs last mo</span>
+                                </div>
+                                <div class="icon-box bg-light text-warning">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card p-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="text-muted mb-1 text-uppercase small fw-bold">Conversions</p>
+                                    <h3 class="fw-bold mb-0">850</h3>
+                                    <span class="badge-trend trend-up mt-2 d-inline-block"><i class="fas fa-arrow-up me-1"></i>15% vs last mo</span>
+                                </div>
+                                <div class="icon-box bg-light text-purple">
+                                    <i class="fas fa-bullseye"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Traffic Chart -->
+                <div class="card stat-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-4">Traffic Trends (GSC Clicks vs GA4 Users)</h5>
+                        <canvas id="trafficChart" height="80"></canvas>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold mb-3">Top Performing Keywords</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-custom">
+                                        <thead>
+                                            <tr>
+                                                <th>Keyword</th>
+                                                <th>Pos</th>
+                                                <th>Clicks</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- PHP Loop Here -->
+                                            <tr>
+                                                <td>bitcoin price prediction</td>
+                                                <td><span class="badge bg-success">1</span></td>
+                                                <td>12,450</td>
+                                            </tr>
+                                            <tr>
+                                                <td>solana news</td>
+                                                <td><span class="badge bg-success">3</span></td>
+                                                <td>8,320</td>
+                                            </tr>
+                                            <tr>
+                                                <td>crypto etf</td>
+                                                <td><span class="badge bg-warning text-dark">8</span></td>
+                                                <td>5,100</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold mb-3">Traffic by Device</h5>
+                                <canvas id="deviceChart" height="150"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: SEO STRATEGY -->
+            <div class="tab-pane fade" id="seo-strategy">
+                <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4">
+                    <i class="fas fa-lightbulb fs-4 me-3"></i>
+                    <div>
+                        <strong>Strategy Tip:</strong> Focus on "Strike Zone" keywords (Positions 4-10). A small optimization can push them to Top 3.
+                    </div>
+                </div>
+
+                <div class="card stat-card mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">Strike Zone Opportunities (Pos 4-10)</h5>
+                            <button class="btn btn-sm btn-outline-primary">View All</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Keyword</th>
+                                    <th>Current Pos</th>
+                                    <th>Impressions</th>
+                                    <th>CTR</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">ethereum staking rewards</td>
+                                    <td><span class="badge bg-warning text-dark">5.2</span></td>
+                                    <td>45,000</td>
+                                    <td>1.2%</td>
+                                    <td><button class="btn btn-sm btn-primary">Optimize</button></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">best crypto wallet 2026</td>
+                                    <td><span class="badge bg-warning text-dark">8.1</span></td>
+                                    <td>32,100</td>
+                                    <td>0.8%</td>
+                                    <td><button class="btn btn-sm btn-primary">Optimize</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: CONTENT AUDIT -->
+            <div class="tab-pane fade" id="content-intel">
+                <!-- Leaking Buckets Alert -->
+                <div class="card border-danger mb-4 shadow-sm">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-danger text-white rounded-circle p-3 me-3">
+                                <i class="fas fa-exclamation-triangle fa-lg"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-danger mb-1">Leaking Buckets Alert</h5>
+                                <p class="mb-0 text-muted">We found <strong>5 High-Traffic Pages</strong> with > 80% Bounce Rate. You are losing visitors here.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger">Fix Now</button>
+                    </div>
+                </div>
+
+                <div class="card stat-card">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold mb-4">Content Performance Matrix</h5>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Page URL</th>
+                                    <th>Traffic (GSC)</th>
+                                    <th>Avg Time (GA4)</th>
+                                    <th>Bounce Rate (Matomo)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>/news/bitcoin-halving</td>
+                                    <td>15,200</td>
+                                    <td>3m 20s</td>
+                                    <td><span class="text-success">45%</span></td>
+                                    <td><span class="badge bg-success">Excellent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>/guide/how-to-buy-solana</td>
+                                    <td>8,500</td>
+                                    <td>0m 45s</td>
+                                    <td><span class="text-danger fw-bold">82%</span></td>
+                                    <td><span class="badge bg-danger">Critical</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: QD AI INSIGHTS -->
+            <div class="tab-pane fade" id="ai-insights">
+                <div class="row g-4 mb-4">
+                    <div class="col-md-8">
+                        <div class="card stat-card h-100 ai-forecast-card border-0">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <h4 class="fw-bold text-white"><i class="fas fa-sparkles text-warning me-2"></i>Traffic Forecast (Next 14 Days)</h4>
+                                        <p class="text-light opacity-75">Based on BigQuery ARIMA_PLUS Model</p>
+                                    </div>
+                                    <div class="forecast-badge px-3 py-2 rounded">
+                                        <small class="text-warning fw-bold">PREDICTED SPIKE</small>
+                                        <div class="h5 mb-0 text-white">Feb 14th</div>
+                                    </div>
+                                </div>
+                                <canvas id="forecastChart" height="120"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Predicted Trending Topics</h5>
+                                <p class="text-muted small">Write about these before they peak.</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark border p-2">Solana ETF <i class="fas fa-arrow-trend-up text-success ms-1"></i></span>
+                                    <span class="badge bg-light text-dark border p-2">Binance Regulation</span>
+                                    <span class="badge bg-light text-dark border p-2">SUI Price</span>
+                                    <span class="badge bg-light text-dark border p-2">Crypto Tax India</span>
+                                    <span class="badge bg-warning text-dark border p-2">Bitcoin Halving <i class="fas fa-fire ms-1"></i></span>
+                                </div>
+                                <hr>
+                                <div class="d-grid">
+                                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#aiChatModal">
+                                        <i class="fas fa-comments me-2"></i> Ask AI Assistant
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<!-- AI Chat Modal (Placeholder for your Chat Widget) -->
+<div class="modal fade" id="aiChatModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-robot me-2"></i>QD AI Data Assistant</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" style="height: 500px;">
+                <!-- Embed your QD_AI_Chat_Panel.html iframe or code here -->
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                    <p class="text-muted">Chat Interface Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // --- Chart 1: Traffic Trends (Overview) ---
+    const ctxTraffic = document.getElementById('trafficChart').getContext('2d');
+    new Chart(ctxTraffic, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'GSC Clicks',
+                data: [1200, 1900, 3000, 5000, 2000, 3000, 4500],
+                borderColor: '#3b82f6',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(59, 130, 246, 0.1)'
+            },
+            {
+                label: 'GA4 Users',
+                data: [1000, 1500, 2800, 4800, 1800, 2500, 4000],
+                borderColor: '#10b981',
+                tension: 0.4,
+                borderDash: [5, 5]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // --- Chart 2: Device Split ---
+    const ctxDevice = document.getElementById('deviceChart').getContext('2d');
+    new Chart(ctxDevice, {
+        type: 'doughnut',
+        data: {
+            labels: ['Mobile', 'Desktop', 'Tablet'],
+            datasets: [{
+                data: [65, 30, 5],
+                backgroundColor: ['#3b82f6', '#1e293b', '#94a3b8']
+            }]
+        }
+    });
+
+    // --- Chart 3: AI Forecast (Dark Theme) ---
+    const ctxForecast = document.getElementById('forecastChart').getContext('2d');
+    new Chart(ctxForecast, {
+        type: 'line',
+        data: {
+            labels: ['Today', 'Feb 9', 'Feb 10', 'Feb 11', 'Feb 12', 'Feb 13', 'Feb 14'],
+            datasets: [{
+                label: 'Historical',
+                data: [4500, 4600, 4800, null, null, null, null],
+                borderColor: 'rgba(255,255,255,0.5)',
+                borderWidth: 2
+            },
+            {
+                label: 'AI Prediction',
+                data: [null, null, 4800, 5200, 5800, 6500, 8000], // The Spike
+                borderColor: '#f59e0b', // Warning Yellow
+                borderWidth: 3,
+                borderDash: [5, 5],
+                pointBackgroundColor: '#f59e0b'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { 
+                legend: { labels: { color: 'white' } } 
+            },
+            scales: { 
+                y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } },
+                x: { grid: { display: false }, ticks: { color: 'white' } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
