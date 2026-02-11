@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Selector Component</title>
+    <title>Account Selector & Post Composer</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -44,61 +44,188 @@
         }
         
         .ring-improvement {
-            /* Conic gradient for half-full effect: Yellow 50%, Gray 50% */
             background: conic-gradient(#EAB308 0% 50%, #E5E7EB 50% 100%);
+        }
+
+        /* Custom Radio Button Styling */
+        .custom-radio:checked + div {
+            border-color: #1e3a8a; /* Blue-900 */
+        }
+        .custom-radio:checked + div .radio-dot {
+            opacity: 1;
         }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+<body class="bg-gray-50 flex items-center justify-center min-h-screen py-10">
 
-    <div class="w-full max-w-4xl bg-white p-8 rounded-xl shadow-sm relative">
+    <div class="w-full max-w-3xl bg-white p-8 rounded-xl shadow-sm relative">
         
-        <!-- Header -->
-        <div class="flex flex-col mb-10 pl-2">
-            <h2 class="text-3xl text-gray-500 font-light">Select Account</h2>
-            <div class="flex items-center gap-3 h-6 mt-1">
-                <p id="active-account-name" class="text-blue-600 font-semibold text-lg transition-all opacity-0 translate-y-2">
+        <!-- ======================= -->
+        <!-- SECTION 1: ACCOUNT LIST -->
+        <!-- ======================= -->
+
+        <div class="flex flex-col mb-6 pl-1">
+            <h2 class="text-xl text-gray-500 font-light">Selected Accounts List</h2>
+            <div class="flex items-center gap-2 h-5 mt-1">
+                <p id="active-account-name" class="text-blue-600 font-semibold text-sm transition-all opacity-0 translate-y-2">
                     <!-- Name injected by JS -->
                 </p>
-                <span id="account-status-badge" class="text-xs font-medium px-2 py-0.5 rounded-full opacity-0 transition-opacity">
+                <span id="account-status-badge" class="text-[10px] font-medium px-2 py-0.5 rounded-full opacity-0 transition-opacity">
                     <!-- Status text injected by JS -->
                 </span>
             </div>
         </div>
 
         <!-- Carousel Container -->
-        <div class="flex items-center justify-between gap-6">
-
-            <!-- Left Arrow -->
-            <button onclick="navigate(-1)" class="p-4 group focus:outline-none z-10">
-                <i class="fa-solid fa-arrow-left text-3xl text-gray-400 group-hover:text-gray-600 transition-colors"></i>
+        <div class="flex items-center justify-between gap-2 mb-8">
+            <button onclick="navigate(-1)" class="p-2 group focus:outline-none z-10">
+                <i class="fa-solid fa-arrow-left text-xl text-gray-400 group-hover:text-gray-600 transition-colors"></i>
             </button>
 
-            <!-- Accounts List (Scrollable Area) -->
-            <div id="accounts-container" class="flex gap-4 overflow-x-hidden py-10 px-20 no-scrollbar items-center flex-1">
+            <div id="accounts-container" class="flex gap-3 overflow-x-hidden py-4 px-8 no-scrollbar items-center flex-1">
                 <!-- Items will be injected here by JS -->
             </div>
 
-            <!-- Right Arrow -->
-            <button onclick="navigate(1)" class="p-4 group focus:outline-none z-10">
-                <i class="fa-solid fa-arrow-right text-3xl text-blue-800 group-hover:text-blue-600 transition-colors"></i>
+            <button onclick="navigate(1)" class="p-2 group focus:outline-none z-10">
+                <i class="fa-solid fa-arrow-right text-xl text-blue-800 group-hover:text-blue-600 transition-colors"></i>
             </button>
-
         </div>
-        
-        <!-- Legend (Optional, helps user understand rings) -->
-        <div class="flex gap-6 justify-center mt-8 text-xs text-gray-400">
-            <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+
+        <!-- Legend -->
+        <div class="flex gap-4 justify-center text-[10px] text-gray-400 mb-10 border-b border-gray-100 pb-8">
+            <div class="flex items-center gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
                 <span>Ready to Post</span>
             </div>
-            <div class="flex items-center gap-2">
-                <div class="w-3 h-3 rounded-full bg-yellow-500 relative overflow-hidden">
-                     <div class="absolute top-0 right-0 w-1.5 h-3 bg-gray-200"></div>
+            <div class="flex items-center gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 relative overflow-hidden">
+                     <div class="absolute top-0 right-0 w-1 h-2.5 bg-gray-200"></div>
                 </div>
                 <span>Needs Content</span>
             </div>
         </div>
+
+
+        <!-- ========================== -->
+        <!-- SECTION 2: FORM COMPONENTS -->
+        <!-- ========================== -->
+
+        <div class="space-y-6 animate-fade-in">
+            
+            <!-- REMOVED: Dynamic Header Info (Facebook/Link details) -->
+
+            <!-- Upload Media -->
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <label class="block text-sm text-gray-500">Upload Media</label>
+                    <span id="media-specs-display" class="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded transition-all opacity-0">
+                        <!-- Specs injected by JS -->
+                    </span>
+                </div>
+                <div class="relative">
+                    <input type="text" id="upload-input" class="w-full border border-gray-200 rounded p-2.5 text-sm pr-16 focus:outline-none focus:border-blue-500 transition-colors" placeholder="Select Image" readonly>
+                    <!-- Added onclick to simulate upload -->
+                    <button onclick="simulateUpload()" class="absolute right-0 top-0 h-full px-4 text-sm font-semibold text-blue-800 hover:text-blue-600 transition-colors border-l border-gray-100">
+                        Upload
+                    </button>
+                </div>
+                
+                <!-- NEW: AI Generate Button -->
+                <div class="mt-2 flex justify-end">
+                    <button id="ai-generate-btn" onclick="generateAICaption()" class="text-xs font-bold text-purple-600 flex items-center gap-1.5 opacity-50 cursor-not-allowed transition-all hover:text-purple-700" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Caption with AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Caption Area with Dynamic Label -->
+            <div>
+                <label class="block text-sm text-gray-500 mb-2">
+                    <span id="dynamic-caption-label" class="font-bold text-gray-700 transition-opacity duration-300">Facebook Page</span> Post Content Box
+                </label>
+                <textarea id="caption-box" class="w-full border border-gray-200 rounded p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none h-24" placeholder="Enter Your Captions"></textarea>
+                <p class="text-xs text-blue-400 mt-1">160 Characters</p>
+            </div>
+
+            <!-- Platform Details Heading -->
+            <div class="pt-2">
+                <h4 class="font-bold text-gray-800 text-sm">Platform Details</h4>
+            </div>
+
+            <!-- Two Column Row: Groups & Traffic -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm text-gray-500 mb-2">Select Groups/Channels</label>
+                    <div class="relative">
+                        <select class="w-full border border-gray-200 rounded p-2.5 text-sm text-gray-600 appearance-none focus:outline-none focus:border-blue-500 bg-white">
+                            <option>Enter Post Title</option>
+                            <option>Marketing Group</option>
+                            <option>Public Feed</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-500 mb-2">Traffic Driven</label>
+                    <input type="number" class="w-full border border-gray-200 rounded p-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="0">
+                </div>
+            </div>
+
+            <!-- Published Link -->
+            <div>
+                <label class="block text-sm text-gray-500 mb-2">Published Link</label>
+                <input type="text" class="w-full border border-gray-200 rounded p-2.5 text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="Enter Published Link">
+            </div>
+
+            <!-- Publish Timing Radio Buttons -->
+            <div>
+                <label class="block text-sm text-gray-500 mb-3">Publish Timing*</label>
+                <div class="flex flex-wrap gap-6">
+                    <!-- Draft -->
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="timing" class="hidden custom-radio">
+                        <div class="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center group-hover:border-gray-600 transition-colors">
+                            <div class="w-2.5 h-2.5 rounded-full bg-[#00008B] opacity-0 radio-dot transition-opacity"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">Draft</span>
+                    </label>
+
+                    <!-- Publish Now (Checked by default) -->
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="timing" class="hidden custom-radio" checked>
+                        <div class="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center group-hover:border-gray-600 transition-colors">
+                            <div class="w-2.5 h-2.5 rounded-full bg-[#00008B] opacity-0 radio-dot transition-opacity"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">Publish Now</span>
+                    </label>
+
+                    <!-- Schedule -->
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="timing" class="hidden custom-radio">
+                        <div class="w-5 h-5 rounded-full border border-gray-400 flex items-center justify-center group-hover:border-gray-600 transition-colors">
+                            <div class="w-2.5 h-2.5 rounded-full bg-[#00008B] opacity-0 radio-dot transition-opacity"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">Schedule for later</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Comments Area -->
+            <div>
+                <label class="block text-sm text-gray-500 mb-2">Comments</label>
+                <textarea class="w-full border border-gray-200 rounded p-3 text-sm focus:outline-none focus:border-blue-500 transition-colors resize-none h-24" placeholder="Enter Your Captions"></textarea>
+                <p class="text-xs text-blue-400 mt-1">160 Characters</p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-4">
+                <button class="w-full bg-[#00008B] text-white font-medium py-3 rounded hover:bg-blue-900 transition-colors shadow-lg shadow-blue-900/20">
+                    Submit Post
+                </button>
+            </div>
+
+        </div>
+
     </div>
 
     <script>
@@ -109,7 +236,9 @@
                 name: 'Facebook Page',
                 img: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg',
                 platform: 'facebook',
-                status: 'ready' // Green Ring
+                platformTitle: 'Facebook',
+                link: 'https://facebook.com/ultimez',
+                status: 'ready' 
             },
             {
                 id: 2,
@@ -117,13 +246,17 @@
                 initials: 'UT',
                 color: 'bg-purple-600',
                 platform: 'facebook',
-                status: 'improvement' // Yellow Half-Ring
+                platformTitle: 'Facebook Page',
+                link: 'https://facebook.com/ultimez-tech',
+                status: 'improvement'
             },
             {
                 id: 3,
                 name: 'LinkedIn Profile',
                 img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&h=150', 
                 platform: 'linkedin',
+                platformTitle: 'LinkedIn',
+                link: 'https://linkedin.com/in/profile',
                 status: 'ready'
             },
             {
@@ -131,6 +264,8 @@
                 name: 'Instagram',
                 img: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&h=150', 
                 platform: 'instagram',
+                platformTitle: 'Instagram',
+                link: 'https://instagram.com/design_team',
                 status: 'improvement'
             },
             {
@@ -139,6 +274,8 @@
                 initials: 'X',
                 color: 'bg-black',
                 platform: 'twitter',
+                platformTitle: 'Twitter / X',
+                link: 'https://x.com/tweets',
                 status: 'ready'
             },
             {
@@ -147,21 +284,33 @@
                 initials: 'DT',
                 color: 'bg-orange-500',
                 platform: 'instagram',
+                platformTitle: 'Instagram Business',
+                link: 'https://instagram.com/design_daily',
                 status: 'improvement'
             }
         ];
+
+        // Platform Media Specifications Lookup
+        const platformSpecs = {
+            facebook: "Rec: 1200 x 630px (Img) | 16:9 (Vid)",
+            instagram: "Rec: 1080 x 1080px (Sq) | 4:5 (Port)",
+            linkedin: "Rec: 1200 x 627px (Img) | 1:1 (Vid)",
+            twitter: "Rec: 1200 x 675px (Img) | 16:9 (Vid)"
+        };
 
         let selectedIndex = 0; // Start with first account
         const container = document.getElementById('accounts-container');
         const nameLabel = document.getElementById('active-account-name');
         const statusBadge = document.getElementById('account-status-badge');
+        
+        // Dynamic Label Elements
+        const captionLabel = document.getElementById('dynamic-caption-label');
+        const mediaSpecsDisplay = document.getElementById('media-specs-display');
 
-        // Helper to get platform icon HTML
         function getPlatformBadge(platform, isSelected) {
-            const size = isSelected ? "w-9 h-9 text-base" : "w-6 h-6 text-[10px]";
-            const position = isSelected ? "-bottom-2 -right-2" : "-bottom-1 -right-1";
-            
-            const sizeClasses = `${size} rounded-full flex items-center justify-center text-white border-2 border-white absolute ${position} shadow-sm transition-all duration-300`;
+            const size = isSelected ? "w-6 h-6 text-xs" : "w-4 h-4 text-[8px]";
+            const position = isSelected ? "-bottom-1 -right-1" : "-bottom-0.5 -right-0.5";
+            const sizeClasses = `${size} rounded-full flex items-center justify-center text-white border-[1.5px] border-white absolute ${position} shadow-sm transition-all duration-300`;
             
             let bgClass = '';
             let iconClass = '';
@@ -180,32 +329,27 @@
             container.innerHTML = accounts.map((acc, index) => {
                 const isSelected = index === selectedIndex;
                 
-                // Content (Image or Initials)
                 let avatarContent;
                 if (acc.img) {
                     avatarContent = `<img src="${acc.img}" alt="${acc.name}" class="w-full h-full object-cover rounded-full">`;
                 } else {
                     avatarContent = `
                         <div class="w-full h-full ${acc.color} text-white flex flex-col items-center justify-center rounded-full">
-                            <span class="${isSelected ? 'text-sm' : 'text-[10px]'} font-bold leading-tight text-center px-1 transition-all">${acc.initials || acc.name}</span>
+                            <span class="${isSelected ? 'text-xs' : 'text-[8px]'} font-bold leading-tight text-center px-1 transition-all">${acc.initials || acc.name}</span>
                         </div>`;
                 }
 
-                // --- Sizing & Visibility Logic ---
-                // "Fully Visible" for unselected means opacity-100 and grayscale-0
-                // We kept the scale difference to maintain hierarchy, but removed the fade/gray.
                 let wrapperClass = '';
-                let paddingClass = ''; // This replaces border-width
+                let paddingClass = '';
                 
                 if (isSelected) {
-                    wrapperClass = 'w-32 h-32 z-10 translate-y-0 scale-100'; // Big
-                    paddingClass = 'p-[4px] shadow-xl'; // Thicker "border"
+                    wrapperClass = 'w-24 h-24 z-10 translate-y-0 scale-100'; 
+                    paddingClass = 'p-[3px] shadow-md'; 
                 } else {
-                    wrapperClass = 'w-20 h-20 scale-90 cursor-pointer hover:scale-100 transition-transform'; // Small but clear
-                    paddingClass = 'p-[3px]'; // Thinner "border"
+                    wrapperClass = 'w-14 h-14 scale-90 cursor-pointer hover:scale-100 transition-transform'; 
+                    paddingClass = 'p-[2px]';
                 }
 
-                // --- Ring Color Logic (Status Based) ---
                 const ringClass = acc.status === 'ready' ? 'ring-ready' : 'ring-improvement';
 
                 return `
@@ -214,10 +358,8 @@
                          onclick="selectAccount(${index})">
                         
                         <div class="relative w-full h-full">
-                            <!-- We use Padding + Background Color to create the ring effect -->
                             <div class="w-full h-full rounded-full flex items-center justify-center transition-all duration-300 ${paddingClass} ${ringClass}">
-                                <!-- Inner White Circle (Mask) -->
-                                <div class="w-full h-full rounded-full overflow-hidden relative bg-white border-2 border-white">
+                                <div class="w-full h-full rounded-full overflow-hidden relative bg-white border border-white">
                                     ${avatarContent}
                                 </div>
                             </div>
@@ -228,6 +370,8 @@
             }).join('');
 
             updateHeader();
+            updateDynamicLabel();
+            updateMediaSpecs();
             centerActiveElement();
         }
 
@@ -249,21 +393,38 @@
             }
         }
 
+        function updateDynamicLabel() {
+            const acc = accounts[selectedIndex];
+            captionLabel.style.opacity = '0.5';
+            setTimeout(() => {
+                captionLabel.innerText = acc.name;
+                captionLabel.style.opacity = '1';
+            }, 150);
+        }
+
+        function updateMediaSpecs() {
+            const acc = accounts[selectedIndex];
+            // Lookup specs or default
+            const specs = platformSpecs[acc.platform] || "Rec: 1200 x 630px";
+            
+            mediaSpecsDisplay.style.opacity = '0';
+            setTimeout(() => {
+                mediaSpecsDisplay.innerText = specs;
+                mediaSpecsDisplay.style.opacity = '1';
+            }, 150);
+        }
+
         function updateHeader() {
             const acc = accounts[selectedIndex];
-            
-            // Text Logic
             nameLabel.style.opacity = '0';
             nameLabel.style.transform = 'translateY(5px)';
             statusBadge.style.opacity = '0';
 
             setTimeout(() => {
-                // Update Name
                 nameLabel.innerText = acc.name;
                 nameLabel.style.opacity = '1';
                 nameLabel.style.transform = 'translateY(0)';
                 
-                // Update Status Badge next to name
                 if (acc.status === 'ready') {
                     statusBadge.innerText = "Ready to Post";
                     statusBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 opacity-1 transition-opacity";
@@ -281,15 +442,67 @@
                 const elLeft = activeEl.offsetLeft;
                 const elWidth = activeEl.clientWidth;
                 const scrollPos = elLeft - (containerWidth / 2) + (elWidth / 2);
-
-                container.scrollTo({
-                    left: scrollPos,
-                    behavior: 'smooth'
-                });
+                container.scrollTo({ left: scrollPos, behavior: 'smooth' });
             }
         }
 
-        // Initial Render
+        // --- NEW: Simulation Functions for AI Feature ---
+
+        const uploadInput = document.getElementById('upload-input');
+        const aiBtn = document.getElementById('ai-generate-btn');
+        const captionBox = document.getElementById('caption-box');
+
+        function simulateUpload() {
+            // Simulate a file being selected
+            uploadInput.value = "marketing_campaign_v2.jpg";
+            
+            // Enable the AI button
+            aiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            aiBtn.removeAttribute('disabled');
+            
+            // Visual feedback
+            aiBtn.classList.add('animate-pulse');
+            setTimeout(() => aiBtn.classList.remove('animate-pulse'), 1000);
+        }
+
+        function generateAICaption() {
+            const acc = accounts[selectedIndex];
+            
+            // Show loading state
+            const originalText = aiBtn.innerHTML;
+            aiBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Generating...`;
+            captionBox.setAttribute('placeholder', 'AI is writing...');
+            captionBox.value = '';
+
+            // Simulate API delay
+            setTimeout(() => {
+                // Generate mock text based on platform
+                let mockCaption = "";
+                switch(acc.platform) {
+                    case 'instagram':
+                        mockCaption = "Excited to share our latest update! 🚀 \n\nCheck out the link in bio for more details. ✨ #Design #Innovation #Tech";
+                        break;
+                    case 'facebook':
+                        mockCaption = "We are thrilled to announce our new partnership! Click the link below to learn how we are changing the game. 👇";
+                        break;
+                    case 'linkedin':
+                        mockCaption = "Proud to announce a major milestone for our team at Ultimez. 💼📈 \n\n#BusinessGrowth #TechTrends #Corporate";
+                        break;
+                    case 'twitter':
+                        mockCaption = "Big news coming soon! Stay tuned. 👀 🔥 #Tech #Update";
+                        break;
+                    default:
+                        mockCaption = "Check out this amazing update! Let us know what you think in the comments.";
+                }
+
+                // Typewriter effect simulation
+                captionBox.value = mockCaption;
+                
+                // Reset button
+                aiBtn.innerHTML = originalText;
+            }, 1500);
+        }
+
         renderAccounts();
         window.addEventListener('resize', centerActiveElement);
 
