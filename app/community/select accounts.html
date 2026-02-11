@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Selector Component</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+        
+        /* Hide scrollbar */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom Instagram Gradient */
+        .bg-instagram {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+        }
+
+        /* Animations */
+        .avatar-wrapper {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        /* Smooth scrolling for container */
+        #accounts-container {
+            scroll-behavior: smooth;
+        }
+
+        /* Status Ring Styles */
+        .ring-ready {
+            background-color: #22c55e; /* Green-500 */
+        }
+        
+        .ring-improvement {
+            /* Conic gradient for half-full effect: Yellow 50%, Gray 50% */
+            background: conic-gradient(#EAB308 0% 50%, #E5E7EB 50% 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-4xl bg-white p-8 rounded-xl shadow-sm relative">
+        
+        <!-- Header -->
+        <div class="flex flex-col mb-10 pl-2">
+            <h2 class="text-3xl text-gray-500 font-light">Select Account</h2>
+            <div class="flex items-center gap-3 h-6 mt-1">
+                <p id="active-account-name" class="text-blue-600 font-semibold text-lg transition-all opacity-0 translate-y-2">
+                    <!-- Name injected by JS -->
+                </p>
+                <span id="account-status-badge" class="text-xs font-medium px-2 py-0.5 rounded-full opacity-0 transition-opacity">
+                    <!-- Status text injected by JS -->
+                </span>
+            </div>
+        </div>
+
+        <!-- Carousel Container -->
+        <div class="flex items-center justify-between gap-6">
+
+            <!-- Left Arrow -->
+            <button onclick="navigate(-1)" class="p-4 group focus:outline-none z-10">
+                <i class="fa-solid fa-arrow-left text-3xl text-gray-400 group-hover:text-gray-600 transition-colors"></i>
+            </button>
+
+            <!-- Accounts List (Scrollable Area) -->
+            <div id="accounts-container" class="flex gap-4 overflow-x-hidden py-10 px-20 no-scrollbar items-center flex-1">
+                <!-- Items will be injected here by JS -->
+            </div>
+
+            <!-- Right Arrow -->
+            <button onclick="navigate(1)" class="p-4 group focus:outline-none z-10">
+                <i class="fa-solid fa-arrow-right text-3xl text-blue-800 group-hover:text-blue-600 transition-colors"></i>
+            </button>
+
+        </div>
+        
+        <!-- Legend (Optional, helps user understand rings) -->
+        <div class="flex gap-6 justify-center mt-8 text-xs text-gray-400">
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span>Ready to Post</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-yellow-500 relative overflow-hidden">
+                     <div class="absolute top-0 right-0 w-1.5 h-3 bg-gray-200"></div>
+                </div>
+                <span>Needs Content</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Configuration
+        const accounts = [
+            {
+                id: 1,
+                name: 'Facebook Page',
+                img: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg',
+                platform: 'facebook',
+                status: 'ready' // Green Ring
+            },
+            {
+                id: 2,
+                name: 'Ultimez Tech',
+                initials: 'UT',
+                color: 'bg-purple-600',
+                platform: 'facebook',
+                status: 'improvement' // Yellow Half-Ring
+            },
+            {
+                id: 3,
+                name: 'LinkedIn Profile',
+                img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&h=150', 
+                platform: 'linkedin',
+                status: 'ready'
+            },
+            {
+                id: 4,
+                name: 'Instagram',
+                img: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&h=150', 
+                platform: 'instagram',
+                status: 'improvement'
+            },
+            {
+                id: 5,
+                name: 'Twitter',
+                initials: 'X',
+                color: 'bg-black',
+                platform: 'twitter',
+                status: 'ready'
+            },
+            {
+                id: 6,
+                name: 'Design Team',
+                initials: 'DT',
+                color: 'bg-orange-500',
+                platform: 'instagram',
+                status: 'improvement'
+            }
+        ];
+
+        let selectedIndex = 0; // Start with first account
+        const container = document.getElementById('accounts-container');
+        const nameLabel = document.getElementById('active-account-name');
+        const statusBadge = document.getElementById('account-status-badge');
+
+        // Helper to get platform icon HTML
+        function getPlatformBadge(platform, isSelected) {
+            const size = isSelected ? "w-9 h-9 text-base" : "w-6 h-6 text-[10px]";
+            const position = isSelected ? "-bottom-2 -right-2" : "-bottom-1 -right-1";
+            
+            const sizeClasses = `${size} rounded-full flex items-center justify-center text-white border-2 border-white absolute ${position} shadow-sm transition-all duration-300`;
+            
+            let bgClass = '';
+            let iconClass = '';
+
+            switch(platform) {
+                case 'facebook': bgClass = 'bg-[#1877F2]'; iconClass = 'fa-brands fa-facebook-f'; break;
+                case 'linkedin': bgClass = 'bg-[#0077B5]'; iconClass = 'fa-brands fa-linkedin-in'; break;
+                case 'instagram': bgClass = 'bg-instagram'; iconClass = 'fa-brands fa-instagram'; break;
+                case 'twitter': bgClass = 'bg-black'; iconClass = 'fa-brands fa-x-twitter'; break;
+            }
+            
+            return `<div class="${sizeClasses} ${bgClass}"><i class="${iconClass}"></i></div>`;
+        }
+
+        function renderAccounts() {
+            container.innerHTML = accounts.map((acc, index) => {
+                const isSelected = index === selectedIndex;
+                
+                // Content (Image or Initials)
+                let avatarContent;
+                if (acc.img) {
+                    avatarContent = `<img src="${acc.img}" alt="${acc.name}" class="w-full h-full object-cover rounded-full">`;
+                } else {
+                    avatarContent = `
+                        <div class="w-full h-full ${acc.color} text-white flex flex-col items-center justify-center rounded-full">
+                            <span class="${isSelected ? 'text-sm' : 'text-[10px]'} font-bold leading-tight text-center px-1 transition-all">${acc.initials || acc.name}</span>
+                        </div>`;
+                }
+
+                // --- Sizing & Visibility Logic ---
+                // "Fully Visible" for unselected means opacity-100 and grayscale-0
+                // We kept the scale difference to maintain hierarchy, but removed the fade/gray.
+                let wrapperClass = '';
+                let paddingClass = ''; // This replaces border-width
+                
+                if (isSelected) {
+                    wrapperClass = 'w-32 h-32 z-10 translate-y-0 scale-100'; // Big
+                    paddingClass = 'p-[4px] shadow-xl'; // Thicker "border"
+                } else {
+                    wrapperClass = 'w-20 h-20 scale-90 cursor-pointer hover:scale-100 transition-transform'; // Small but clear
+                    paddingClass = 'p-[3px]'; // Thinner "border"
+                }
+
+                // --- Ring Color Logic (Status Based) ---
+                const ringClass = acc.status === 'ready' ? 'ring-ready' : 'ring-improvement';
+
+                return `
+                    <div id="acc-${index}" 
+                         class="flex-shrink-0 flex flex-col items-center transition-all duration-500 ease-out select-none ${wrapperClass}"
+                         onclick="selectAccount(${index})">
+                        
+                        <div class="relative w-full h-full">
+                            <!-- We use Padding + Background Color to create the ring effect -->
+                            <div class="w-full h-full rounded-full flex items-center justify-center transition-all duration-300 ${paddingClass} ${ringClass}">
+                                <!-- Inner White Circle (Mask) -->
+                                <div class="w-full h-full rounded-full overflow-hidden relative bg-white border-2 border-white">
+                                    ${avatarContent}
+                                </div>
+                            </div>
+                            ${getPlatformBadge(acc.platform, isSelected)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateHeader();
+            centerActiveElement();
+        }
+
+        function navigate(direction) {
+            let newIndex = selectedIndex + direction;
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex >= accounts.length) newIndex = accounts.length - 1;
+
+            if (newIndex !== selectedIndex) {
+                selectedIndex = newIndex;
+                renderAccounts();
+            }
+        }
+
+        function selectAccount(index) {
+            if (index !== selectedIndex) {
+                selectedIndex = index;
+                renderAccounts();
+            }
+        }
+
+        function updateHeader() {
+            const acc = accounts[selectedIndex];
+            
+            // Text Logic
+            nameLabel.style.opacity = '0';
+            nameLabel.style.transform = 'translateY(5px)';
+            statusBadge.style.opacity = '0';
+
+            setTimeout(() => {
+                // Update Name
+                nameLabel.innerText = acc.name;
+                nameLabel.style.opacity = '1';
+                nameLabel.style.transform = 'translateY(0)';
+                
+                // Update Status Badge next to name
+                if (acc.status === 'ready') {
+                    statusBadge.innerText = "Ready to Post";
+                    statusBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 opacity-1 transition-opacity";
+                } else {
+                    statusBadge.innerText = "Needs Content";
+                    statusBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 opacity-1 transition-opacity";
+                }
+            }, 150);
+        }
+
+        function centerActiveElement() {
+            const activeEl = document.getElementById(`acc-${selectedIndex}`);
+            if (activeEl) {
+                const containerWidth = container.clientWidth;
+                const elLeft = activeEl.offsetLeft;
+                const elWidth = activeEl.clientWidth;
+                const scrollPos = elLeft - (containerWidth / 2) + (elWidth / 2);
+
+                container.scrollTo({
+                    left: scrollPos,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Initial Render
+        renderAccounts();
+        window.addEventListener('resize', centerActiveElement);
+
+    </script>
+</body>
+</html>
