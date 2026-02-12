@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -66,7 +66,23 @@
 
         <div class="flex flex-col mb-6 pl-1">
             <h2 class="text-xl text-gray-500 font-light">Selected Accounts List</h2>
-            <div class="flex items-center gap-2 h-5 mt-1">
+            
+            <!-- Legend (Reduced Size & Updated Text) -->
+            <div class="flex gap-4 items-center text-[11px] font-medium text-[#9ba3af] mt-2 mb-1">
+                <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-full bg-[#62C466]"></div>
+                    <span>Ready to Post</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <div class="w-3 h-3 rounded-full flex overflow-hidden border border-gray-200">
+                         <div class="w-1/2 h-full bg-[#E1BE45]"></div>
+                         <div class="w-1/2 h-full bg-[#EEEEEE]"></div>
+                    </div>
+                    <span>Needs Content Improvements</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 h-5 mt-2">
                 <p id="active-account-name" class="text-blue-600 font-semibold text-sm transition-all opacity-0 translate-y-2">
                     <!-- Name injected by JS -->
                 </p>
@@ -77,7 +93,7 @@
         </div>
 
         <!-- Carousel Container -->
-        <div class="flex items-center justify-between gap-2 mb-8">
+        <div class="flex items-center justify-between gap-2 mb-10 border-b border-gray-100 pb-8">
             <button onclick="navigate(-1)" class="p-2 group focus:outline-none z-10">
                 <i class="fa-solid fa-arrow-left text-xl text-gray-400 group-hover:text-gray-600 transition-colors"></i>
             </button>
@@ -91,20 +107,6 @@
             </button>
         </div>
 
-        <!-- Legend -->
-        <div class="flex gap-4 justify-center text-[10px] text-gray-400 mb-10 border-b border-gray-100 pb-8">
-            <div class="flex items-center gap-1.5">
-                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                <span>Ready to Post</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <div class="w-2.5 h-2.5 rounded-full bg-yellow-500 relative overflow-hidden">
-                     <div class="absolute top-0 right-0 w-1 h-2.5 bg-gray-200"></div>
-                </div>
-                <span>Needs Content</span>
-            </div>
-        </div>
-
 
         <!-- ========================== -->
         <!-- SECTION 2: FORM COMPONENTS -->
@@ -112,7 +114,18 @@
 
         <div class="space-y-6 animate-fade-in">
             
-            <!-- REMOVED: Dynamic Header Info (Facebook/Link details) -->
+            <!-- NEW: Instructions & Profile Link -->
+            <div class="bg-gray-50 border-l-4 border-blue-500 p-4 rounded-r">
+                <p class="text-sm text-gray-700 font-medium">
+                    Create Proper Content And Follow The Proper Instructions to Create Impactful Post Content
+                </p>
+                <div class="mt-2 text-xs flex items-center gap-2">
+                    <span class="text-gray-400 font-semibold uppercase tracking-wider">Profile Link:</span>
+                    <a id="profile-link-display" href="#" target="_blank" class="text-blue-600 font-bold hover:underline transition-opacity duration-300">
+                        <!-- Link injected by JS -->
+                    </a>
+                </div>
+            </div>
 
             <!-- Upload Media -->
             <div>
@@ -306,6 +319,7 @@
         // Dynamic Label Elements
         const captionLabel = document.getElementById('dynamic-caption-label');
         const mediaSpecsDisplay = document.getElementById('media-specs-display');
+        const profileLinkDisplay = document.getElementById('profile-link-display');
 
         function getPlatformBadge(platform, isSelected) {
             const size = isSelected ? "w-6 h-6 text-xs" : "w-4 h-4 text-[8px]";
@@ -372,6 +386,7 @@
             updateHeader();
             updateDynamicLabel();
             updateMediaSpecs();
+            updateProfileLink();
             centerActiveElement();
         }
 
@@ -404,13 +419,23 @@
 
         function updateMediaSpecs() {
             const acc = accounts[selectedIndex];
-            // Lookup specs or default
             const specs = platformSpecs[acc.platform] || "Rec: 1200 x 630px";
             
             mediaSpecsDisplay.style.opacity = '0';
             setTimeout(() => {
                 mediaSpecsDisplay.innerText = specs;
                 mediaSpecsDisplay.style.opacity = '1';
+            }, 150);
+        }
+
+        function updateProfileLink() {
+            const acc = accounts[selectedIndex];
+            
+            profileLinkDisplay.style.opacity = '0';
+            setTimeout(() => {
+                profileLinkDisplay.innerText = acc.link;
+                profileLinkDisplay.href = acc.link;
+                profileLinkDisplay.style.opacity = '1';
             }, 150);
         }
 
