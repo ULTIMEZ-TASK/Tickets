@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mallik: Geolocation & Notification Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .task-checked { text-decoration: line-through; opacity: 0.5; filter: grayscale(1); }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .file-path { font-family: 'Fira Code', monospace; font-size: 0.7rem; color: #6366f1; background: #eef2ff; padding: 2px 6px; border-radius: 4px; }
+        .geo-tag { background: #0ea5e9; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 800; }
+        .push-tag { background: #f59e0b; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 800; }
+        .time-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+        .completion-stamp { font-size: 0.65rem; color: #10b981; font-weight: 600; display: none; }
+    </style>
+</head>
+<body class="bg-[#f0f4f8] text-[#1e293b] min-h-screen py-12 px-6">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-tighter">Assigned to: Mallik</span>
+                    <span class="text-slate-400 text-xs font-medium tracking-wide">Version 4.0 • Time Optimized</span>
+                </div>
+                <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Geospatial & Notification Roadmap</h1>
+                <p class="text-slate-500 mt-2">Track real-time completion velocity and task estimations.</p>
+            </div>
+            <div class="text-right">
+                <span id="date-now" class="text-slate-400 text-sm font-bold bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200"></span>
+            </div>
+        </header>
+
+        <!-- Main Progress -->
+        <div class="glass rounded-[2rem] p-8 mb-10 shadow-2xl shadow-indigo-200/50 border-t-4 border-t-sky-500">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Build Velocity</h3>
+                    <p class="text-slate-900 font-bold">Spatial Services Completion</p>
+                </div>
+                <span id="perc-display" class="text-5xl font-black text-sky-600">0%</span>
+            </div>
+            <div class="w-full bg-slate-200/50 rounded-full h-5 p-1 overflow-hidden">
+                <div id="bar-display" class="bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-600 h-full w-0 rounded-full transition-all duration-1000"></div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            
+            <!-- Task 1: Geolocation Core Service -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden group">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-location-arrow"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold flex items-center gap-2">
+                                1. Device Location Service
+                                <span class="geo-tag">Geo-Logic</span>
+                            </h2>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">File: <span class="file-path">src/services/geoService.ts</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-start gap-3 p-4 border border-slate-100 rounded-2xl hover:bg-sky-50/30 transition-all">
+                        <input type="checkbox" class="task-cb mt-1 w-6 h-6 rounded-lg border-slate-300 text-sky-600">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="font-bold text-sm task-label">Browser Geolocation Fetch</p>
+                                <span class="time-badge">Est: 2h</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Navigator API with error handling.</p>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-4 border border-slate-100 rounded-2xl hover:bg-sky-50/30 transition-all">
+                        <input type="checkbox" class="task-cb mt-1 w-6 h-6 rounded-lg border-slate-300 text-sky-600">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center mb-1">
+                                <p class="font-bold text-sm task-label">Distance Calculator</p>
+                                <span class="time-badge">Est: 1.5h</span>
+                            </div>
+                            <p class="text-[10px] text-slate-500">Haversine formula implementation.</p>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task 2: Event List Spatial Sorting -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                            <i class="fas fa-sort-amount-down-alt"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold">2. Spatial UI & Sorting Logic</h2>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">File: <span class="file-path">src/pages/Events/EventList.tsx</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-start gap-3 p-3 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-100">
+                        <input type="checkbox" class="task-cb w-5 h-5 mt-1 text-indigo-600">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-semibold task-label">"Search Near Me" Button Implementation</span>
+                                <span class="time-badge">Est: 1h</span>
+                            </div>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-100">
+                        <input type="checkbox" class="task-cb w-5 h-5 mt-1 text-indigo-600">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-semibold task-label">Dual-Sort: Recent + Proximity Logic</span>
+                                <span class="time-badge">Est: 3h</span>
+                            </div>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 hover:bg-indigo-50 rounded-xl transition-all border border-transparent hover:border-indigo-100">
+                        <input type="checkbox" class="task-cb w-5 h-5 mt-1 text-indigo-600">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-semibold task-label">EventCard Distance Injection</span>
+                                <span class="time-badge">Est: 0.5h</span>
+                            </div>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task 3: Engagement Engine -->
+            <div class="bg-slate-900 rounded-3xl shadow-xl overflow-hidden text-white border-l-8 border-l-amber-500">
+                <div class="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-800/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-xl shadow-lg shadow-amber-500/30">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold flex items-center gap-2">
+                                3. Notifications (Push & Email)
+                                <span class="push-tag">Zomato Style</span>
+                            </h2>
+                            <p class="text-xs text-amber-300 font-medium uppercase tracking-wider">Service: <span class="file-path bg-slate-700 text-amber-100 border-none">src/services/notifyEngine.ts</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8 space-y-4">
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+                        <input type="checkbox" class="task-cb mt-1 w-6 h-6 border-slate-600 bg-transparent text-amber-400">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold text-indigo-100 task-label">Interest-Based Push Triggers (FCM)</p>
+                                <span class="time-badge bg-slate-700 text-slate-300 border-slate-600">Est: 4h</span>
+                            </div>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val text-amber-400"></span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-2xl bg-slate-800/50 border border-slate-700">
+                        <input type="checkbox" class="task-cb mt-1 w-6 h-6 border-slate-600 bg-transparent text-amber-400">
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold text-indigo-100 task-label">Weekly Geo-Newsletter Template</p>
+                                <span class="time-badge bg-slate-700 text-slate-300 border-slate-600">Est: 5h</span>
+                            </div>
+                            <p class="completion-stamp mt-1"><i class="fas fa-check-circle mr-1"></i> Completed: <span class="time-val text-amber-400"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-12 text-center">
+            <button id="reset-btn" class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-200 text-slate-400 hover:text-rose-500 hover:border-rose-200 font-bold text-xs uppercase transition-all tracking-widest">
+                <i class="fas fa-sync-alt mr-2"></i> Reset Roadmap Progress
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const cbs = document.querySelectorAll('.task-cb');
+        const bar = document.getElementById('bar-display');
+        const text = document.getElementById('perc-display');
+        const dateSpan = document.getElementById('date-now');
+        
+        dateSpan.innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        function sync() {
+            const total = cbs.length;
+            const done = Array.from(cbs).filter(c => c.checked).length;
+            const perc = Math.round((done / total) * 100);
+            
+            bar.style.width = perc + '%';
+            text.innerText = perc + '%';
+
+            cbs.forEach(c => {
+                const parent = c.closest('div');
+                const label = parent.querySelector('.task-label');
+                const stamp = parent.querySelector('.completion-stamp');
+                const timeVal = parent.querySelector('.time-val');
+
+                if (c.checked) {
+                    label.classList.add('task-checked');
+                    if (stamp && !timeVal.innerText) {
+                        const now = new Date();
+                        timeVal.innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' (' + now.toLocaleDateString([], { day: '2-digit', month: 'short' }) + ')';
+                        stamp.style.display = 'block';
+                    }
+                } else {
+                    label.classList.remove('task-checked');
+                    if (stamp) {
+                        stamp.style.display = 'none';
+                        timeVal.innerText = '';
+                    }
+                }
+            });
+
+            if(perc === 100) {
+                bar.classList.add('shadow-[0_0_20px_rgba(14,165,233,0.5)]');
+                text.innerText = "DONE";
+                text.className = "text-5xl font-black text-sky-500 animate-pulse";
+            }
+        }
+
+        cbs.forEach(c => c.addEventListener('change', sync));
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if(confirm('Clear Mallik\'s progress?')) {
+                cbs.forEach(c => {
+                    c.checked = false;
+                    const parent = c.closest('div');
+                    const timeVal = parent.querySelector('.time-val');
+                    if(timeVal) timeVal.innerText = '';
+                });
+                sync();
+            }
+        });
+    </script>
+</body>
+</html>
