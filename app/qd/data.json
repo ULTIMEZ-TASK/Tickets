@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-26T17:10:47.975607+00:00",
-  "total": 4,
-  "avg_trust": 4.5,
+  "generated_at": "2026-02-26T21:57:46.641654+00:00",
+  "total": 5,
+  "avg_trust": 6.6,
   "articles": [
     {
       "post_id": 304727,
@@ -136,14 +136,105 @@
           "source": "https://coinmarketcap.com/currencies/akash-network/"
         }
       ],
-      "published_date": "2025-07-23",
+      "published_date": "2025-07-23 17:51:49+00",
       "processed_at": "2026-02-26 13:56:02.598331+00:00",
+      "status": "completed"
+    },
+    {
+      "post_id": 56005,
+      "post_title": "Dogecoin Price Prediction 2025, 2026 \u2013 2030: Will DOGE Reach 1 Dollar?",
+      "post_url": "https://coinpedia.org/price-prediction/dogecoin-price-analysis/",
+      "coin_name": "Dogecoin",
+      "focus_keyword": "dogecoin price prediction",
+      "trust_score": 2.8,
+      "trust_label": "Low Trust",
+      "claims_checked": 6,
+      "claims_verified": 0,
+      "claims_partial": 2,
+      "claims_failed": 3,
+      "claims_outdated": 0,
+      "word_count": 1584,
+      "word_count_gap": "",
+      "seo_keyword_in_title": true,
+      "seo_keyword_in_meta": true,
+      "critical_gaps": 1,
+      "high_gaps": 2,
+      "competitor_url": "https://coincodex.com/crypto/dogecoin/price-prediction/",
+      "competitor_title": "Dogecoin (DOGE) Price Prediction 2026, 2027-2030 | CoinCodex",
+      "summary": "Partial report \u2014 6 verdicts, 3 gaps collected.",
+      "overall_assessment": "Partial analysis from 8 turns. Trust based on 6 claims.",
+      "priority_fixes_json": [
+        {
+          "priority": 1,
+          "fix": "Missing Risk Disclaimer / Investment Warning",
+          "action": "Add a clearly visible risk disclaimer section (or sticky banner) stating: \"This article is for informational purposes only and does not constitute financial or investment advice. Cryptocurrency investments involve significant risk of loss. Past performance is not indicative of future results. Always conduct your own research before investing.\" This is both a legal/compliance requirement and an E-E-A-T trust signal for Google.",
+          "impact": "critical",
+          "effort": "medium",
+          "ranking_benefit": "Critical for E-E-A-T compliance and legal protection; Google's helpful content guidelines reward financial articles that disclose risk. Could directly affect ranking for high-intent \"dogecoin price prediction\" queries."
+        },
+        {
+          "priority": 2,
+          "fix": "No quantified technical indicators with current values",
+          "action": "Add a dedicated Technical Indicators table listing current values for: RSI (14-day), 50-day SMA, 200-day SMA, MACD signal, Bollinger Bands, Fear & Greed Index score, and percentage of green days in the last 30. CoinCodex shows these as live-updating data points. This transforms the article from opinion to data-backed analysis and satisfies \"crypto price prediction\" search intent better.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "High \u2014 structured technical data tables are a top engagement signal. Adding a live indicator summary table could increase dwell time and reduce bounce rate, both ranking factors."
+        },
+        {
+          "priority": 3,
+          "fix": "2025 price targets severely out of sync with current market price \u2014 no revision note",
+          "action": "Add an \"Article Last Updated\" timestamp prominently near the price prediction tables, and include a brief editorial note where the 2025 full-year table appears, acknowledging the current DOGE price (~$0.097) and explaining whether these targets still stand or have been revised. Also consider adding a revised H2 2025 scenario table reflecting current price levels.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "High \u2014 internal table contradictions (monthly low $0.10 vs annual low $0.62) reduce content credibility, increase bounce rate, and could trigger Google's \"unhelpful content\" filters. Freshness signals are critical for price prediction articles."
+        }
+      ],
+      "exact_fixes_json": [
+        {
+          "claim": "Bitcoin's spike beyond June's high to a new ATH $123,231 on July 10th pushed DOGE to rise",
+          "verdict": "MISLEADING",
+          "exact_fix": "Change \"Bitcoin's spike beyond June's high to a new ATH $123,231 pushed DOGE to rise\" to \"Bitcoin's spike beyond June's high to a new ATH of approximately $113,804 on July 10th pushed DOGE to rise\" (source: axios.com/2025/07/10/btc-price-today-bitcoin)",
+          "source": "https://www.axios.com/2025/07/10/btc-price-today-bitcoin"
+        },
+        {
+          "claim": "DOGE All-time high $0.7376 May 08, 2021",
+          "verdict": "MISLEADING",
+          "exact_fix": "Change \"All-time high $0.7376 May 08, 2021\" to \"All-time high $0.7316 May 08, 2021\" (source: CoinGecko live data)",
+          "source": "https://www.coingecko.com/en/coins/dogecoin"
+        },
+        {
+          "claim": "DOGE All-time low $0.00008547 May 07, 2015",
+          "verdict": "MISLEADING",
+          "exact_fix": "Change \"All-time low $0.00008547 May 07, 2015\" to \"All-time low $0.00008690 May 06, 2015\" (source: CoinGecko live data)",
+          "source": "https://www.coingecko.com/en/coins/dogecoin"
+        },
+        {
+          "claim": "Bit Origin's $500 million DOGE treasury plan has boosted sentiment, and recently it has bought $40.5 million DOGE as part of $500M treasury plan",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change \"recently, it has bought $40.5 million DOGE as part of $500M treasury plan\" to \"it has begun purchases under its $500M treasury plan, with a confirmed initial $6 million private placement\" (source: investing.com/news/company-news/bit-origin-closes-6-million-dogecoin-private-placement-93CH-4185173). Verify the $40.5M figure against an official press release before publishing.",
+          "source": "https://www.globenewswire.com/news-release/2025/07/17/3117305/0/en/Bit-Origin-Secures-500-Million-Equity-and-Debt-Facilities-to-Launch-Dogecoin-Treasury.html"
+        },
+        {
+          "claim": "Elon Musk's recent move of DOGE payments integration on X has pushed an extension to rally",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change \"Elon Musk's recent move of DOGE payments integration on X\" to \"Elon Musk's signals toward potential DOGE integration with X Payments (X Money), expected in 2025\" to accurately reflect the current announced-but-not-yet-launched status (source: signaturepayments.com/elon-musks-x-payments-revolutionizing-crypto-transactions/)",
+          "source": "https://signaturepayments.com/elon-musks-x-payments-revolutionizing-crypto-transactions/"
+        },
+        {
+          "claim": "CoinPedia projects DOGE price to reach a potential high of $1.07 and potential low of $0.62 in 2025",
+          "verdict": "PREDICTION_UNVERIFIABLE",
+          "exact_fix": "Add a clear disclaimer adjacent to the 2025 price table: \"Note: These projections were formulated earlier in 2025 when DOGE was trading at higher levels. As of late July 2025, DOGE trades near $0.097, making these targets highly speculative and requiring significant market catalysts to achieve.\"",
+          "source": "https://www.coingecko.com/en/coins/dogecoin"
+        }
+      ],
+      "published_date": "2025-07-23 16:56:21+00",
+      "processed_at": "2026-02-26 21:56:00.265336+00:00",
       "status": "completed"
     },
     {
       "post_id": 347599,
       "post_title": "Conflux Price Prediction 2025, 2026 - 2030: Will CFX Price Hit $1?",
-      "post_url": "https://coinpedia.org/price-prediction/conflux-cfx-price-prediction/",
+      "post_url": null,
       "coin_name": "Conflux",
       "focus_keyword": "Conflux",
       "trust_score": 7.6,
@@ -153,18 +244,18 @@
       "claims_partial": 2,
       "claims_failed": 0,
       "claims_outdated": 1,
-      "word_count": 0,
+      "word_count": "<NA>",
       "word_count_gap": null,
-      "seo_keyword_in_title": false,
-      "seo_keyword_in_meta": false,
+      "seo_keyword_in_title": "<NA>",
+      "seo_keyword_in_meta": "<NA>",
       "critical_gaps": 2,
       "high_gaps": 3,
       "competitor_url": null,
       "competitor_title": null,
       "summary": "The article fact-checks as **Mostly Trustworthy** with important caveats. Core project facts about Conflux (Layer-1, Tree-Graph consensus, PoW/PoS hybrid, CFX token utility) are fully verified. Key catalysts mentioned\u2014the AnchorX/Eastcompeace RMB stablecoin partnership and the Conflux 3.0 upgrade scheduled for August 2025\u2014are confirmed by credible sources including The Block and Reuters. However, the ATH date (article says March 27; CoinMarketCap says March 26) and ATL date (article says January 1, 2023; CoinMarketCap says December 31, 2022) have minor discrepancies. Most critically, the third-party prediction figures from Wallet Investor, PricePrediction.net, and DigitalCoinPrice are **significantly outdated**\u2014Wallet Investor now shows $0.005 versus the $0.158 cited, which could severely mislead investors. The article also lacks technical analysis, tokenomics, risk disclaimers, and historical price context that top competitors include.",
       "overall_assessment": "## Overall Assessment\n\n**Strengths:**\n- Core project fundamentals (Layer-1, Tree-Graph, PoW/PoS) are accurately described and verified across multiple authoritative sources\n- The AnchorX/Eastcompeace RMB stablecoin partnership is a legitimate and significant development, confirmed by Reuters and The Block\n- The Conflux 3.0 upgrade timeline (August 2025) is verified and represents a genuine catalyst\n- CFX token utility description is accurate\n- Article structure with yearly predictions is well-organized\n\n**Weaknesses:**\n1. **CRITICAL: Outdated third-party predictions** \u2014 The Market Analysis table cites figures that are dramatically different from current values on those same sites. Wallet Investor now shows $0.005 (not $0.158), a 97% discrepancy that could mislead investors into thinking external analysts are bullish when they're actually bearish.\n2. **Minor date errors** \u2014 ATH date off by ~1 day (March 27 vs March 26 per CoinMarketCap); ATL date off by ~1 day (Jan 1, 2023 vs Dec 31, 2022 per CoinMarketCap)\n3. **No technical analysis** \u2014 Competitors rank higher partly because they include RSI, SMA, support/resistance levels, and chart analysis\n4. **No tokenomics** \u2014 CFX has infinite max supply (inflationary), a crucial factor for long-term price predictions that is completely omitted\n5. **No risk disclaimer** \u2014 For a token trading 97% below ATH with infinite supply, the absence of risk warnings is a significant editorial oversight\n6. **No price history** \u2014 Readers cannot evaluate prediction credibility without understanding CFX's historical performance trajectory\n7. **Prediction methodology unclear** \u2014 No explanation of how CoinPedia arrived at its specific price targets\n\n**Recommendation:** Update the third-party prediction figures immediately (highest priority), add technical analysis section, include tokenomics with the critical infinite supply detail, add investment risk disclaimer, and include historical price performance context. The outdated Wallet Investor fi",
-      "priority_fixes_json": [],
-      "exact_fixes_json": [],
+      "priority_fixes_json": null,
+      "exact_fixes_json": null,
       "published_date": null,
       "processed_at": "2026-02-26 11:49:19.145759+00:00",
       "status": "completed"
@@ -175,8 +266,8 @@
       "post_url": "https://coinpedia.org/price-prediction/peanut-the-squirrel-pnut-price-prediction/",
       "coin_name": "Pnut",
       "focus_keyword": "PNUT Price Prediction",
-      "trust_score": 4.0,
-      "trust_label": "Needs Improvement",
+      "trust_score": 10.0,
+      "trust_label": "Low Trust",
       "claims_checked": 10,
       "claims_verified": 4,
       "claims_partial": 2,
@@ -296,7 +387,7 @@
           "source": "https://coincodex.com/crypto/peanut-the-squirrel/price-prediction/"
         }
       ],
-      "published_date": "2025-07-23",
+      "published_date": "2025-07-23 17:35:34+00",
       "processed_at": "2026-02-26 14:00:27.770298+00:00",
       "status": "completed"
     },
@@ -306,7 +397,7 @@
       "post_url": "https://coinpedia.org/price-prediction/ecash-xec-price-prediction/",
       "coin_name": "Ecash",
       "focus_keyword": "eCash Price Prediction",
-      "trust_score": 3.7,
+      "trust_score": 10.0,
       "trust_label": "Low Trust",
       "claims_checked": 9,
       "claims_verified": 3,
@@ -427,7 +518,7 @@
           "source": "https://finance.yahoo.com/quote/XEC-USD/history/"
         }
       ],
-      "published_date": "2025-07-23",
+      "published_date": "2025-07-23 17:23:00+00",
       "processed_at": "2026-02-26 14:05:30.558905+00:00",
       "status": "completed"
     }
