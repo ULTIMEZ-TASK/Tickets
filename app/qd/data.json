@@ -1,22 +1,145 @@
 {
-  "generated_at": "2026-02-26T17:10:47.975607+00:00",
-  "total": 4,
-  "avg_trust": 4.5,
-  "generated_at": "2026-02-26T21:57:46.641654+00:00",
+  "generated_at": "2026-02-26T22:13:37.272656+00:00",
   "total": 5,
   "avg_trust": 6.6,
-"articles": [
-{
-"post_id": 304727,
-@@ -136,14 +136,105 @@
-"source": "https://coinmarketcap.com/currencies/akash-network/"
-}
-],
-      "published_date": "2025-07-23",
+  "articles": [
+    {
+      "post_id": 304727,
+      "post_title": "Akash Network Price Prediction 2025, 2026 - 2030: Will AKT Price Hit $10?",
+      "post_url": "https://coinpedia.org/price-prediction/akash-network-akt-price-prediction/",
+      "coin_name": "Akash Network",
+      "focus_keyword": "Akash Network Price Prediction",
+      "trust_score": 2.5,
+      "trust_label": "Low Trust",
+      "claims_checked": 9,
+      "claims_verified": 2,
+      "claims_partial": 3,
+      "claims_failed": 1,
+      "claims_outdated": 2,
+      "word_count": 687,
+      "word_count_gap": "Your article: ~687 words. Competitor #1 (CoinCodex): ~3,500 words. Competitor #2 (GODEX): ~1,500 words. Gap: +2,800 words needed vs #1. You need to at least TRIPLE the current word count to be competitive. Target: 2,500-3,000 words minimum.",
+      "seo_keyword_in_title": true,
+      "seo_keyword_in_meta": false,
+      "critical_gaps": 2,
+      "high_gaps": 3,
+      "competitor_url": "https://coincodex.com/crypto/akash-network/price-prediction/",
+      "competitor_title": "Akash Network (AKT) Price Prediction 2026, 2027-2030 | CoinCodex",
+      "summary": "This article contains multiple serious factual errors and severely outdated data that could mislead investors. The ATH date is wrong (April 27 should be April 6, 2021), the ATL date is off by one day, the FAQ misspells 'Tendermint' as 'Tindermint', and the YTD return claim of '+20%' is egregiously wrong \u2014 AKT has actually lost approximately 92% of its value in 2025 (from ~$3.80 to ~$0.31). All three third-party prediction sources (Wallet Investor, priceprediction.net, DigitalCoinPrice) show dramatically lower forecasts than what's cited in the article, suggesting the data was never updated after AKT's massive price decline. At 687 words, the article is critically thin \u2014 less than 20% of the top competitor's word count \u2014 and lacks technical analysis, tokenomics, on-chain metrics, and monthly breakdowns that readers and search engines expect.",
+      "overall_assessment": "This article is in CRITICAL condition and needs an urgent, comprehensive rewrite. The combination of factually wrong data (ATH date, YTD returns), severely outdated third-party predictions (Wallet Investor now predicts $0.037, not $5.50), and an extremely thin word count (~687 words vs ~3,500 for the #1 competitor) means this article is both misleading to readers and uncompetitive for SEO. The most urgent fix is updating the third-party prediction data and correcting the YTD return claim, as these directly impact reader investment decisions. The article was published on July 23, 2025, when AKT was already trading well below $1, making the optimistic predictions and '+20% YTD' claim inexcusable. A full rewrite adding technical analysis, tokenomics, on-chain metrics, and monthly breakdowns is needed to compete for the 'Akash Network Price Prediction' keyword.",
+      "priority_fixes_json": [
+        {
+          "priority": 1,
+          "fix": "Fix the dangerously misleading YTD return claim",
+          "action": "In the FAQ section, replace 'this altcoin has a YTD return of ~+20%' with accurate data. AKT dropped from ~$3.80 (Jan 1, 2025) to ~$0.31 (current), a loss of approximately -92% YTD. Rewrite to: 'AKT has experienced a significant price decline in 2025, dropping from approximately $3.80 at the start of the year. As with all crypto investments, potential investors should conduct thorough research and consider their risk tolerance.'",
+          "impact": "critical",
+          "effort": "quick_win",
+          "ranking_benefit": "Prevents reader distrust and potential regulatory/credibility issues. Accurate data is foundational for E-E-A-T."
+        },
+        {
+          "priority": 2,
+          "fix": "Update ALL third-party prediction data (Wallet Investor, priceprediction.net, DigitalCoinPrice)",
+          "action": "Refresh the entire Market Analysis table. Wallet Investor now shows $0.037 1-year forecast (was $5.502). priceprediction.net 2030 max is now ~$2.42 (was $44.59). Visit each source and pull current numbers. The table should reflect: Wallet Investor: bearish ($0.04-$0.30 range), priceprediction.net: 2025 ~$0.30, 2030 ~$0.65-$2.42, DigitalCoinPrice: refresh from digitalcoinprice.com/forecast/akash-network.",
+          "impact": "critical",
+          "effort": "medium",
+          "ranking_benefit": "Accurate third-party data builds trust and prevents readers from making bad investment decisions based on wildly wrong numbers."
+        },
+        {
+          "priority": 3,
+          "fix": "Correct ATH date from April 27 to April 6, 2021",
+          "action": "In the Overview table, change 'All-time High: $8.08 on 27th April 2021' to 'All-time High: $8.08 on 6th April 2021'. Also fix ATL date from '22nd November 2022' to '21st November 2022'. Source: CoinMarketCap.",
+          "impact": "high",
+          "effort": "quick_win",
+          "ranking_benefit": "Basic factual accuracy. Wrong dates undermine credibility for the entire article."
+        },
+        {
+          "priority": 4,
+          "fix": "Add Technical Analysis section with real indicators",
+          "action": "Add a new section 'Technical Analysis' between Overview and Price Prediction 2025. Include: current RSI (14-day: ~38, neutral), 50-Day SMA (~$0.39), 200-Day SMA (~$0.71), MACD status, key support levels ($0.25, $0.17 ATL) and resistance levels ($0.50, $1.00). Add Fear & Greed context. ~400 words. Source data from CoinCodex or TradingView.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "All top competitors have technical analysis. This section demonstrates expertise (E-E-A-T) and matches user intent for prediction queries."
+        },
+        {
+          "priority": 5,
+          "fix": "Fix 'Tindermint' typo in FAQ section",
+          "action": "In the FAQ 'What network is Akash on?', change 'Tindermint-based blockchain built using CosmosSDK' to 'Tendermint-based blockchain built using the Cosmos SDK'. Consider noting that Tendermint has been rebranded to CometBFT.",
+          "impact": "medium",
+          "effort": "quick_win",
+          "ranking_benefit": "Spelling errors hurt credibility and may affect featured snippet eligibility."
+        },
+        {
+          "priority": 6,
+          "fix": "Add tokenomics section with supply data and market cap analysis",
+          "action": "Add 'AKT Tokenomics' section covering: Max supply (388.53M), Circulating supply (288.79M, 74.3%), Market cap (~$89M), FDV (~$120M). Show what market cap would be needed for price targets (e.g., $6.19 = ~$1.8B market cap, a 20x from current). This reality-checks the predictions. ~300 words.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "Adds unique analytical depth, keyword variations (AKT tokenomics, AKT supply), and substantive content that thin competitor articles lack."
+        },
+        {
+          "priority": 7,
+          "fix": "Add on-chain metrics and network fundamentals section",
+          "action": "Add 'Akash Network Fundamentals' section with: on-chain revenue growth (467% YoY), USDC spend ($807K, +184% YoY), total USD spent ($3.15M, +128% YoY), Mainnet 14 upgrade details, active deployments data. Source: akash.network/blog/akash-2025-year-in-review/ and Messari Q3 2025 report. ~300 words.",
+          "impact": "high",
+          "effort": "significant",
+          "ranking_benefit": "Differentiates from generic prediction articles. Shows real fundamental analysis that supports E-E-A-T and can earn featured snippets."
+        },
+        {
+          "priority": 8,
+          "fix": "Add monthly/quarterly price breakdowns and expand word count to 2,500+",
+          "action": "Add quarterly breakdowns for 2025-2026 and monthly tables for 2027-2030. Expand each yearly prediction section with specific catalysts, risks, and scenario analysis (bull/base/bear). Target 2,500-3,000 total words. Current 687 words is critically thin vs competitor's 3,500.",
+          "impact": "high",
+          "effort": "significant",
+          "ranking_benefit": "Word count is a key ranking factor for competitive keywords. Adding 2,000+ words of quality content is essential to compete with CoinCodex and GODEX."
+        }
+      ],
+      "exact_fixes_json": [
+        {
+          "claim": "All-time High of $8.08 on 27th April 2021",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change '27th April 2021' to '6th April 2021'. Both CoinMarketCap and CoinGecko confirm the ATH of $8.08 was reached on April 6, 2021 (source: coinmarketcap.com/currencies/akash-network/).",
+          "source": "https://coinmarketcap.com/currencies/akash-network/"
+        },
+        {
+          "claim": "All-time Low of $0.1672 on 22nd November 2022",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change '22nd November 2022' to '21st November 2022'. CoinMarketCap confirms the ATL of $0.1672 was on Nov 21, 2022 (source: coinmarketcap.com/currencies/akash-network/).",
+          "source": "https://coinmarketcap.com/currencies/akash-network/"
+        },
+        {
+          "claim": "FAQ states: 'The Akash marketplace runs on Akash, a Tindermint-based blockchain built using CosmosSDK'",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change 'Tindermint-based blockchain built using CosmosSDK' to 'Tendermint-based blockchain built using the Cosmos SDK'. Tendermint is the correct spelling (source: akash.network/docs/node-operators/architecture/). Note: Tendermint has been rebranded to CometBFT, so consider using 'CometBFT (formerly Tendermint)' for accuracy.",
+          "source": "https://akash.network/docs/node-operators/architecture/"
+        },
+        {
+          "claim": "FAQ states: 'this altcoin has a YTD return of ~+20%, making it a potential pick for the long-term prospect'",
+          "verdict": "MISLEADING",
+          "exact_fix": "Remove or completely rewrite the FAQ answer. Replace 'Despite recording a strong bearish setback in Q4 2024, this altcoin has a YTD return of ~+20%, making it a potential pick for the long-term prospect' with 'AKT has experienced significant price decline in 2025, dropping from approximately $3.80 at the start of the year to current levels. As with all crypto investments, potential investors should conduct thorough research and consider their risk tolerance before investing.' (sources: CoinCodex quarterly returns, Kraken historical data)",
+          "source": "https://coincodex.com/crypto/akash-network/"
+        },
+        {
+          "claim": "Wallet Investor forecasts average of $5.502 for 2025 and $7.738 for 2026",
+          "verdict": "OUTDATED",
+          "exact_fix": "Update the Wallet Investor row in the Market Analysis table. Replace '$5.502' (2025) and '$7.738' (2026) with current Wallet Investor forecasts. As of Feb 2026, Wallet Investor shows AKT at ~$0.30 and forecasts a decline to $0.0371, labeling it a 'bad long-term investment' (source: walletinvestor.com/forecast/akash-network-prediction). Note: These third-party predictions change frequently; always verify before publishing.",
+          "source": "https://walletinvestor.com/forecast/akash-network-prediction"
+        },
+        {
+          "claim": "priceprediction.net forecasts: $6.82 (2025), $10.30 (2026), $44.59 (2030)",
+          "verdict": "OUTDATED",
+          "exact_fix": "Update the priceprediction.net row. Their current forecasts are dramatically lower: 2030 max is approximately $2.42, not $44.59. Refresh all priceprediction.net figures from https://priceprediction.net/en/price-prediction/akash-network. The article's cited values of $6.82/$10.30/$44.59 appear to be from an older forecast when AKT was trading at much higher levels.",
+          "source": "https://priceprediction.net/en/price-prediction/akash-network"
+        },
+        {
+          "claim": "CoinPedia predicts AKT could hit $6.19 high in 2025, low of $1.52, average of $3.85",
+          "verdict": "PREDICTION_UNVERIFIABLE",
+          "exact_fix": "Consider adding a context note that AKT is currently trading around $0.31, which is well below even the predicted low of $1.52. The predictions may need a fundamental reassessment given the token's price trajectory through 2025.",
+          "source": "https://coinmarketcap.com/currencies/akash-network/"
+        }
+      ],
       "published_date": "2025-07-23 17:51:49+00",
-"processed_at": "2026-02-26 13:56:02.598331+00:00",
-"status": "completed"
-},
+      "processed_at": "2026-02-26 13:56:02.598331+00:00",
+      "status": "completed"
+    },
     {
       "post_id": 56005,
       "post_title": "Dogecoin Price Prediction 2025, 2026 \u2013 2030: Will DOGE Reach 1 Dollar?",
@@ -108,73 +231,296 @@
       "processed_at": "2026-02-26 21:56:00.265336+00:00",
       "status": "completed"
     },
-{
-"post_id": 347599,
-"post_title": "Conflux Price Prediction 2025, 2026 - 2030: Will CFX Price Hit $1?",
-      "post_url": "https://coinpedia.org/price-prediction/conflux-cfx-price-prediction/",
+    {
+      "post_id": 347599,
+      "post_title": "Conflux Price Prediction 2025, 2026 - 2030: Will CFX Price Hit $1?",
       "post_url": null,
-"coin_name": "Conflux",
-"focus_keyword": "Conflux",
-"trust_score": 7.6,
-@@ -153,18 +244,18 @@
-"claims_partial": 2,
-"claims_failed": 0,
-"claims_outdated": 1,
-      "word_count": 0,
+      "coin_name": "Conflux",
+      "focus_keyword": "Conflux",
+      "trust_score": 7.6,
+      "trust_label": "Mostly Trustworthy",
+      "claims_checked": 8,
+      "claims_verified": 4,
+      "claims_partial": 2,
+      "claims_failed": 0,
+      "claims_outdated": 1,
       "word_count": "<NA>",
-"word_count_gap": null,
-      "seo_keyword_in_title": false,
-      "seo_keyword_in_meta": false,
+      "word_count_gap": null,
       "seo_keyword_in_title": "<NA>",
       "seo_keyword_in_meta": "<NA>",
-"critical_gaps": 2,
-"high_gaps": 3,
-"competitor_url": null,
-"competitor_title": null,
-"summary": "The article fact-checks as **Mostly Trustworthy** with important caveats. Core project facts about Conflux (Layer-1, Tree-Graph consensus, PoW/PoS hybrid, CFX token utility) are fully verified. Key catalysts mentioned\u2014the AnchorX/Eastcompeace RMB stablecoin partnership and the Conflux 3.0 upgrade scheduled for August 2025\u2014are confirmed by credible sources including The Block and Reuters. However, the ATH date (article says March 27; CoinMarketCap says March 26) and ATL date (article says January 1, 2023; CoinMarketCap says December 31, 2022) have minor discrepancies. Most critically, the third-party prediction figures from Wallet Investor, PricePrediction.net, and DigitalCoinPrice are **significantly outdated**\u2014Wallet Investor now shows $0.005 versus the $0.158 cited, which could severely mislead investors. The article also lacks technical analysis, tokenomics, risk disclaimers, and historical price context that top competitors include.",
-"overall_assessment": "## Overall Assessment\n\n**Strengths:**\n- Core project fundamentals (Layer-1, Tree-Graph, PoW/PoS) are accurately described and verified across multiple authoritative sources\n- The AnchorX/Eastcompeace RMB stablecoin partnership is a legitimate and significant development, confirmed by Reuters and The Block\n- The Conflux 3.0 upgrade timeline (August 2025) is verified and represents a genuine catalyst\n- CFX token utility description is accurate\n- Article structure with yearly predictions is well-organized\n\n**Weaknesses:**\n1. **CRITICAL: Outdated third-party predictions** \u2014 The Market Analysis table cites figures that are dramatically different from current values on those same sites. Wallet Investor now shows $0.005 (not $0.158), a 97% discrepancy that could mislead investors into thinking external analysts are bullish when they're actually bearish.\n2. **Minor date errors** \u2014 ATH date off by ~1 day (March 27 vs March 26 per CoinMarketCap); ATL date off by ~1 day (Jan 1, 2023 vs Dec 31, 2022 per CoinMarketCap)\n3. **No technical analysis** \u2014 Competitors rank higher partly because they include RSI, SMA, support/resistance levels, and chart analysis\n4. **No tokenomics** \u2014 CFX has infinite max supply (inflationary), a crucial factor for long-term price predictions that is completely omitted\n5. **No risk disclaimer** \u2014 For a token trading 97% below ATH with infinite supply, the absence of risk warnings is a significant editorial oversight\n6. **No price history** \u2014 Readers cannot evaluate prediction credibility without understanding CFX's historical performance trajectory\n7. **Prediction methodology unclear** \u2014 No explanation of how CoinPedia arrived at its specific price targets\n\n**Recommendation:** Update the third-party prediction figures immediately (highest priority), add technical analysis section, include tokenomics with the critical infinite supply detail, add investment risk disclaimer, and include historical price performance context. The outdated Wallet Investor fi",
-      "priority_fixes_json": [],
-      "exact_fixes_json": [],
+      "critical_gaps": 2,
+      "high_gaps": 3,
+      "competitor_url": null,
+      "competitor_title": null,
+      "summary": "The article fact-checks as **Mostly Trustworthy** with important caveats. Core project facts about Conflux (Layer-1, Tree-Graph consensus, PoW/PoS hybrid, CFX token utility) are fully verified. Key catalysts mentioned\u2014the AnchorX/Eastcompeace RMB stablecoin partnership and the Conflux 3.0 upgrade scheduled for August 2025\u2014are confirmed by credible sources including The Block and Reuters. However, the ATH date (article says March 27; CoinMarketCap says March 26) and ATL date (article says January 1, 2023; CoinMarketCap says December 31, 2022) have minor discrepancies. Most critically, the third-party prediction figures from Wallet Investor, PricePrediction.net, and DigitalCoinPrice are **significantly outdated**\u2014Wallet Investor now shows $0.005 versus the $0.158 cited, which could severely mislead investors. The article also lacks technical analysis, tokenomics, risk disclaimers, and historical price context that top competitors include.",
+      "overall_assessment": "## Overall Assessment\n\n**Strengths:**\n- Core project fundamentals (Layer-1, Tree-Graph, PoW/PoS) are accurately described and verified across multiple authoritative sources\n- The AnchorX/Eastcompeace RMB stablecoin partnership is a legitimate and significant development, confirmed by Reuters and The Block\n- The Conflux 3.0 upgrade timeline (August 2025) is verified and represents a genuine catalyst\n- CFX token utility description is accurate\n- Article structure with yearly predictions is well-organized\n\n**Weaknesses:**\n1. **CRITICAL: Outdated third-party predictions** \u2014 The Market Analysis table cites figures that are dramatically different from current values on those same sites. Wallet Investor now shows $0.005 (not $0.158), a 97% discrepancy that could mislead investors into thinking external analysts are bullish when they're actually bearish.\n2. **Minor date errors** \u2014 ATH date off by ~1 day (March 27 vs March 26 per CoinMarketCap); ATL date off by ~1 day (Jan 1, 2023 vs Dec 31, 2022 per CoinMarketCap)\n3. **No technical analysis** \u2014 Competitors rank higher partly because they include RSI, SMA, support/resistance levels, and chart analysis\n4. **No tokenomics** \u2014 CFX has infinite max supply (inflationary), a crucial factor for long-term price predictions that is completely omitted\n5. **No risk disclaimer** \u2014 For a token trading 97% below ATH with infinite supply, the absence of risk warnings is a significant editorial oversight\n6. **No price history** \u2014 Readers cannot evaluate prediction credibility without understanding CFX's historical performance trajectory\n7. **Prediction methodology unclear** \u2014 No explanation of how CoinPedia arrived at its specific price targets\n\n**Recommendation:** Update the third-party prediction figures immediately (highest priority), add technical analysis section, include tokenomics with the critical infinite supply detail, add investment risk disclaimer, and include historical price performance context. The outdated Wallet Investor fi",
       "priority_fixes_json": null,
       "exact_fixes_json": null,
-"published_date": null,
-"processed_at": "2026-02-26 11:49:19.145759+00:00",
-"status": "completed"
-@@ -175,8 +266,8 @@
-"post_url": "https://coinpedia.org/price-prediction/peanut-the-squirrel-pnut-price-prediction/",
-"coin_name": "Pnut",
-"focus_keyword": "PNUT Price Prediction",
-      "trust_score": 4.0,
-      "trust_label": "Needs Improvement",
+      "published_date": null,
+      "processed_at": "2026-02-26 11:49:19.145759+00:00",
+      "status": "completed"
+    },
+    {
+      "post_id": 379928,
+      "post_title": "Peanut the Squirrel Price Prediction 2025, 2026 - 2030: Will PNUT Price 10X?",
+      "post_url": "https://coinpedia.org/price-prediction/peanut-the-squirrel-pnut-price-prediction/",
+      "coin_name": "Pnut",
+      "focus_keyword": "PNUT Price Prediction",
       "trust_score": 10.0,
       "trust_label": "Low Trust",
-"claims_checked": 10,
-"claims_verified": 4,
-"claims_partial": 2,
-@@ -296,7 +387,7 @@
-"source": "https://coincodex.com/crypto/peanut-the-squirrel/price-prediction/"
-}
-],
-      "published_date": "2025-07-23",
+      "claims_checked": 10,
+      "claims_verified": 4,
+      "claims_partial": 2,
+      "claims_failed": 1,
+      "claims_outdated": 3,
+      "word_count": 649,
+      "word_count_gap": "Your article: ~649 words. Competitor #1 (StealthEX): ~3,500 words. Gap: +2,850 words needed. Target: 3,000-3,500 words minimum to compete for page 1 rankings.",
+      "seo_keyword_in_title": false,
+      "seo_keyword_in_meta": true,
+      "critical_gaps": 2,
+      "high_gaps": 3,
+      "competitor_url": "https://stealthex.io/blog/peanut-the-squirrel-price-prediction-can-pnut-coin-reach-10/",
+      "competitor_title": "Peanut the Squirrel Price Prediction: Can PNUT Coin Reach $10?",
+      "summary": "This PNUT price prediction article has critical accuracy problems that require urgent attention. The article's predictions ($2.16 for 2025, $12.15 for 2030) and all third-party analyst data (CoinCodex, priceprediction.net, DigitalCoinPrice) are severely outdated \u2014 written when PNUT was trading near $0.50-$1.00 but never updated after the 98% crash to ~$0.047. Current third-party forecasts are 10-100x lower than what the article cites. This is a serious reader trust issue. Additionally, at ~649 words, the article is roughly 5x shorter than the #1 competitor (~3,500 words) and lacks essential sections including technical analysis, price history, year-by-year detailed analysis, price driver analysis, and a how-to-buy guide. The ATL date is off by one day. The article title promises '10X' analysis but never delivers a dedicated section on this topic.",
+      "overall_assessment": "This article is in a CRITICAL state and should NOT remain published in its current form. The core problem is that ALL price predictions \u2014 both CoinPedia's own and the cited third-party sources \u2014 are catastrophically outdated. PNUT has crashed 98% from its ATH to ~$0.047, yet the article predicts $2.16 for 2025 (a 4,500% increase in months) and cites CoinCodex at $4.069 (when CoinCodex actually predicts ~$0.10). This could cause real financial harm to readers who trust these numbers. The article needs a complete rewrite with updated data, not just minor fixes. Beyond accuracy, it's far too thin at 649 words vs. the 3,500-word competitor, missing nearly every section that top-ranking articles include.",
+      "priority_fixes_json": [
+        {
+          "priority": 1,
+          "fix": "UPDATE ALL THIRD-PARTY PREDICTION DATA (Critical \u2014 Currently Misleading)",
+          "action": "Visit CoinCodex, priceprediction.net, and DigitalCoinPrice and pull fresh PNUT predictions. Current CoinCodex data: 2026 ~$0.10, 2030 ~$0.13. The article shows $4.07/$7.31 for CoinCodex which is off by 40-70x. Replace the entire Market Analysis table with current figures from each source. Add 'Last updated: [date]' to the table.",
+          "impact": "critical",
+          "effort": "quick_win",
+          "ranking_benefit": "Fixes the biggest trust/accuracy issue. Outdated data causes bounces and destroys E-E-A-T signals. Google may penalize stale financial data."
+        },
+        {
+          "priority": 2,
+          "fix": "RECALCULATE ALL COINPEDIA PREDICTION TABLES (Critical \u2014 Unrealistic from current price)",
+          "action": "Recompute all CoinPedia predictions (2025-2030) starting from current PNUT price of ~$0.047. The current 2025 high of $2.16 implies 4,500% growth \u2014 absurd for remaining months. Suggested realistic ranges: 2025: $0.03-$0.15; 2026: $0.05-$0.30; 2027: $0.06-$0.50; 2028: $0.08-$0.80; 2029: $0.10-$1.20; 2030: $0.15-$2.00. Adjust based on methodology but anchored to current price reality.",
+          "impact": "critical",
+          "effort": "medium",
+          "ranking_benefit": "Makes predictions credible and aligned with market reality. Prevents reader distrust and potential regulatory/reputational risk."
+        },
+        {
+          "priority": 3,
+          "fix": "ADD PRICE HISTORY SECTION (Missing \u2014 All competitors have it)",
+          "action": "Add a 300-400 word 'PNUT Price History' section after Overview. Cover: Launch Nov 1, 2024 at ~$0.03; rapid pump to ATH $2.47 on Nov 13-14 driven by Binance listing; decline through Dec 2024-Jan 2025; Coinbase listing Jan 14, 2025; continued decline to $0.04-0.07 range in 2025; current price ~$0.047. Include key monthly price data and an embedded price chart.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "Adds ~400 words, provides essential context for predictions, matches competitor content structure. All top 3 competitors have this."
+        },
+        {
+          "priority": 4,
+          "fix": "ADD TECHNICAL ANALYSIS SECTION",
+          "action": "Add 'PNUT Technical Analysis' section with: RSI (currently 42.76 \u2014 Neutral), 50-day SMA ($0.064), 200-day SMA ($0.137), MACD analysis, key support levels (~$0.033 ATL area), resistance levels (~$0.065, $0.10), volatility (14.83% \u2014 Very High), Fear & Greed Index for PNUT (currently 11 \u2014 Extreme Fear). Embed a TradingView chart. Source data from CoinCodex.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "All top competitors have TA sections. This is critical for E-E-A-T in financial content and signals expertise to both readers and Google."
+        },
+        {
+          "priority": 5,
+          "fix": "EXPAND YEAR-BY-YEAR PREDICTIONS (2026-2030)",
+          "action": "Replace the bare 2026-2030 table with individual sections for each year (200-300 words each). For each year include: potential catalysts (e.g., 2028: post-BTC-halving bull run), Solana ecosystem developments, meme coin market cycles, bull/bear scenarios, and specific reasoning for the price targets. This alone adds ~1,000-1,500 words.",
+          "impact": "high",
+          "effort": "significant",
+          "ranking_benefit": "Adds massive content depth. Competitor has ~3,500 words vs our ~649. This is the biggest word count fix."
+        },
+        {
+          "priority": 6,
+          "fix": "ADD 'Can PNUT Reach $1 / $10?' SECTIONS",
+          "action": "Add two dedicated analysis sections: 'Can PNUT Reach $1?' \u2014 At $1, market cap would be ~$1B (achievable for top meme coins like PEPE/SHIB); requires ~2,000% from current price; possible in major bull run. 'Can PNUT Reach $10?' \u2014 Market cap ~$10B (top-20 crypto territory); extremely unlikely without massive utility development. This directly answers the title's '10X' promise.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "Captures high-volume search queries ('Can PNUT reach $1', 'PNUT $10'). The title promises 10X analysis but article never delivers it."
+        },
+        {
+          "priority": 7,
+          "fix": "FIX ATL DATE ERROR",
+          "action": "In the Overview table, change 'All-time low $0.03396 on 05th November 2024' to 'All-time low $0.03396 on 04th November 2024' per CoinMarketCap data.",
+          "impact": "low",
+          "effort": "quick_win",
+          "ranking_benefit": "Minor accuracy fix but important for trust. Quick 30-second fix."
+        },
+        {
+          "priority": 8,
+          "fix": "ADD 'HOW TO BUY PNUT' AND 'PRICE DRIVERS' SECTIONS",
+          "action": "Add two sections: 1) 'What Affects PNUT Price' (200 words) covering social media sentiment, Solana ecosystem, exchange listings, meme coin market cycles, token supply dynamics. 2) 'How to Buy PNUT' (200 words) with step-by-step guide for Binance/Coinbase/DEX. Both capture additional search intent.",
+          "impact": "medium",
+          "effort": "medium",
+          "ranking_benefit": "Captures buyer-intent keywords and adds informational depth. 2 of top 3 competitors have both sections."
+        }
+      ],
+      "exact_fixes_json": [
+        {
+          "claim": "PNUT all-time high of $2.47 on 14th November 2024",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "The ATH date varies by source: CoinMarketCap shows Nov 13, 2024, while CoinGecko shows Nov 14, 2024. Since both are reputable, consider changing to '$2.47 on Nov 14, 2024 (CoinGecko)' or '$2.47 on Nov 13, 2024 (CoinMarketCap)' with a source citation. The price of $2.47 is correct per CoinMarketCap ($2.44 per CoinGecko).",
+          "source": "https://coinmarketcap.com/currencies/peanut-the-squirrel/"
+        },
+        {
+          "claim": "PNUT all-time low of $0.03396 on 05th November 2024",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change '05th November 2024' to '04th November 2024' to match CoinMarketCap data. Alternatively, if using CoinGecko, change to '$0.03187 on 04th November 2024'. (Source: CoinMarketCap shows Nov 04, CoinGecko shows Nov 04)",
+          "source": "https://coinmarketcap.com/currencies/peanut-the-squirrel/"
+        },
+        {
+          "claim": "Market Analysis: CoinCodex 2025 average target $4.069, 2026 average $7.311",
+          "verdict": "OUTDATED",
+          "exact_fix": "Replace the entire CoinCodex row in Market Analysis table. Current CoinCodex predictions (as of Feb 2026): 2025 data is no longer available (year passed); 2026 end-of-year forecast: ~$0.1075; 2030 forecast: ~$0.1265. Update the table accordingly. Note: CoinCodex does not provide a 2025 forecast since it's now past. (Source: coincodex.com/crypto/peanut-the-squirrel/price-prediction/)",
+          "source": "https://coincodex.com/crypto/peanut-the-squirrel/price-prediction/"
+        },
+        {
+          "claim": "Market Analysis: priceprediction.net 2025 average $1.80, 2026 average $2.56, 2030 average $12.21",
+          "verdict": "OUTDATED",
+          "exact_fix": "Replace the priceprediction.net row with current data. Visit priceprediction.net/en/price-prediction/peanut-the-squirrel for latest figures. Based on available snippets, 2025 predictions are now in the $0.06-$0.14 range, not $1.80. Update all three year columns with fresh data from the source.",
+          "source": "https://priceprediction.net/en/price-prediction/peanut-the-squirrel"
+        },
+        {
+          "claim": "Market Analysis: DigitalCoinPrice 2025 average $1.60, 2026 average $2.24, 2030 average $4.61",
+          "verdict": "OUTDATED",
+          "exact_fix": "Replace the DigitalCoinPrice row with current data. Visit digitalcoinprice.com/forecast/peanut-the-squirrel for latest predictions. Current forecasts are likely in the $0.04-$0.15 range, not $1.60-$4.61. Update all three year columns with fresh data.",
+          "source": "https://digitalcoinprice.com/forecast/peanut-the-squirrel"
+        },
+        {
+          "claim": "CoinPedia's PNUT price predictions: 2025 high $2.16, low $0.60, average $1.38; 2030 high $12.15",
+          "verdict": "MISLEADING",
+          "exact_fix": "All CoinPedia prediction tables for 2025-2030 must be completely recalculated based on current PNUT price (~$0.047). Current third-party forecasts range from $0.06-$0.30 for 2025 and $0.10-$0.50 for 2030 in the most bullish scenarios. The 2025 high of $2.16 and 2030 high of $12.15 are not realistic from current price levels and should be substantially revised downward. Consider a new 2025 range of $0.03-$0.30 and 2030 range of $0.05-$1.00 based on realistic growth scenarios from current price.",
+          "source": "https://coincodex.com/crypto/peanut-the-squirrel/price-prediction/"
+        }
+      ],
       "published_date": "2025-07-23 17:35:34+00",
-"processed_at": "2026-02-26 14:00:27.770298+00:00",
-"status": "completed"
-},
-@@ -306,7 +397,7 @@
-"post_url": "https://coinpedia.org/price-prediction/ecash-xec-price-prediction/",
-"coin_name": "Ecash",
-"focus_keyword": "eCash Price Prediction",
-      "trust_score": 3.7,
+      "processed_at": "2026-02-26 14:00:27.770298+00:00",
+      "status": "completed"
+    },
+    {
+      "post_id": 142140,
+      "post_title": "eCash Price Prediction 2025, 2026 - 2030: Will XEC Price Record 2X Surge?",
+      "post_url": "https://coinpedia.org/price-prediction/ecash-xec-price-prediction/",
+      "coin_name": "Ecash",
+      "focus_keyword": "eCash Price Prediction",
       "trust_score": 10.0,
-"trust_label": "Low Trust",
-"claims_checked": 9,
-"claims_verified": 3,
-@@ -427,7 +518,7 @@
-"source": "https://finance.yahoo.com/quote/XEC-USD/history/"
-}
-],
-      "published_date": "2025-07-23",
+      "trust_label": "Low Trust",
+      "claims_checked": 9,
+      "claims_verified": 3,
+      "claims_partial": 1,
+      "claims_failed": 1,
+      "claims_outdated": 4,
+      "word_count": 584,
+      "word_count_gap": "Your article: ~584 words. Competitor #1 (CoinCodex): ~3,500 words (with dynamic content). Gap: +2,900 words needed. Minimum target: 2,000 words. Ideal target: 2,500-3,000 words.",
+      "seo_keyword_in_title": false,
+      "seo_keyword_in_meta": false,
+      "critical_gaps": 2,
+      "high_gaps": 3,
+      "competitor_url": "https://coincodex.com/crypto/ecash/price-prediction/",
+      "competitor_title": "eCash (XEC) Price Prediction 2026, 2027-2030 | CoinCodex",
+      "summary": "This eCash (XEC) price prediction article has significant accuracy and completeness issues. Out of 9 verified claims, 4 are outdated, 1 is misleading, and 1 is partially verified. Critical problems include: (1) The all-time low data is wrong \u2014 CoinMarketCap shows a new ATL in February 2026, not July 2021. (2) The exchange listings mention THREE defunct exchanges (Hotbit, BKEX shut down in 2023) and two incorrectly named ones (OKEx\u2192OKX, Huobi\u2192HTX). (3) All third-party prediction data (Wallet Investor, PricePrediction.net, DigitalCoinPrice) appears severely outdated with figures 3-10x higher than current forecasts. (4) The article's own 2025 predictions are already disconnected from market reality. (5) At 584 words, the article is critically underweight vs. the ~3,500-word top competitor. It lacks technical analysis, tokenomics, price history, and investment tools that all competitors include.",
+      "overall_assessment": "This article needs a near-complete rewrite. The factual errors are serious \u2014 recommending defunct exchanges like Hotbit and BKEX could directly harm readers who may attempt to use them. The outdated third-party predictions (some off by 5-10x) make the Market Analysis table actively misleading. The article also severely underserves reader needs at only 584 words with no technical analysis, no price history, no tokenomics, and no investment context. The 2025 predictions appear disconnected from actual market prices. To compete for the 'eCash Price Prediction' keyword, this article needs to be expanded to 2,000+ words with updated data, technical analysis, and proper project context. Every data point in the Market Analysis table must be refreshed from current sources.",
+      "priority_fixes_json": [
+        {
+          "priority": 1,
+          "fix": "Update all third-party prediction data in Market Analysis table",
+          "action": "Re-pull current predictions from Wallet Investor (walletinvestor.com/forecast/ecash-prediction), PricePrediction.net (priceprediction.net/en/price-prediction/ecash), and DigitalCoinPrice (digitalcoinprice.com/forecast/ecash). Current Wallet Investor shows ~$0.000000978 1-year target (not $0.0000384). PricePrediction.net shows 2025 avg ~$0.00002811 (not $0.000081), 2030 ~$0.000113 (not $0.000543). Replace all values with fresh data. Consider adding CoinCodex and Changelly as additional sources.",
+          "impact": "critical",
+          "effort": "quick_win",
+          "ranking_benefit": "Accurate data prevents trust erosion and reduces bounce rate. Google E-E-A-T signals rely on factual accuracy."
+        },
+        {
+          "priority": 2,
+          "fix": "Fix defunct exchange listings (Hotbit, BKEX, OKEx, Huobi)",
+          "action": "Remove Hotbit (shut down May 2023) and BKEX (shut down mid-2023) from the exchange list. Change 'OKEx' to 'OKX' (rebranded Jan 2022). Change 'Huobi' to 'HTX' (rebranded Sept 2023). Replace with: 'Binance, Bitfinex, CoinEx, HTX (formerly Huobi), OKX (formerly OKEx), and others. Check CoinMarketCap or CoinGecko for the latest exchange listings.'",
+          "impact": "critical",
+          "effort": "quick_win",
+          "ranking_benefit": "Removes harmful outdated information that could damage reader trust and site credibility."
+        },
+        {
+          "priority": 3,
+          "fix": "Update all-time low to reflect February 2026 ATL",
+          "action": "Change 'All-time low: $0.0000173 on 21st July 2021' to 'All-time low: $0.000005690 on 5th February 2026 (source: CoinMarketCap).' The previous ATL from July 2021 has been superseded. Also note the original article had the wrong date \u2014 it was July 20, not July 21.",
+          "impact": "critical",
+          "effort": "quick_win",
+          "ranking_benefit": "Correct ATL data is a basic trust signal. Any reader checking CoinMarketCap will see the discrepancy immediately."
+        },
+        {
+          "priority": 4,
+          "fix": "Expand article from 584 to 2,000+ words",
+          "action": "Add these new sections: (1) 'What is eCash?' intro (200w) explaining BCH fork, Avalanche consensus, use case. (2) 'eCash Price History 2021-2025' (250w) covering ATH, bear market, 2024 recovery, 2025 decline. (3) 'Technical Analysis' (300w) with RSI, MACD, SMA, support/resistance. (4) 'Tokenomics' (200w) covering 21T max supply, 95% circulated. (5) Expand each yearly prediction (2026-2030) into its own section with 100-150w of analysis each. (6) 'Investment Scenarios' section (200w) with ROI calculations. Target: 2,000-2,500 words.",
+          "impact": "critical",
+          "effort": "significant",
+          "ranking_benefit": "Closing the ~3,000 word gap with the #1 competitor is essential. Thin content cannot rank for competitive keywords."
+        },
+        {
+          "priority": 5,
+          "fix": "Add Technical Analysis section with current indicators",
+          "action": "Add a new section titled 'eCash (XEC) Technical Analysis' between the Overview and 2025 Prediction sections. Include: RSI (currently ~40, neutral/bearish), MACD (bearish momentum), 50-day SMA (~$0.00000959), 200-day SMA (~$0.00001437), key support at $0.000007 and resistance at $0.000020 and $0.000035, current trend assessment. Source data from CoinCodex or TradingView. Add a price chart screenshot.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "All top 3 competitors have TA sections. This is table-stakes for price prediction content and signals expertise to Google."
+        },
+        {
+          "priority": 6,
+          "fix": "Fix roadmap items description (Fractional Satoshis is complete, wrong name for Merklix)",
+          "action": "Change 'Merkle-Metadata Trees, Zero-Knowledge Subnets, and Fractional Satoshis' to: 'Key completed roadmap items include Fractional Satoshis and Avalanche Pre-Consensus (launched Nov 2025). Upcoming features include Zero-Knowledge Subnets for privacy, EVM Subnets for smart contracts, Adaptive Block Size for scaling to 1TB blocks, and the Merklix-Metadata Tree for faster block propagation (source: e.cash/roadmap).' Note: Fractional Satoshis is already complete \u2014 don't present it as upcoming.",
+          "impact": "medium",
+          "effort": "quick_win",
+          "ranking_benefit": "Accurate roadmap information demonstrates E-E-A-T expertise and builds reader trust."
+        },
+        {
+          "priority": 7,
+          "fix": "Add price history section with key milestones",
+          "action": "Add 'eCash Price History' section after the Overview. Cover: July 2021 rebrand from BCHA to XEC at ~$0.000025, Nov 2021 ATH at $0.0005926 during crypto bull run, 2022 bear market crash (-80%+), 2023 consolidation in $0.000020-$0.000030 range, Sept 2024 local high ~$0.000039, 2025 decline to ~$0.000020, Feb 2026 new ATL at ~$0.0000057. Include a historical chart. ~250 words.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "Historical context validates predictions and captures long-tail searches like 'eCash price history.' Competitors all have this."
+        },
+        {
+          "priority": 8,
+          "fix": "Recalibrate CoinPedia's own 2025 predictions to match market reality",
+          "action": "Current XEC price (~$0.00002 in July 2025) is already below the article's predicted 2025 low of $0.0000225. Either: (a) Update predictions to realistic ranges like Low: $0.000008, Average: $0.000015, High: $0.000035 for 2025, or (b) Add a disclaimer acknowledging the significant price decline since original prediction and provide updated mid-year targets. Also recalibrate 2026-2030 predictions downward to reflect the new lower price base.",
+          "impact": "high",
+          "effort": "medium",
+          "ranking_benefit": "Predictions that align with reality build long-term credibility. Readers who see obviously wrong predictions will bounce and not return."
+        }
+      ],
+      "exact_fixes_json": [
+        {
+          "claim": "eCash all-time low is $0.0000173 on 21st July 2021",
+          "verdict": "OUTDATED",
+          "exact_fix": "Change 'All-time low: $0.0000173 on 21st July 2021' to 'All-time low: $0.000005690 on 5th February 2026' (source: CoinMarketCap). If you prefer to keep historical context, note that the previous ATL was $0.0000173 on 20th July 2021 (note: the date was July 20, not July 21).",
+          "source": "https://coinmarketcap.com/currencies/ecash/"
+        },
+        {
+          "claim": "eCash roadmap includes Merkle-Metadata Trees, Zero-Knowledge Subnets, and Fractional Satoshis",
+          "verdict": "PARTIALLY_VERIFIED",
+          "exact_fix": "Change 'Merkle-Metadata Trees, Zero-Knowledge Subnets, and Fractional Satoshis' to reflect current status: 'The roadmap includes already-completed features like Fractional Satoshis and Avalanche Pre-Consensus, plus upcoming items such as Zero-Knowledge Subnets, EVM Subnets, and Adaptive Block Size scaling.' Note: The correct term is 'Merklix-Metadata Tree' not 'Merkle-Metadata Trees' per the official roadmap (source: e.cash/roadmap).",
+          "source": "https://e.cash/roadmap"
+        },
+        {
+          "claim": "Exchange listings include Binance, BitFinex, CoinEx, BKEX, Hotbit, Huobi, OKEx",
+          "verdict": "OUTDATED",
+          "exact_fix": "Replace 'Binance, BitFinex, CoinEx, BKEX, Hotbit, Huobi, OKEx' with current active exchanges: 'Binance, Bitfinex, CoinEx, HTX (formerly Huobi), OKX (formerly OKEx), and others.' Remove BKEX (shut down in 2023) and Hotbit (shut down in May 2023) as they are defunct. (Sources: CoinCodex shows XEC trading on 37 exchanges; verify current listings on CoinMarketCap or CoinGecko).",
+          "source": "https://zengo.com/hotbit-shutdown/"
+        },
+        {
+          "claim": "Wallet Investor predicts XEC average price of $0.0000384 for 2025",
+          "verdict": "OUTDATED",
+          "exact_fix": "Update the Wallet Investor row in the Market Analysis table. Current Wallet Investor data shows XEC forecast of approximately $0.00000978 (1-year target), not $0.0000384. Recommend re-pulling all Wallet Investor predictions from walletinvestor.com/forecast/ecash-prediction and updating accordingly. If Wallet Investor data is no longer reliable, consider replacing with a more active prediction source like CoinCodex or Changelly.",
+          "source": "https://walletinvestor.com/forecast/ecash-prediction"
+        },
+        {
+          "claim": "priceprediction.net predicts XEC average of $0.000081 for 2025, $0.000114 for 2026, and $0.000543 for 2030",
+          "verdict": "OUTDATED",
+          "exact_fix": "Update the priceprediction.net row in the Market Analysis table. Current priceprediction.net forecasts are approximately: 2025 average ~$0.00002811 (not $0.000081), 2030 ~$0.000113 (not $0.000543). Re-pull all values from priceprediction.net/en/price-prediction/ecash and update the table with current figures.",
+          "source": "https://priceprediction.net/en/price-prediction/ecash"
+        },
+        {
+          "claim": "CoinPedia's 2025 prediction: XEC high of $0.0000825, low of $0.0000225",
+          "verdict": "MISLEADING",
+          "exact_fix": "Reassess the 2025 and all subsequent year predictions. Current XEC price (~$0.000019-$0.000021 in July 2025) is far below the article's predicted low of $0.0000225. The entire prediction table needs recalibration based on current market conditions. The 2025 high of $0.0000825 would require ~4x growth which should be explicitly acknowledged as a very bullish scenario.",
+          "source": "https://finance.yahoo.com/quote/XEC-USD/history/"
+        }
+      ],
       "published_date": "2025-07-23 17:23:00+00",
-"processed_at": "2026-02-26 14:05:30.558905+00:00",
-"status": "completed"
+      "processed_at": "2026-02-26 14:05:30.558905+00:00",
+      "status": "completed"
+    }
+  ]
 }
