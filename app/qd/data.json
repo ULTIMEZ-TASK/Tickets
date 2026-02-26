@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-02-26T17:02:17.073742Z",
+  "generated_at": "2026-02-26T17:10:47.975607+00:00",
   "total": 4,
-  "avg_trust": 15.03,
+  "avg_trust": 4.5,
   "articles": [
     {
       "post_id": 304727,
@@ -136,14 +136,14 @@
           "source": "https://coinmarketcap.com/currencies/akash-network/"
         }
       ],
-      "published_date": "2025-07-23 17:51:49+00",
+      "published_date": "2025-07-23",
       "processed_at": "2026-02-26 13:56:02.598331+00:00",
       "status": "completed"
     },
     {
       "post_id": 347599,
       "post_title": "Conflux Price Prediction 2025, 2026 - 2030: Will CFX Price Hit $1?",
-      "post_url": null,
+      "post_url": "https://coinpedia.org/price-prediction/conflux-cfx-price-prediction/",
       "coin_name": "Conflux",
       "focus_keyword": "Conflux",
       "trust_score": 7.6,
@@ -153,18 +153,18 @@
       "claims_partial": 2,
       "claims_failed": 0,
       "claims_outdated": 1,
-      "word_count": "<NA>",
+      "word_count": 0,
       "word_count_gap": null,
-      "seo_keyword_in_title": "<NA>",
-      "seo_keyword_in_meta": "<NA>",
+      "seo_keyword_in_title": false,
+      "seo_keyword_in_meta": false,
       "critical_gaps": 2,
       "high_gaps": 3,
       "competitor_url": null,
       "competitor_title": null,
       "summary": "The article fact-checks as **Mostly Trustworthy** with important caveats. Core project facts about Conflux (Layer-1, Tree-Graph consensus, PoW/PoS hybrid, CFX token utility) are fully verified. Key catalysts mentioned\u2014the AnchorX/Eastcompeace RMB stablecoin partnership and the Conflux 3.0 upgrade scheduled for August 2025\u2014are confirmed by credible sources including The Block and Reuters. However, the ATH date (article says March 27; CoinMarketCap says March 26) and ATL date (article says January 1, 2023; CoinMarketCap says December 31, 2022) have minor discrepancies. Most critically, the third-party prediction figures from Wallet Investor, PricePrediction.net, and DigitalCoinPrice are **significantly outdated**\u2014Wallet Investor now shows $0.005 versus the $0.158 cited, which could severely mislead investors. The article also lacks technical analysis, tokenomics, risk disclaimers, and historical price context that top competitors include.",
       "overall_assessment": "## Overall Assessment\n\n**Strengths:**\n- Core project fundamentals (Layer-1, Tree-Graph, PoW/PoS) are accurately described and verified across multiple authoritative sources\n- The AnchorX/Eastcompeace RMB stablecoin partnership is a legitimate and significant development, confirmed by Reuters and The Block\n- The Conflux 3.0 upgrade timeline (August 2025) is verified and represents a genuine catalyst\n- CFX token utility description is accurate\n- Article structure with yearly predictions is well-organized\n\n**Weaknesses:**\n1. **CRITICAL: Outdated third-party predictions** \u2014 The Market Analysis table cites figures that are dramatically different from current values on those same sites. Wallet Investor now shows $0.005 (not $0.158), a 97% discrepancy that could mislead investors into thinking external analysts are bullish when they're actually bearish.\n2. **Minor date errors** \u2014 ATH date off by ~1 day (March 27 vs March 26 per CoinMarketCap); ATL date off by ~1 day (Jan 1, 2023 vs Dec 31, 2022 per CoinMarketCap)\n3. **No technical analysis** \u2014 Competitors rank higher partly because they include RSI, SMA, support/resistance levels, and chart analysis\n4. **No tokenomics** \u2014 CFX has infinite max supply (inflationary), a crucial factor for long-term price predictions that is completely omitted\n5. **No risk disclaimer** \u2014 For a token trading 97% below ATH with infinite supply, the absence of risk warnings is a significant editorial oversight\n6. **No price history** \u2014 Readers cannot evaluate prediction credibility without understanding CFX's historical performance trajectory\n7. **Prediction methodology unclear** \u2014 No explanation of how CoinPedia arrived at its specific price targets\n\n**Recommendation:** Update the third-party prediction figures immediately (highest priority), add technical analysis section, include tokenomics with the critical infinite supply detail, add investment risk disclaimer, and include historical price performance context. The outdated Wallet Investor fi",
-      "priority_fixes_json": null,
-      "exact_fixes_json": null,
+      "priority_fixes_json": [],
+      "exact_fixes_json": [],
       "published_date": null,
       "processed_at": "2026-02-26 11:49:19.145759+00:00",
       "status": "completed"
@@ -175,8 +175,8 @@
       "post_url": "https://coinpedia.org/price-prediction/peanut-the-squirrel-pnut-price-prediction/",
       "coin_name": "Pnut",
       "focus_keyword": "PNUT Price Prediction",
-      "trust_score": 22.0,
-      "trust_label": "Low Trust",
+      "trust_score": 4.0,
+      "trust_label": "Needs Improvement",
       "claims_checked": 10,
       "claims_verified": 4,
       "claims_partial": 2,
@@ -296,7 +296,7 @@
           "source": "https://coincodex.com/crypto/peanut-the-squirrel/price-prediction/"
         }
       ],
-      "published_date": "2025-07-23 17:35:34+00",
+      "published_date": "2025-07-23",
       "processed_at": "2026-02-26 14:00:27.770298+00:00",
       "status": "completed"
     },
@@ -306,7 +306,7 @@
       "post_url": "https://coinpedia.org/price-prediction/ecash-xec-price-prediction/",
       "coin_name": "Ecash",
       "focus_keyword": "eCash Price Prediction",
-      "trust_score": 28.0,
+      "trust_score": 3.7,
       "trust_label": "Low Trust",
       "claims_checked": 9,
       "claims_verified": 3,
@@ -427,10 +427,9 @@
           "source": "https://finance.yahoo.com/quote/XEC-USD/history/"
         }
       ],
-      "published_date": "2025-07-23 17:23:00+00",
+      "published_date": "2025-07-23",
       "processed_at": "2026-02-26 14:05:30.558905+00:00",
       "status": "completed"
     }
   ]
-}  ]
 }
