@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-02-26T00:00:00Z",
+  "total": 1,
+  "avg_trust": 7.6,
+  "articles": [
+    {
+      "post_id": 347599,
+      "post_title": "Conflux Price Prediction 2025, 2026-2030: Will CFX Hit $1?",
+      "post_url": "https://coinpedia.org/price-prediction/conflux-cfx-price-prediction/",
+      "coin_name": "Conflux",
+      "focus_keyword": "Conflux price prediction",
+      "trust_score": 7.6,
+      "trust_label": "Mostly Trustworthy",
+      "claims_checked": 8,
+      "claims_verified": 5,
+      "claims_partial": 2,
+      "claims_failed": 0,
+      "claims_outdated": 1,
+      "word_count": 1247,
+      "word_count_gap": "Your: ~1,247 words. Competitor: ~3,800 words. Gap: +2,553 words needed.",
+      "seo_keyword_in_title": true,
+      "seo_keyword_in_meta": true,
+      "critical_gaps": 2,
+      "high_gaps": 3,
+      "competitor_url": "https://coinbureau.com/analysis/conflux-cfx-price-prediction/",
+      "competitor_title": "Conflux (CFX) Price Prediction 2025-2030 — CoinBureau",
+      "summary": "Core facts verified. AnchorX partnership confirmed by Reuters. Conflux 3.0 upgrade timeline verified. Wallet Investor figures severely outdated ($0.158 cited vs $0.005 current). No technical analysis or tokenomics section.",
+      "overall_assessment": "Mostly trustworthy but needs urgent update to third-party predictions and content expansion.",
+      "published_date": "2025-01-15",
+      "priority_fixes_json": [
+        {"priority":1,"fix":"Update Wallet Investor figures","action":"Change '$0.158' to '$0.005' — current value as of Feb 2026","impact":"critical","effort":"quick_win","ranking_benefit":"Removes misleading data that could harm investor decisions"},
+        {"priority":2,"fix":"Add technical analysis section","action":"Add RSI-14, 50-day SMA, key support/resistance levels","impact":"high","effort":"significant","ranking_benefit":"All top 3 competitors have TA — critical gap"},
+        {"priority":3,"fix":"Add tokenomics section","action":"Add: Total supply 5.18B CFX, no max supply (inflationary)","impact":"high","effort":"medium","ranking_benefit":"Readers need this for long-term price evaluation"},
+        {"priority":4,"fix":"Add investment risk disclaimer","action":"Add disclaimer before conclusion — required for YMYL","impact":"critical","effort":"quick_win","ranking_benefit":"E-E-A-T compliance"}
+      ]
+    }
+  ]
+}

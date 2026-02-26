@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoinPedia FactCheck Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0c10;
+    --surface:  #111318;
+    --surface2: #1a1d24;
+    --border:   #252830;
+    --accent:   #f0b429;
+    --green:    #22c55e;
+    --yellow:   #f0b429;
+    --red:      #e85d4a;
+    --text:     #e8eaf0;
+    --muted:    #6b7080;
+    --mono:     'Space Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: linear-gradient(rgba(240,180,41,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(240,180,41,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    position: fixed; inset: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+  .login-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 40px 44px; width: 360px;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(240,180,41,0.08);
+  }
+  .login-icon { font-size: 36px; margin-bottom: 16px; }
+  .login-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .login-title span { color: var(--accent); }
+  .login-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 28px; letter-spacing: 1px; text-transform: uppercase; }
+  .login-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 16px; border-radius: 8px;
+    font-family: var(--mono); font-size: 13px; outline: none;
+    transition: border-color 0.2s; margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    width: 100%; background: var(--accent); border: none; color: #000;
+    padding: 12px; border-radius: 8px; font-family: var(--sans);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .login-btn:hover { opacity: 0.9; }
+  .login-error { font-family: var(--mono); font-size: 11px; color: var(--red); margin-top: 10px; display: none; }
+
+  /* ── MAIN APP ── */
+  #app { display: none; position: relative; z-index: 1; }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 40px 22px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(180deg, rgba(240,180,41,0.05) 0%, transparent 100%);
+  }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo-icon {
+    width: 38px; height: 38px; background: var(--accent); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+    box-shadow: 0 0 20px rgba(240,180,41,0.35);
+  }
+  .logo-name { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo-name span { color: var(--accent); }
+  .logo-sub { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .header-right { display: flex; align-items: center; gap: 20px; }
+  .header-meta { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; line-height: 1.9; }
+  .logout-btn {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+    padding: 6px 12px; border-radius: 6px; font-family: var(--mono); font-size: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .logout-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* ── MAIN ── */
+  main { padding: 28px 40px; max-width: 1440px; margin: 0 auto; }
+
+  /* ── STATS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px; position: relative; overflow: hidden;
+    transition: border-color 0.2s; cursor: default;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+  .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); opacity: 0.5; }
+  .stat-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-size: 28px; font-weight: 800; line-height: 1; color: var(--accent); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red   { color: var(--red); }
+  .stat-value.yellow { color: var(--yellow); }
+  .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ── FILTERS ── */
+  .filters { display: flex; gap: 8px; margin-bottom: 18px; align-items: center; flex-wrap: wrap; }
+  .filter-label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+  .filter-btn {
+    background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+    padding: 5px 13px; border-radius: 6px; font-family: var(--mono); font-size: 10px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .filter-btn:hover, .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+  .search-box {
+    margin-left: auto; background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); padding: 6px 14px; border-radius: 6px;
+    font-family: var(--mono); font-size: 11px; width: 220px; outline: none; transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-box::placeholder { color: var(--muted); }
+
+  /* ── TABLE ── */
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: var(--surface2); border-bottom: 1px solid var(--border); }
+  th {
+    padding: 11px 14px; font-family: var(--mono); font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--muted); text-align: left; cursor: pointer;
+    white-space: nowrap; user-select: none; transition: color 0.15s;
+  }
+  th:hover { color: var(--accent); }
+  th.sorted { color: var(--accent); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; cursor: pointer; }
+  tbody tr:hover { background: rgba(240,180,41,0.04); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 11px 14px; vertical-align: middle; }
+
+  .post-title { font-weight: 600; font-size: 13px; max-width: 230px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .post-link { font-family: var(--mono); font-size: 10px; color: var(--muted); display: block; margin-top: 2px; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration: none; }
+  .post-link:hover { color: var(--accent); }
+
+  .trust-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 20px; font-family: var(--mono); font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .trust-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .t-high  { background: rgba(34,197,94,0.12);  color: #22c55e; }
+  .t-high  .trust-dot { background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+  .t-mid   { background: rgba(240,180,41,0.12); color: #f0b429; }
+  .t-mid   .trust-dot { background: #f0b429; box-shadow: 0 0 5px #f0b429; }
+  .t-low   { background: rgba(232,93,74,0.12);  color: #e85d4a; }
+  .t-low   .trust-dot { background: #e85d4a; box-shadow: 0 0 5px #e85d4a; }
+
+  .bar-row { display: flex; align-items: center; gap: 6px; }
+  .bar-bg  { flex: 1; height: 4px; background: var(--border); border-radius: 2px; max-width: 70px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; }
+  .bar-num { font-family: var(--mono); font-size: 11px; color: var(--muted); min-width: 28px; text-align: right; }
+
+  .gap-pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); font-size: 10px; }
+  .g-crit { background: rgba(232,93,74,0.15);  color: #e85d4a; border: 1px solid rgba(232,93,74,0.3); }
+  .g-high { background: rgba(240,180,41,0.12); color: #f0b429; border: 1px solid rgba(240,180,41,0.3); }
+  .g-ok   { background: rgba(34,197,94,0.1);   color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+
+  .wc-cell { font-family: var(--mono); font-size: 12px; }
+  .wc-low  { color: var(--red); }
+  .wc-mid  { color: var(--yellow); }
+  .wc-good { color: var(--green); }
+
+  .seo-row { display: flex; gap: 3px; }
+  .seo-chip { font-family: var(--mono); font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 700; }
+  .s-ok  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+  .s-bad { background: rgba(232,93,74,0.15);  color: #e85d4a; }
+
+  /* ── DETAIL PANEL ── */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: flex-start; justify-content: flex-end; padding: 16px; }
+  .overlay.open { display: flex; }
+  .panel {
+    width: 500px; max-height: calc(100vh - 32px); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 14px; overflow-y: auto;
+    animation: slideIn 0.18s ease;
+  }
+  @keyframes slideIn { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .panel::-webkit-scrollbar { width: 3px; }
+  .panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .panel-head {
+    padding: 18px 20px 14px; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; background: var(--surface); z-index: 1;
+  }
+  .panel-close {
+    position: absolute; top: 14px; right: 14px; background: var(--surface2);
+    border: 1px solid var(--border); color: var(--muted); width: 26px; height: 26px;
+    border-radius: 6px; cursor: pointer; font-size: 12px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .panel-close:hover { color: var(--text); border-color: var(--text); }
+  .panel-title { font-size: 14px; font-weight: 700; padding-right: 34px; line-height: 1.4; margin-bottom: 5px; }
+  .panel-url { font-family: var(--mono); font-size: 10px; color: var(--accent); text-decoration: none; }
+  .panel-url:hover { text-decoration: underline; }
+  .panel-body { padding: 18px 20px; }
+  .section { margin-bottom: 20px; }
+  .sec-title { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+  .score-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .score-big { font-size: 46px; font-weight: 800; line-height: 1; }
+  .score-denom { font-family: var(--mono); font-size: 15px; color: var(--muted); }
+  .claims-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .claim-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
+  .claim-num { font-size: 22px; font-weight: 800; }
+  .claim-lbl { font-family: var(--mono); font-size: 9px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 1px; }
+  .fix-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .fix-item:last-child { border-bottom: none; }
+  .fix-num { width: 20px; height: 20px; background: var(--accent); color: #000; border-radius: 50%; font-family: var(--mono); font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .fix-name { font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+  .fix-act { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .fix-tags { display: flex; gap: 5px; margin-top: 4px; }
+  .ftag { font-family: var(--mono); font-size: 9px; padding: 1px 6px; border-radius: 3px; }
+  .ftag.critical    { background: rgba(232,93,74,0.15);  color: #e85d4a; }
+  .ftag.high        { background: rgba(240,180,41,0.12); color: #f0b429; }
+  .ftag.medium      { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .ftag.quick_win   { background: rgba(34,197,94,0.1);   color: #22c55e; }
+  .ftag.significant { background: rgba(232,93,74,0.1);   color: #e85d4a; }
+  .body-text { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .comp-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .comp-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+  .comp-link { font-family: var(--mono); font-size: 10px; color: var(--accent); text-decoration: none; }
+
+  /* ── PAGINATION ── */
+  .paging { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .page-btns { display: flex; gap: 5px; }
+  .pbtn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-family: var(--mono); font-size: 11px; transition: all 0.15s; }
+  .pbtn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .pbtn:disabled { opacity: 0.3; cursor: default; }
+  .pbtn.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 700; }
+
+  /* ── LOADING ── */
+  .loading { text-align: center; padding: 60px; color: var(--muted); font-family: var(--mono); font-size: 13px; }
+  .loading-dot { display: inline-block; animation: pulse 1.2s ease-in-out infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,80%,100% { opacity: 0.2; } 40% { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-icon">🔍</div>
+    <div class="login-title">CoinPedia <span>FactCheck</span></div>
+    <div class="login-sub">Content Intelligence Dashboard</div>
+    <input class="login-input" type="password" id="pwd-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Access Dashboard</button>
+    <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🔍</div>
+      <div>
+        <div class="logo-name">CoinPedia <span>FactCheck</span></div>
+        <div class="logo-sub">Content Intelligence</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-meta">
+        <div id="hdr-updated">—</div>
+        <div id="hdr-count">— articles</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Log out</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Articles</div><div class="stat-value" id="s-total">—</div><div class="stat-sub">processed</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Trust</div><div class="stat-value" id="s-avg">—</div><div class="stat-sub">out of 10</div></div>
+      <div class="stat-card"><div class="stat-label">High Trust</div><div class="stat-value green" id="s-high">—</div><div class="stat-sub">score ≥ 7</div></div>
+      <div class="stat-card"><div class="stat-label">Needs Work</div><div class="stat-value yellow" id="s-mid">—</div><div class="stat-sub">score 4–7</div></div>
+      <div class="stat-card"><div class="stat-label">Low Trust</div><div class="stat-value red" id="s-low">—</div><div class="stat-sub">score &lt; 4</div></div>
+      <div class="stat-card"><div class="stat-label">Critical Gaps</div><div class="stat-value red" id="s-gaps">—</div><div class="stat-sub">total across all</div></div>
+    </div>
+
+    <div class="filters">
+      <span class="filter-label">Filter:</span>
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('high',this)">🟢 High Trust</button>
+      <button class="filter-btn" onclick="setFilter('mid',this)">🟡 Needs Work</button>
+      <button class="filter-btn" onclick="setFilter('low',this)">🔴 Low Trust</button>
+      <button class="filter-btn" onclick="setFilter('crit',this)">🚨 Critical Gaps</button>
+      <button class="filter-btn" onclick="setFilter('short',this)">📏 Short Articles</button>
+      <button class="filter-btn" onclick="setFilter('outdated',this)">⏰ Has Outdated</button>
+      <input class="search-box" type="text" placeholder="Search coin or keyword..." oninput="doSearch(this.value)">
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('post_title')">Article</th>
+            <th onclick="sortBy('trust_score')" class="sorted">Trust ↑</th>
+            <th onclick="sortBy('claims_checked')">Claims</th>
+            <th onclick="sortBy('word_count')">Words</th>
+            <th onclick="sortBy('critical_gaps')">Gaps</th>
+            <th>SEO</th>
+            <th onclick="sortBy('claims_outdated')">Outdated</th>
+            <th>Competitor</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="8"><div class="loading"><span class="loading-dot">●</span> <span class="loading-dot">●</span> <span class="loading-dot">●</span> &nbsp; Loading data...</div></td></tr>
+        </tbody>
+      </table>
+      <div class="paging" id="paging" style="display:none">
+        <span id="pinfo"></span>
+        <div class="page-btns" id="pbtns"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closePanel()">
+  <div class="panel" id="panel">
+    <div class="panel-head">
+      <button class="panel-close" onclick="closePanel()">✕</button>
+      <div class="panel-title" id="p-title"></div>
+      <a class="panel-url" id="p-url" href="#" target="_blank"></a>
+    </div>
+    <div class="panel-body" id="p-body"></div>
+  </div>
+</div>
+
+<script>
+// ── PASSWORD ──────────────────────────────────────────────────────────────────
+// Change DASHBOARD_PASSWORD to whatever you want
+// This is a simple client-side password — good enough for a private team dashboard
+const DASHBOARD_PASSWORD = "coinpedia2026";
+
+function doLogin() {
+  const val = document.getElementById('pwd-input').value;
+  if (val === DASHBOARD_PASSWORD) {
+    sessionStorage.setItem('cp_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-input').focus();
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('cp_auth');
+  location.reload();
+}
+
+// Auto-login if already authenticated this session
+if (sessionStorage.getItem('cp_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────────
+let allData = [], filtered = [];
+let sortField = 'trust_score', sortAsc = true;
+let curPage = 1, curFilter = 'all', searchTerm = '';
+const PER_PAGE = 25;
+
+async function loadData() {
+  try {
+    // Loads data.json from same directory as this HTML file
+    const res  = await fetch('data.json?v=' + Date.now());
+    const json = await res.json();
+    allData = json.articles || [];
+    document.getElementById('hdr-updated').textContent = 'Updated: ' + (json.generated_at || '').slice(0,10);
+    document.getElementById('hdr-count').textContent   = allData.length + ' articles';
+    renderStats();
+    applyAll();
+  } catch(e) {
+    document.getElementById('tbody').innerHTML =
+      `<tr><td colspan="8"><div class="loading" style="color:var(--red)">
+        Failed to load data.json<br>
+        <span style="font-size:10px;opacity:0.6">Make sure data.json is in the same folder as index.html</span>
+      </div></td></tr>`;
+  }
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function renderStats() {
+  const d    = allData;
+  const avg  = d.reduce((s,r)=>s+(r.trust_score||0),0)/d.length;
+  const high = d.filter(r=>(r.trust_score||0)>=7).length;
+  const mid  = d.filter(r=>(r.trust_score||0)>=4&&(r.trust_score||0)<7).length;
+  const low  = d.filter(r=>(r.trust_score||0)<4).length;
+  const gaps = d.reduce((s,r)=>s+(r.critical_gaps||0),0);
+  document.getElementById('s-total').textContent = d.length;
+  document.getElementById('s-avg').textContent   = avg.toFixed(1);
+  document.getElementById('s-high').textContent  = high;
+  document.getElementById('s-mid').textContent   = mid;
+  document.getElementById('s-low').textContent   = low;
+  document.getElementById('s-gaps').textContent  = gaps;
+}
+
+// ── FILTER / SORT / SEARCH ────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  curFilter = f; curPage = 1;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  applyAll();
+}
+function doSearch(v) { searchTerm = v.toLowerCase(); curPage = 1; applyAll(); }
+function sortBy(f) {
+  sortAsc = sortField === f ? !sortAsc : true;
+  sortField = f;
+  document.querySelectorAll('th').forEach(t=>t.classList.remove('sorted'));
+  applyAll();
+}
+function applyAll() {
+  let d = [...allData];
+  if (searchTerm) d = d.filter(r =>
+    (r.post_title||'').toLowerCase().includes(searchTerm) ||
+    (r.coin_name||'').toLowerCase().includes(searchTerm) ||
+    (r.focus_keyword||'').toLowerCase().includes(searchTerm)
+  );
+  switch(curFilter) {
+    case 'high':     d=d.filter(r=>(r.trust_score||0)>=7); break;
+    case 'mid':      d=d.filter(r=>(r.trust_score||0)>=4&&(r.trust_score||0)<7); break;
+    case 'low':      d=d.filter(r=>(r.trust_score||0)<4); break;
+    case 'crit':     d=d.filter(r=>(r.critical_gaps||0)>0); break;
+    case 'short':    d=d.filter(r=>(r.word_count||0)<1500); break;
+    case 'outdated': d=d.filter(r=>(r.claims_outdated||0)>0); break;
+  }
+  d.sort((a,b)=>{
+    let av=a[sortField]??'', bv=b[sortField]??'';
+    if(typeof av==='string'){av=av.toLowerCase();bv=bv.toLowerCase();}
+    return av<bv?(sortAsc?-1:1):av>bv?(sortAsc?1:-1):0;
+  });
+  filtered = d;
+  renderTable();
+  renderPaging();
+}
+
+// ── TABLE ─────────────────────────────────────────────────────────────────────
+function renderTable() {
+  const start = (curPage-1)*PER_PAGE;
+  const rows  = filtered.slice(start, start+PER_PAGE);
+  const tbody = document.getElementById('tbody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="loading">No articles match your filter</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map(r => {
+    const ts    = Math.min(10, r.trust_score||0);
+    const tcls  = ts>=7?'t-high':ts>=4?'t-mid':'t-low';
+    const wc    = r.word_count||0;
+    const wccls = wc<1000?'wc-low':wc<2000?'wc-mid':'wc-good';
+    const crit  = r.critical_gaps||0, high=r.high_gaps||0;
+    const gcls  = crit>0?'g-crit':high>0?'g-high':'g-ok';
+    const gtxt  = crit>0?crit+' critical':high>0?high+' high':'clean';
+    const v=r.claims_verified||0, tot=Math.max(1,r.claims_checked||1);
+    const bpct  = Math.round(v/tot*100);
+    const bcol  = bpct>=70?'#22c55e':bpct>=40?'#f0b429':'#e85d4a';
+    const out   = r.claims_outdated||0;
+    let cdomain = '—';
+    try { if(r.competitor_url) cdomain=new URL(r.competitor_url).hostname.replace('www.',''); } catch(e){}
+    return `<tr onclick="openPanel(${r.post_id})">
+      <td>
+        <div class="post-title">${esc(r.post_title)}</div>
+        <a class="post-link" href="${r.post_url||'#'}" target="_blank" onclick="event.stopPropagation()">${(r.post_url||'').replace('https://','')}</a>
+      </td>
+      <td>
+        <div class="trust-badge ${tcls}"><div class="trust-dot"></div>${ts.toFixed(1)}/10</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:3px">${r.trust_label||''}</div>
+      </td>
+      <td>
+        <div class="bar-row">
+          <div class="bar-bg"><div class="bar-fill" style="width:${bpct}%;background:${bcol}"></div></div>
+          <div class="bar-num">${v}/${tot}</div>
+        </div>
+      </td>
+      <td><div class="wc-cell ${wccls}">${wc.toLocaleString()}</div></td>
+      <td><span class="gap-pill ${gcls}">${gtxt}</span></td>
+      <td>
+        <div class="seo-row">
+          <span class="seo-chip ${r.seo_keyword_in_title?'s-ok':'s-bad'}">TTL</span>
+          <span class="seo-chip ${r.seo_keyword_in_meta ?'s-ok':'s-bad'}">META</span>
+        </div>
+      </td>
+      <td><div style="font-family:var(--mono);font-size:11px;color:${out>0?'var(--red)':'var(--muted)'}">${out>0?'⚠ '+out+' old':'✓ ok'}</div></td>
+      <td><div style="font-family:var(--mono);font-size:10px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cdomain}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PAGINATION ────────────────────────────────────────────────────────────────
+function renderPaging() {
+  const total = Math.ceil(filtered.length/PER_PAGE);
+  const pg    = document.getElementById('paging');
+  if (total<=1){pg.style.display='none';return;}
+  pg.style.display='flex';
+  const s=(curPage-1)*PER_PAGE+1, e=Math.min(curPage*PER_PAGE,filtered.length);
+  document.getElementById('pinfo').textContent=`${s}–${e} of ${filtered.length}`;
+  let h=`<button class="pbtn" onclick="goPage(${curPage-1})" ${curPage===1?'disabled':''}>←</button>`;
+  for(let p=1;p<=total;p++){
+    if(p===1||p===total||Math.abs(p-curPage)<=2)
+      h+=`<button class="pbtn ${p===curPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+    else if(Math.abs(p-curPage)===3)
+      h+=`<span style="color:var(--muted);font-family:var(--mono);font-size:11px;padding:0 4px">…</span>`;
+  }
+  h+=`<button class="pbtn" onclick="goPage(${curPage+1})" ${curPage===total?'disabled':''}>→</button>`;
+  document.getElementById('pbtns').innerHTML=h;
+}
+function goPage(p){
+  const t=Math.ceil(filtered.length/PER_PAGE);
+  if(p<1||p>t)return; curPage=p; renderTable(); renderPaging();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+function openPanel(id) {
+  const r = allData.find(d=>d.post_id===id); if(!r)return;
+  document.getElementById('p-title').textContent = r.post_title;
+  document.getElementById('p-url').textContent   = (r.post_url||'').replace('https://','');
+  document.getElementById('p-url').href          = r.post_url||'#';
+  const ts   = Math.min(10,r.trust_score||0);
+  const tcol = ts>=7?'var(--green)':ts>=4?'var(--yellow)':'var(--red)';
+  const fixes= Array.isArray(r.priority_fixes_json)?r.priority_fixes_json:[];
+  let cdomain='', curl=r.competitor_url||'';
+  try{ if(curl) cdomain=new URL(curl).hostname.replace('www.',''); }catch(e){}
+  const fixHtml = fixes.length ? fixes.map(f=>`
+    <div class="fix-item">
+      <div class="fix-num">${f.priority}</div>
+      <div style="flex:1">
+        <div class="fix-name">${esc(f.fix||'')}</div>
+        <div class="fix-act">${esc(f.action||'')}</div>
+        <div class="fix-tags">
+          <span class="ftag ${f.impact||''}">${(f.impact||'').toUpperCase()}</span>
+          <span class="ftag ${f.effort||''}">${(f.effort||'').replace('_',' ')}</span>
+        </div>
+        ${f.ranking_benefit?`<div class="fix-act" style="color:var(--accent);margin-top:4px">↑ ${esc(f.ranking_benefit)}</div>`:''}
+      </div>
+    </div>`).join('') : '<div class="body-text">No priority fixes recorded</div>';
+  document.getElementById('p-body').innerHTML = `
+    <div class="section">
+      <div class="sec-title">Trust Score</div>
+      <div class="score-row">
+        <div class="score-big" style="color:${tcol}">${ts.toFixed(1)}</div>
+        <div class="score-denom">/10</div>
+        <div style="margin-left:10px">
+          <div style="font-size:13px;font-weight:600">${r.trust_label||''}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.word_count||0} words &nbsp;|&nbsp; ${(r.published_date||'').slice(0,10)}</div>
+        </div>
+      </div>
+      <div class="claims-grid">
+        <div class="claim-box"><div class="claim-num" style="color:var(--green)">${r.claims_verified||0}</div><div class="claim-lbl">Verified</div></div>
+        <div class="claim-box"><div class="claim-num" style="color:var(--yellow)">${r.claims_partial||0}</div><div class="claim-lbl">Partial</div></div>
+        <div class="claim-box"><div class="claim-num" style="color:var(--red)">${(r.claims_failed||0)+(r.claims_outdated||0)}</div><div class="claim-lbl">Failed/Old</div></div>
+      </div>
+    </div>
+    ${r.word_count_gap?`<div class="section"><div class="sec-title">Word Count Gap</div><div class="body-text">${esc(r.word_count_gap)}</div></div>`:''}
+    ${cdomain?`<div class="section"><div class="sec-title">Top Competitor</div><div class="comp-box"><div class="comp-name">${esc(r.competitor_title||'')}</div><a class="comp-link" href="${curl}" target="_blank">${cdomain}</a></div></div>`:''}
+    <div class="section"><div class="sec-title">Priority Fixes for Writer</div>${fixHtml}</div>
+    <div class="section"><div class="sec-title">Summary</div><div class="body-text">${esc(r.summary||'—')}</div></div>
+    <div class="section">
+      <div class="sec-title">SEO Status</div>
+      <div class="body-text">
+        Keyword in title: <strong style="color:${r.seo_keyword_in_title?'var(--green)':'var(--red)'}">${r.seo_keyword_in_title?'YES':'NO — fix in Yoast'}</strong><br>
+        Keyword in meta: <strong style="color:${r.seo_keyword_in_meta?'var(--green)':'var(--red)'}">${r.seo_keyword_in_meta?'YES':'NO — fix in Yoast'}</strong>
+      </div>
+    </div>
+    <div class="section"><div class="sec-title">Overall Assessment</div><div class="body-text">${esc(r.overall_assessment||'—')}</div></div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePanel(){
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+
+function esc(s){ const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+// Auto-load if already authenticated
+if(sessionStorage.getItem('cp_auth')==='1') loadData();
+</script>
+</body>
+</html>
