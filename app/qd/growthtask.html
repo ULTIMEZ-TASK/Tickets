@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coinpedia — Report to Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════ */
+:root {
+  --bg:    #05070d;
+  --bg1:   #090c16;
+  --bg2:   #0e1220;
+  --bg3:   #141829;
+  --bg4:   #1a1f32;
+  --bg5:   #21273d;
+
+  --e0: rgba(255,255,255,.04);
+  --e1: rgba(255,255,255,.07);
+  --e2: rgba(255,255,255,.11);
+  --e3: rgba(255,255,255,.17);
+
+  /* Tool colours */
+  --m:  #8b7ff5; --mg: rgba(139,127,245,.11); --mb: rgba(139,127,245,.22);
+  --g:  #2dd4bf; --gg: rgba(45,212,191,.10);  --gb: rgba(45,212,191,.22);
+  --s:  #f59e0b; --sg: rgba(245,158,11,.10);  --sb: rgba(245,158,11,.22);
+  --a:  #f56565; --ag: rgba(245,101,101,.10);  --ab: rgba(245,101,101,.22);
+  --c:  #63b3ed; --cg: rgba(99,179,237,.10);  --cb: rgba(99,179,237,.22);
+
+  /* Priority */
+  --crit: #fc8181; --critg: rgba(252,129,129,.12);
+  --high: #f6ad55; --highg: rgba(246,173,85,.12);
+  --norm: #68d391; --normg: rgba(104,211,145,.10);
+
+  --t1: #edf2ff;
+  --t2: #8896b8;
+  --t3: #434f6d;
+
+  --fh: 'Syne', sans-serif;
+  --fb: 'Instrument Sans', sans-serif;
+  --fm: 'JetBrains Mono', monospace;
+
+  --r:  8px;
+  --r2: 14px;
+  --r3: 20px;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--fb);
+  font-size: 13px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width:3px }
+::-webkit-scrollbar-thumb { background:var(--bg5); border-radius:3px }
+
+/* ══════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════ */
+.shell { display:flex; min-height:100vh }
+
+/* SIDEBAR */
+.side {
+  width:240px; flex-shrink:0;
+  background:var(--bg1);
+  border-right:1px solid var(--e1);
+  position:fixed; top:0; left:0; bottom:0;
+  display:flex; flex-direction:column;
+  z-index:200;
+}
+.side-logo {
+  padding:20px 18px 16px;
+  border-bottom:1px solid var(--e0);
+  display:flex; align-items:center; gap:10px;
+}
+.logo-mark {
+  width:32px; height:32px; border-radius:9px; flex-shrink:0;
+  background: linear-gradient(135deg, var(--m), var(--c));
+  display:grid; place-items:center;
+  font-family:var(--fh); font-weight:800; font-size:13px; color:#fff;
+}
+.logo-text { font-family:var(--fh); font-size:13px; font-weight:700 }
+.logo-sub  { font-family:var(--fm); font-size:9px; color:var(--t3); letter-spacing:1.5px; text-transform:uppercase }
+
+.side-nav { padding:10px 8px; flex:1; overflow-y:auto }
+.nlabel {
+  font-family:var(--fm); font-size:9px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--t3);
+  padding:10px 10px 4px;
+}
+.ni {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 10px; border-radius:8px; margin-bottom:1px;
+  cursor:pointer; font-size:12px; font-weight:500;
+  color:var(--t2); border:1px solid transparent;
+  transition:all .13s; position:relative;
+}
+.ni:hover { background:var(--bg3); color:var(--t1) }
+.ni.on { background:var(--bg3); color:var(--t1); border-color:var(--e2) }
+.ni-ico { font-size:13px; width:18px; text-align:center; flex-shrink:0 }
+.ni-count {
+  margin-left:auto;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  padding:1px 6px; border-radius:20px;
+  background:var(--bg4); color:var(--t2);
+}
+.ni-count.r { background:var(--critg); color:var(--crit) }
+.ni-count.b { background:rgba(99,179,237,.12); color:var(--c) }
+.ni-count.g { background:var(--normg); color:var(--norm) }
+
+.side-foot {
+  padding:12px 14px;
+  border-top:1px solid var(--e0);
+  display:flex; align-items:center; gap:9px;
+}
+.av {
+  width:30px; height:30px; border-radius:50%;
+  display:grid; place-items:center;
+  font-family:var(--fh); font-size:11px; font-weight:800;
+  color:#fff; flex-shrink:0;
+}
+
+/* TOPBAR */
+.topbar {
+  position:fixed; top:0; left:240px; right:0; height:50px;
+  background:rgba(5,7,13,.9); backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--e1);
+  display:flex; align-items:center;
+  padding:0 24px; gap:12px; z-index:100;
+}
+.tb-title { font-family:var(--fh); font-size:14px; font-weight:700; flex:1; letter-spacing:-.2px }
+.tb-chip {
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--fm); font-size:10px; color:var(--t2);
+  background:var(--bg3); border:1px solid var(--e2);
+  padding:3px 10px; border-radius:20px;
+}
+.pulse { width:6px; height:6px; border-radius:50%; background:var(--norm); animation:pulseAnim 2s infinite }
+@keyframes pulseAnim { 0%,100%{box-shadow:0 0 0 0 rgba(104,211,145,.5)} 50%{box-shadow:0 0 0 5px rgba(104,211,145,0)} }
+
+/* MAIN */
+.main { margin-left:240px; padding-top:50px }
+.pg { display:none; padding:26px 26px 60px; animation:pgIn .17s ease }
+.pg.on { display:block }
+@keyframes pgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+.btn {
+  font-family:var(--fb); font-size:12px; font-weight:600;
+  padding:8px 16px; border-radius:var(--r); border:none; cursor:pointer;
+  transition:all .14s; display:inline-flex; align-items:center; gap:6px;
+}
+.btn-primary { background:var(--m); color:#fff }
+.btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px) }
+.btn-ghost { background:transparent; border:1px solid var(--e2); color:var(--t2) }
+.btn-ghost:hover { background:var(--bg3); color:var(--t1) }
+.btn-danger { background:var(--critg); border:1px solid var(--ab); color:var(--crit) }
+.btn-danger:hover { background:rgba(252,129,129,.2) }
+.btn-success { background:var(--normg); border:1px solid rgba(104,211,145,.25); color:var(--norm) }
+.btn-success:hover { background:rgba(104,211,145,.2) }
+.btn-sm { padding:5px 11px; font-size:11px }
+.btn-xs { padding:3px 8px; font-size:10px }
+
+/* ══════════════════════════════════════════════
+   PAGE HEADERS
+══════════════════════════════════════════════ */
+.ph { margin-bottom:22px }
+.ph h1 { font-family:var(--fh); font-size:22px; font-weight:800; letter-spacing:-.5px; line-height:1.2; margin-bottom:4px }
+.ph p { font-family:var(--fm); font-size:10px; color:var(--t2); letter-spacing:.3px }
+.ph-row { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap }
+
+/* ══════════════════════════════════════════════
+   CARDS & GRIDS
+══════════════════════════════════════════════ */
+.card {
+  background:var(--bg2); border:1px solid var(--e1);
+  border-radius:var(--r2); padding:18px;
+}
+.card:hover { border-color:var(--e2) }
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+.g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px }
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px }
+
+/* STAT CARD */
+.stat {
+  background:var(--bg2); border:1px solid var(--e1);
+  border-radius:var(--r2); padding:16px;
+  position:relative; overflow:hidden; transition:all .2s;
+}
+.stat::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--ac,var(--m)) }
+.stat:hover { border-color:var(--e2); transform:translateY(-2px) }
+.stat-val { font-family:var(--fh); font-size:26px; font-weight:800; letter-spacing:-1px; line-height:1; margin-bottom:2px }
+.stat-lbl { font-family:var(--fm); font-size:9px; text-transform:uppercase; letter-spacing:.5px; color:var(--t2) }
+.stat-ico { font-size:18px; margin-bottom:6px }
+
+/* ══════════════════════════════════════════════
+   FORM ELEMENTS
+══════════════════════════════════════════════ */
+.fg { margin-bottom:14px }
+.fg2 { display:grid; grid-template-columns:1fr 1fr; gap:12px }
+.fl {
+  display:block; font-family:var(--fm); font-size:9px;
+  text-transform:uppercase; letter-spacing:.9px;
+  color:var(--t2); margin-bottom:5px;
+}
+.fi, .fs, .ft {
+  width:100%; background:var(--bg3); border:1px solid var(--e2);
+  border-radius:var(--r); padding:9px 12px; color:var(--t1);
+  font-family:var(--fb); font-size:12px; outline:none; transition:all .14s;
+}
+.fi:focus, .fs:focus, .ft:focus {
+  border-color:var(--tc, var(--m));
+  box-shadow:0 0 0 3px rgba(139,127,245,.1);
+}
+.fs option { background:var(--bg2) }
+.ft { resize:vertical; min-height:70px }
+.fi-row { display:flex; align-items:center; gap:8px }
+.fi-prefix {
+  background:var(--bg4); border:1px solid var(--e2); border-radius:var(--r);
+  padding:9px 10px; font-family:var(--fm); font-size:11px; color:var(--t3);
+  white-space:nowrap; flex-shrink:0;
+}
+
+/* METRIC INPUT ROW */
+.metric-row {
+  display:grid; grid-template-columns:1fr 80px 90px;
+  gap:8px; align-items:center;
+  padding:8px 12px; background:var(--bg3);
+  border:1px solid var(--e1); border-radius:var(--r);
+  margin-bottom:6px; transition:border-color .14s;
+}
+.metric-row:hover { border-color:var(--e2) }
+.metric-row-label { font-size:12px; font-weight:600 }
+.metric-row-sub { font-family:var(--fm); font-size:9px; color:var(--t3); margin-top:1px }
+.metric-val-input {
+  background:var(--bg4); border:1px solid var(--e2); border-radius:6px;
+  padding:5px 8px; color:var(--t1);
+  font-family:var(--fm); font-size:11px; font-weight:600;
+  outline:none; width:100%; text-align:right; transition:all .14s;
+}
+.metric-val-input:focus { border-color:var(--tc,var(--m)) }
+
+/* STATUS SELECT in metric row */
+.status-select {
+  background:var(--bg4); border:1px solid var(--e2); border-radius:6px;
+  padding:5px 6px; color:var(--t1);
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  outline:none; width:100%; cursor:pointer;
+}
+
+/* ══════════════════════════════════════════════
+   TOOL SELECTOR (Upload Step 1)
+══════════════════════════════════════════════ */
+.tool-picker {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:12px;
+  margin-bottom:24px;
+}
+.tool-pick-card {
+  background:var(--bg2); border:2px solid var(--e1);
+  border-radius:var(--r2); padding:18px 14px;
+  cursor:pointer; text-align:center;
+  transition:all .17s; position:relative; overflow:hidden;
+}
+.tool-pick-card:hover { border-color:var(--tc,var(--m)); background:var(--bg3) }
+.tool-pick-card.sel {
+  border-color:var(--tc,var(--m));
+  background:linear-gradient(135deg, var(--tg,var(--mg)) 0%, transparent 100%);
+  box-shadow:0 0 0 1px var(--tc,var(--m)) inset;
+}
+.tool-pick-card.sel::after {
+  content:'✓'; position:absolute; top:8px; right:10px;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  color:var(--tc,var(--m));
+}
+.tp-ico { font-size:28px; margin-bottom:8px }
+.tp-name { font-family:var(--fh); font-size:12px; font-weight:700 }
+.tp-sub  { font-family:var(--fm); font-size:9px; color:var(--t3); margin-top:2px }
+
+/* ══════════════════════════════════════════════
+   UPLOAD DROP ZONE
+══════════════════════════════════════════════ */
+.dropzone {
+  border:2px dashed var(--e2); border-radius:var(--r2);
+  padding:32px 20px; text-align:center; cursor:pointer;
+  transition:all .17s; position:relative; margin-bottom:16px;
+  background:var(--bg2);
+}
+.dropzone:hover, .dropzone.drag { border-color:var(--tc,var(--m)); background:var(--bg3) }
+.dropzone input { position:absolute; inset:0; opacity:0; cursor:pointer }
+.dz-ico { font-size:32px; margin-bottom:8px }
+.dz-title { font-family:var(--fh); font-size:14px; font-weight:700; margin-bottom:4px }
+.dz-sub { font-family:var(--fm); font-size:10px; color:var(--t3) }
+.dz-formats { display:flex; gap:5px; justify-content:center; margin-top:10px; flex-wrap:wrap }
+.dz-fmt {
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  padding:2px 8px; border-radius:4px;
+  background:var(--bg4); color:var(--t2); border:1px solid var(--e2);
+}
+.dz-fmt.hi { background:var(--gg); color:var(--g); border-color:var(--gb) }
+
+/* FILE PREVIEW */
+.file-preview {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; background:var(--bg3);
+  border:1px solid var(--e2); border-radius:var(--r);
+  margin-bottom:6px;
+}
+.fp-icon {
+  width:34px; height:34px; border-radius:8px;
+  display:grid; place-items:center;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  flex-shrink:0;
+}
+.fp-name { font-size:12px; font-weight:600; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.fp-size { font-family:var(--fm); font-size:10px; color:var(--t3); flex-shrink:0 }
+.fp-remove { background:none; border:none; color:var(--t3); cursor:pointer; font-size:14px; transition:color .14s; flex-shrink:0; padding:2px 4px }
+.fp-remove:hover { color:var(--crit) }
+
+/* ══════════════════════════════════════════════
+   TEMPLATE FORM STEPS
+══════════════════════════════════════════════ */
+.form-step {
+  background:var(--bg2); border:1px solid var(--e1);
+  border-radius:var(--r2); margin-bottom:14px;
+  overflow:hidden;
+}
+.fs-head {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 18px; cursor:pointer;
+  border-bottom:1px solid var(--e0);
+  transition:background .14s;
+}
+.fs-head:hover { background:var(--bg3) }
+.fs-head.open { background:var(--bg3) }
+.fs-num {
+  width:24px; height:24px; border-radius:50%; flex-shrink:0;
+  display:grid; place-items:center;
+  font-family:var(--fm); font-size:10px; font-weight:700;
+  background:var(--bg4); color:var(--t2);
+  transition:all .14s;
+}
+.fs-head.open .fs-num { background:var(--tc,var(--m)); color:#fff }
+.fs-head.done .fs-num { background:var(--normg); color:var(--norm) }
+.fs-head.done .fs-num::after { content:'✓' }
+.fs-title { font-family:var(--fh); font-size:13px; font-weight:700; flex:1 }
+.fs-badge {
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  padding:2px 8px; border-radius:20px;
+  background:var(--bg4); color:var(--t3);
+}
+.fs-body { padding:18px; display:none }
+.fs-body.open { display:block }
+.fs-arrow { font-size:10px; color:var(--t3); transition:transform .2s; flex-shrink:0 }
+.fs-head.open .fs-arrow { transform:rotate(180deg) }
+
+/* ══════════════════════════════════════════════
+   TASK CARD (Generated)
+══════════════════════════════════════════════ */
+.task-card {
+  background:var(--bg2); border:1px solid var(--e1);
+  border-radius:var(--r2); overflow:hidden;
+  transition:all .2s; margin-bottom:10px;
+  position:relative; animation:taskIn .3s ease backwards;
+}
+@keyframes taskIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+.task-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--lc,var(--m));
+}
+.tc-head { display:flex; align-items:flex-start; gap:12px; padding:15px 16px 11px 18px }
+.tc-icon {
+  width:38px; height:38px; border-radius:10px; flex-shrink:0;
+  display:grid; place-items:center; font-size:16px;
+}
+.tc-body { flex:1; min-width:0}
+.tc-title { font-family:var(--fh); font-size:13px; font-weight:700; line-height:1.3; margin-bottom:4px }
+.tc-meta { font-family:var(--fm); font-size:10px; color:var(--t3); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.tc-tags { display:flex; gap:5px; flex-wrap:wrap; align-items:center }
+.tc-right { flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px }
+
+.tc-evidence {
+  margin:0 16px 12px 18px;
+  background:var(--bg3); border:1px solid var(--e1); border-radius:var(--r);
+  padding:11px 14px;
+}
+.ev-label { font-family:var(--fm); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--t3); margin-bottom:8px }
+.ev-stats { display:flex; gap:18px; flex-wrap:wrap }
+.ev-item { display:flex; flex-direction:column; font-family:var(--fm) }
+.ev-val { font-size:15px; font-weight:700; line-height:1 }
+.ev-key { font-size:9px; color:var(--t3); margin-top:2px; text-transform:uppercase }
+
+.tc-steps {
+  margin:0 16px 12px 18px;
+}
+.step-label { font-family:var(--fm); font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--t3); margin-bottom:7px }
+.step-item {
+  display:flex; align-items:flex-start; gap:7px;
+  padding:5px 0; border-bottom:1px solid var(--e0); font-size:11px; color:var(--t2);
+}
+.step-item:last-child { border:none }
+.step-n {
+  width:17px; height:17px; border-radius:50%; flex-shrink:0; margin-top:1px;
+  display:grid; place-items:center;
+  font-family:var(--fm); font-size:8px; font-weight:700;
+  background:var(--bg4); color:var(--t2);
+}
+
+.tc-verify {
+  margin:0 16px 12px 18px;
+  padding:9px 12px; border-radius:var(--r);
+  font-family:var(--fm); font-size:10px;
+  background:var(--normg); color:var(--norm); border:1px solid rgba(104,211,145,.2);
+}
+
+.tc-footer {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:10px 16px; background:var(--bg3); border-top:1px solid var(--e0);
+}
+
+/* TAGS */
+.tag {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:2px 8px; border-radius:4px;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.4px;
+}
+.tag-tool { }
+.tag-m  { background:var(--mg); color:var(--m); border:1px solid var(--mb) }
+.tag-g  { background:var(--gg); color:var(--g); border:1px solid var(--gb) }
+.tag-s  { background:var(--sg); color:var(--s); border:1px solid var(--sb) }
+.tag-a  { background:var(--ag); color:var(--a); border:1px solid var(--ab) }
+.tag-c  { background:var(--cg); color:var(--c); border:1px solid var(--cb) }
+
+.pri {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:2px 8px; border-radius:4px;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  text-transform:uppercase;
+}
+.pri.critical { background:var(--critg); color:var(--crit); border:1px solid rgba(252,129,129,.25) }
+.pri.high     { background:var(--highg); color:var(--high); border:1px solid rgba(246,173,85,.2) }
+.pri.normal   { background:var(--normg); color:var(--norm); border:1px solid rgba(104,211,145,.2) }
+
+.team-tag {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:4px;
+  font-family:var(--fm); font-size:9px; font-weight:600;
+  background:var(--bg4); color:var(--t2); border:1px solid var(--e1);
+}
+
+.sts {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 9px; border-radius:20px;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+}
+.sts-dot { width:5px; height:5px; border-radius:50% }
+.sts.open     { background:var(--bg4); color:var(--t2) }
+.sts.open .sts-dot { background:var(--t3) }
+.sts.inprog   { background:rgba(246,173,85,.1); color:var(--high) }
+.sts.inprog .sts-dot { background:var(--high); animation:pulseAnim 1.5s infinite }
+.sts.done     { background:var(--normg); color:var(--norm) }
+.sts.done .sts-dot { background:var(--norm) }
+.sts.client   { background:rgba(99,179,237,.1); color:var(--c) }
+.sts.client .sts-dot { background:var(--c) }
+
+/* VISIBILITY BADGE */
+.vis {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 7px; border-radius:4px;
+  font-family:var(--fm); font-size:9px; color:var(--t3);
+  background:var(--bg4); border:1px solid var(--e1);
+}
+
+/* ══════════════════════════════════════════════
+   STEP WIZARD (upload flow)
+══════════════════════════════════════════════ */
+.wizard-steps {
+  display:flex; align-items:center; gap:0;
+  margin-bottom:28px; background:var(--bg2);
+  border:1px solid var(--e1); border-radius:var(--r2);
+  overflow:hidden;
+}
+.wz-step {
+  flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 14px; font-size:11px; font-weight:600;
+  color:var(--t3); font-family:var(--fh);
+  border-right:1px solid var(--e0); transition:all .2s;
+  position:relative;
+}
+.wz-step:last-child { border:none }
+.wz-step.done { color:var(--norm) }
+.wz-step.active { color:var(--t1); background:var(--bg3) }
+.wz-step.active::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--tc, var(--m));
+}
+.wz-n {
+  width:20px; height:20px; border-radius:50%; flex-shrink:0;
+  display:grid; place-items:center;
+  font-family:var(--fm); font-size:9px; font-weight:700;
+  background:var(--bg4); color:var(--t3); transition:all .2s;
+}
+.wz-step.active .wz-n { background:var(--tc,var(--m)); color:#fff }
+.wz-step.done .wz-n   { background:var(--normg); color:var(--norm) }
+
+/* ══════════════════════════════════════════════
+   SECTION LABEL
+══════════════════════════════════════════════ */
+.slabel {
+  display:flex; align-items:center; gap:10px;
+  margin:20px 0 12px;
+}
+.sl-line { flex:1; height:1px; background:var(--e0) }
+.sl-text {
+  font-family:var(--fm); font-size:9px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--t3); white-space:nowrap;
+}
+
+/* ══════════════════════════════════════════════
+   PREVIEW PANEL (task preview during form)
+══════════════════════════════════════════════ */
+.preview-panel {
+  background:var(--bg2); border:1px solid var(--e1);
+  border-radius:var(--r2); padding:18px;
+  position:sticky; top:70px;
+}
+.preview-empty {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; min-height:200px; gap:10px;
+  color:var(--t3); font-family:var(--fm); font-size:10px;
+  text-align:center;
+}
+
+/* ══════════════════════════════════════════════
+   VISIBILITY STRIP
+══════════════════════════════════════════════ */
+.vis-strip {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  padding:10px 14px; background:var(--bg3);
+  border:1px solid var(--e1); border-radius:var(--r);
+  margin-bottom:14px;
+}
+.vis-label { font-family:var(--fm); font-size:9px; color:var(--t3); text-transform:uppercase; letter-spacing:1px; flex-shrink:0 }
+.vis-item {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:5px;
+  font-family:var(--fm); font-size:10px; font-weight:600;
+  cursor:pointer; transition:all .14s; user-select:none;
+  border:1px solid var(--e1); color:var(--t3); background:var(--bg4);
+}
+.vis-item.on { color:var(--t1); background:var(--bg5); border-color:var(--e2) }
+.vis-item.on[data-v="employee"] { color:var(--m); background:var(--mg); border-color:var(--mb) }
+.vis-item.on[data-v="client"]   { color:var(--c); background:var(--cg); border-color:var(--cb) }
+.vis-item.on[data-v="team"]     { color:var(--g); background:var(--gg); border-color:var(--gb) }
+
+/* ══════════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════════ */
+.mo-bg {
+  position:fixed; inset:0; background:rgba(0,0,0,.8);
+  backdrop-filter:blur(14px); z-index:9998;
+  display:none; align-items:center; justify-content:center;
+}
+.mo-bg.open { display:flex }
+.mo {
+  background:var(--bg2); border:1px solid var(--e2);
+  border-radius:var(--r3); padding:28px;
+  width:640px; max-width:96vw; max-height:90vh; overflow-y:auto;
+  position:relative; animation:pgIn .2s ease;
+}
+.mo-x {
+  position:absolute; top:14px; right:14px;
+  width:26px; height:26px; border-radius:50%;
+  background:var(--bg3); border:1px solid var(--e1);
+  color:var(--t2); font-size:11px;
+  display:grid; place-items:center; cursor:pointer; transition:all .14s;
+}
+.mo-x:hover { background:var(--critg); color:var(--crit) }
+.mo-h { font-family:var(--fh); font-size:18px; font-weight:800; margin-bottom:18px }
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+.toast {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--bg2); border:1px solid var(--e2);
+  border-radius:12px; padding:11px 16px;
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--fb); font-size:12px; font-weight:600; color:var(--t1);
+  box-shadow:0 20px 60px rgba(0,0,0,.6); z-index:9999;
+  transform:translateY(70px); opacity:0;
+  transition:all .36s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.on { transform:translateY(0); opacity:1 }
+
+/* PROGRESS BAR */
+.pbar { margin-bottom:10px }
+.pbar-top { display:flex; justify-content:space-between; margin-bottom:4px }
+.pbar-lbl { font-size:11px; color:var(--t2) }
+.pbar-val { font-family:var(--fm); font-size:10px; font-weight:700 }
+.pbar-track { height:3px; background:var(--bg4); border-radius:3px; overflow:hidden }
+.pbar-fill { height:100%; border-radius:3px; transition:width 1s ease }
+
+/* EMPTY STATE */
+.empty {
+  display:flex; flex-direction:column; align-items:center;
+  padding:48px 20px; color:var(--t3); text-align:center; gap:10px;
+}
+.empty-ico { font-size:40px }
+.empty-title { font-family:var(--fh); font-size:15px; font-weight:700; color:var(--t2) }
+.empty-sub { font-family:var(--fm); font-size:10px; max-width:280px }
+
+/* UPLOAD HISTORY ROW */
+.hist-row {
+  display:flex; align-items:center; gap:12px;
+  padding:11px 14px; background:var(--bg2);
+  border:1px solid var(--e1); border-radius:var(--r);
+  margin-bottom:6px; transition:all .14s; cursor:pointer;
+}
+.hist-row:hover { border-color:var(--e2); background:var(--bg3) }
+.hist-icon { width:34px; height:34px; border-radius:9px; display:grid; place-items:center; font-size:15px; flex-shrink:0 }
+.hist-body { flex:1; min-width:0 }
+.hist-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.hist-meta { font-family:var(--fm); font-size:9px; color:var(--t3); margin-top:1px }
+.hist-count {
+  font-family:var(--fm); font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:20px;
+  background:var(--mg); color:var(--m);
+}
+
+/* SUCCESS BURST */
+.success-burst {
+  display:none; flex-direction:column; align-items:center;
+  justify-content:center; padding:48px 20px; text-align:center;
+  gap:14px;
+}
+.success-burst.on { display:flex }
+.sb-ico { font-size:56px; animation:sbBounce .5s cubic-bezier(.34,1.56,.64,1) }
+@keyframes sbBounce { from{transform:scale(0)} to{transform:scale(1)} }
+.sb-title { font-family:var(--fh); font-size:24px; font-weight:800; letter-spacing:-.5px }
+.sb-sub { font-family:var(--fm); font-size:11px; color:var(--t2); max-width:320px; line-height:1.6 }
+.sb-stats { display:flex; gap:18px; justify-content:center; flex-wrap:wrap }
+.sb-stat { display:flex; flex-direction:column; align-items:center; gap:3px }
+.sb-val { font-family:var(--fh); font-size:28px; font-weight:800 }
+.sb-lbl { font-family:var(--fm); font-size:9px; color:var(--t3); text-transform:uppercase; letter-spacing:.5px }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ░░░ SIDEBAR ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<aside class="side">
+  <div class="side-logo">
+    <div class="logo-mark">C</div>
+    <div>
+      <div class="logo-text">Coinpedia</div>
+      <div class="logo-sub">Report → Tasks</div>
+    </div>
+  </div>
+  <nav class="side-nav">
+    <div class="nlabel">Upload</div>
+    <div class="ni on" onclick="go('upload',this)"><span class="ni-ico">⬆</span>Upload Report<span class="ni-count b">New</span></div>
+    <div class="ni" onclick="go('history',this)"><span class="ni-ico">📁</span>Upload History<span class="ni-count" id="hist-count">0</span></div>
+
+    <div class="nlabel">Fix Tasks</div>
+    <div class="ni" onclick="go('tasks-all',this)"><span class="ni-ico">≡</span>All Tasks<span class="ni-count" id="all-count">0</span></div>
+    <div class="ni" onclick="go('tasks-critical',this)"><span class="ni-ico">🔴</span>Critical<span class="ni-count r" id="crit-count">0</span></div>
+    <div class="ni" onclick="go('tasks-open',this)"><span class="ni-ico">▣</span>Open<span class="ni-count b" id="open-count">0</span></div>
+    <div class="ni" onclick="go('tasks-done',this)"><span class="ni-ico">✓</span>Completed<span class="ni-count g" id="done-count">0</span></div>
+
+    <div class="nlabel">By Tool</div>
+    <div class="ni" onclick="go('tasks-matomo',this)"><span class="ni-ico" style="color:var(--m)">●</span>Matomo<span class="ni-count" id="cnt-m">0</span></div>
+    <div class="ni" onclick="go('tasks-gsc',this)"><span class="ni-ico" style="color:var(--s)">●</span>GSC<span class="ni-count" id="cnt-s">0</span></div>
+    <div class="ni" onclick="go('tasks-ahrefs',this)"><span class="ni-ico" style="color:var(--a)">●</span>Ahrefs<span class="ni-count" id="cnt-a">0</span></div>
+    <div class="ni" onclick="go('tasks-ga4',this)"><span class="ni-ico" style="color:var(--g)">●</span>GA4<span class="ni-count" id="cnt-g">0</span></div>
+    <div class="ni" onclick="go('tasks-clarity',this)"><span class="ni-ico" style="color:var(--c)">●</span>Clarity<span class="ni-count" id="cnt-c">0</span></div>
+
+    <div class="nlabel">Views</div>
+    <div class="ni" onclick="go('client-view',this)"><span class="ni-ico">👁</span>Client View</div>
+  </nav>
+  <div class="side-foot">
+    <div class="av" style="background:linear-gradient(135deg,var(--m),var(--c))">AN</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;font-weight:600">Analyst</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--t3)">coinpedia.org</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ░░░ TOPBAR ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<header class="topbar">
+  <div class="tb-title" id="tb-title">Upload Report → Generate Fix Tasks</div>
+  <div class="tb-chip"><div class="pulse"></div><span id="tb-tasks">0 tasks generated</span></div>
+  <button class="btn btn-primary btn-sm" onclick="go('upload',null);resetUpload()">+ New Upload</button>
+</header>
+
+<!-- ░░░ MAIN ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<main class="main">
+
+<!-- ═══════════ UPLOAD PAGE ═══════════════════════ -->
+<div class="pg on" id="pg-upload">
+  <div class="ph ph-row">
+    <div>
+      <h1>Upload Report</h1>
+      <p>Upload your CSV, XLSX, or PNG → select the tool → fill findings → tasks are created instantly</p>
+    </div>
+  </div>
+
+  <!-- WIZARD -->
+  <div class="wizard-steps" id="wizard">
+    <div class="wz-step active" id="wz1"><div class="wz-n">1</div>Select Tool</div>
+    <div class="wz-step" id="wz2"><div class="wz-n">2</div>Upload File</div>
+    <div class="wz-step" id="wz3"><div class="wz-n">3</div>Fill Findings</div>
+    <div class="wz-step" id="wz4"><div class="wz-n">4</div>Review Tasks</div>
+    <div class="wz-step" id="wz5"><div class="wz-n">5</div>Publish</div>
+  </div>
+
+  <!-- STEP 1: TOOL PICKER -->
+  <div id="step-1">
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:4px">Which tool is this report from?</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">The form below will match the exact fields for that tool's reports</div>
+    </div>
+    <div class="tool-picker">
+      <div class="tool-pick-card" style="--tc:var(--m);--tg:var(--mg)" onclick="selectTool('matomo',this)">
+        <div class="tp-ico">📊</div>
+        <div class="tp-name">Matomo</div>
+        <div class="tp-sub">Visitor Overview<br>Bounce Rate · Funnels</div>
+      </div>
+      <div class="tool-pick-card" style="--tc:var(--s);--tg:var(--sg)" onclick="selectTool('gsc',this)">
+        <div class="tp-ico">🌐</div>
+        <div class="tp-name">Search Console</div>
+        <div class="tp-sub">Keywords · CTR<br>Coverage · Errors</div>
+      </div>
+      <div class="tool-pick-card" style="--tc:var(--a);--tg:var(--ag)" onclick="selectTool('ahrefs',this)">
+        <div class="tp-ico">📡</div>
+        <div class="tp-name">Ahrefs</div>
+        <div class="tp-sub">Keywords · Rankings<br>Top Pages · Gaps</div>
+      </div>
+      <div class="tool-pick-card" style="--tc:var(--g);--tg:var(--gg)" onclick="selectTool('ga4',this)">
+        <div class="tp-ico">🔍</div>
+        <div class="tp-name">GA4</div>
+        <div class="tp-sub">Acquisition · CWV<br>Engagement · Devices</div>
+      </div>
+      <div class="tool-pick-card" style="--tc:var(--c);--tg:var(--cg)" onclick="selectTool('clarity',this)">
+        <div class="tp-ico">👁</div>
+        <div class="tp-name">Clarity</div>
+        <div class="tp-sub">Heatmaps · Dead Clicks<br>Rage Clicks · Scroll</div>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <button class="btn btn-primary" id="btn-step1" disabled onclick="goStep(2)">Continue → Upload File</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: FILE UPLOAD -->
+  <div id="step-2" style="display:none">
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:4px">Upload the report file</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--t3)" id="upload-hint">CSV, XLSX, or PNG — the template form below is pre-filled for this tool</div>
+    </div>
+    <div class="dropzone" id="dropzone" ondragover="dzDrag(event)" ondragleave="dzLeave()" ondrop="dzDrop(event)">
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.png,.jpg,.jpeg,.pdf" multiple onchange="onFiles(this)">
+      <div class="dz-ico" id="dz-ico">📂</div>
+      <div class="dz-title" id="dz-title">Drop your report here or click to browse</div>
+      <div class="dz-sub" id="dz-sub">Accepts the file from your download folder</div>
+      <div class="dz-formats">
+        <span class="dz-fmt hi">CSV</span>
+        <span class="dz-fmt hi">XLSX</span>
+        <span class="dz-fmt">PNG</span>
+        <span class="dz-fmt">JPG</span>
+        <span class="dz-fmt">PDF</span>
+      </div>
+    </div>
+    <div id="file-list"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:4px">
+      <button class="btn btn-ghost btn-sm" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" id="btn-step2" disabled onclick="goStep(3)">Continue → Fill Findings</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: TEMPLATE FORM -->
+  <div id="step-3" style="display:none">
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:4px" id="form-title">Fill in what the report shows</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">Each section = one type of finding. Fill what applies — skip what doesn't. Tasks are generated from each filled section.</div>
+    </div>
+
+    <div class="g2" style="align-items:start">
+      <!-- LEFT: FORM -->
+      <div id="template-form-container"></div>
+
+      <!-- RIGHT: LIVE PREVIEW -->
+      <div class="preview-panel">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px">Live Task Preview</div>
+        <div id="preview-area">
+          <div class="preview-empty">
+            <div style="font-size:28px">📋</div>
+            <div>Fill in findings on the left — tasks appear here as you type</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary" id="btn-step3" onclick="buildTasks()">Generate Fix Tasks →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: REVIEW -->
+  <div id="step-4" style="display:none">
+    <div style="margin-bottom:16px">
+      <div style="font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:4px">Review Generated Tasks</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">Check each task before publishing. You can edit priority, team assignment, and visibility.</div>
+    </div>
+    <div id="review-tasks-list"></div>
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" onclick="goStep(3)">← Edit Findings</button>
+      <button class="btn btn-primary" onclick="publishTasks()">✓ Publish All Tasks →</button>
+    </div>
+  </div>
+
+  <!-- STEP 5: SUCCESS -->
+  <div id="step-5" style="display:none">
+    <div class="success-burst on" id="success-burst">
+      <div class="sb-ico">🎉</div>
+      <div class="sb-title">Tasks Published!</div>
+      <div class="sb-sub">All fix tasks are now live — visible to the employee, client, and assigned teams immediately.</div>
+      <div class="sb-stats">
+        <div class="sb-stat"><div class="sb-val" id="sb-count" style="color:var(--m)">0</div><div class="sb-lbl">Tasks Created</div></div>
+        <div class="sb-stat"><div class="sb-val" id="sb-crit" style="color:var(--crit)">0</div><div class="sb-lbl">Critical</div></div>
+        <div class="sb-stat"><div class="sb-val" id="sb-high" style="color:var(--high)">0</div><div class="sb-lbl">High Priority</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+        <button class="btn btn-primary" onclick="go('tasks-all',null)">View All Tasks</button>
+        <button class="btn btn-ghost" onclick="go('client-view',null)">Preview Client View</button>
+        <button class="btn btn-ghost" onclick="resetUpload();goStep(1)">Upload Another Report</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ HISTORY PAGE ═════════════════════ -->
+<div class="pg" id="pg-history">
+  <div class="ph ph-row">
+    <div><h1>Upload History</h1><p>All reports uploaded this session</p></div>
+    <button class="btn btn-primary btn-sm" onclick="go('upload',null);resetUpload()">+ Upload New</button>
+  </div>
+  <div id="history-list">
+    <div class="empty">
+      <div class="empty-ico">📭</div>
+      <div class="empty-title">No uploads yet</div>
+      <div class="empty-sub">Upload your first report to start generating fix tasks</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TASKS PAGES (shared) ════════════ -->
+<div class="pg" id="pg-tasks-all">
+  <div class="ph ph-row">
+    <div><h1>All Fix Tasks</h1><p id="all-tasks-subtitle">Generated from uploaded reports</p></div>
+  </div>
+  <div id="list-all"></div>
+</div>
+
+<div class="pg" id="pg-tasks-critical">
+  <div class="ph"><h1>🔴 Critical Fix Tasks</h1></div>
+  <div id="list-critical"></div>
+</div>
+
+<div class="pg" id="pg-tasks-open">
+  <div class="ph"><h1>Open Tasks</h1></div>
+  <div id="list-open"></div>
+</div>
+
+<div class="pg" id="pg-tasks-done">
+  <div class="ph"><h1>✓ Completed Tasks</h1></div>
+  <div id="list-done"></div>
+</div>
+
+<div class="pg" id="pg-tasks-matomo">
+  <div class="ph"><h1><span style="color:var(--m)">📊</span> Tasks from Matomo</h1></div>
+  <div id="list-matomo"></div>
+</div>
+<div class="pg" id="pg-tasks-gsc">
+  <div class="ph"><h1><span style="color:var(--s)">🌐</span> Tasks from Search Console</h1></div>
+  <div id="list-gsc"></div>
+</div>
+<div class="pg" id="pg-tasks-ahrefs">
+  <div class="ph"><h1><span style="color:var(--a)">📡</span> Tasks from Ahrefs</h1></div>
+  <div id="list-ahrefs"></div>
+</div>
+<div class="pg" id="pg-tasks-ga4">
+  <div class="ph"><h1><span style="color:var(--g)">🔍</span> Tasks from GA4</h1></div>
+  <div id="list-ga4"></div>
+</div>
+<div class="pg" id="pg-tasks-clarity">
+  <div class="ph"><h1><span style="color:var(--c)">👁</span> Tasks from Clarity</h1></div>
+  <div id="list-clarity"></div>
+</div>
+
+<!-- ═══════════ CLIENT VIEW PAGE ════════════════ -->
+<div class="pg" id="pg-client-view">
+  <div class="ph">
+    <h1>👁 Client View</h1>
+    <p>This is exactly what the client sees — fix tasks that are marked as client-visible</p>
+  </div>
+  <div style="background:var(--bg2);border:1px solid var(--e1);border-radius:var(--r2);padding:18px 22px;margin-bottom:20px;display:flex;align-items:center;gap:14px">
+    <div style="font-size:26px">🔒</div>
+    <div>
+      <div style="font-family:var(--fh);font-weight:700;font-size:13px;margin-bottom:2px">Client Portal — coinpedia.org</div>
+      <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">Client sees all tasks where visibility includes "Client". Priority, evidence, and steps are shown. Internal notes are hidden.</div>
+    </div>
+    <div style="margin-left:auto;font-family:var(--fm);font-size:9px;color:var(--c);background:var(--cg);border:1px solid var(--cb);padding:3px 10px;border-radius:20px">Client Mode</div>
+  </div>
+  <div id="list-client"></div>
+</div>
+
+</main><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ░░░ TASK EDIT MODAL ░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<div class="mo-bg" id="edit-modal" onclick="closeMoBg(event,'edit-modal')">
+  <div class="mo">
+    <button class="mo-x" onclick="closeModal('edit-modal')">✕</button>
+    <div class="mo-h">Edit Fix Task</div>
+    <div class="fg">
+      <label class="fl">Task Title</label>
+      <input class="fi" id="edit-title" type="text">
+    </div>
+    <div class="fg2">
+      <div class="fg">
+        <label class="fl">Priority</label>
+        <select class="fs" id="edit-priority">
+          <option value="critical">🔴 Critical — Fix Today</option>
+          <option value="high">🟡 High — This Week</option>
+          <option value="normal">🟢 Normal — This Month</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label class="fl">Assign to Team</label>
+        <select class="fs" id="edit-team">
+          <option value="Digital Marketing">Digital Marketing</option>
+          <option value="UX / UI">UX / UI</option>
+          <option value="Development">Development</option>
+          <option value="Content">Content</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Visible to</label>
+      <div class="vis-strip" style="border:none;padding:0;background:transparent;margin:0">
+        <div class="vis-item on" data-v="employee" onclick="this.classList.toggle('on')">👤 Employee</div>
+        <div class="vis-item on" data-v="client" onclick="this.classList.toggle('on')">🏢 Client</div>
+        <div class="vis-item on" data-v="team" onclick="this.classList.toggle('on')">👥 Team</div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Action Steps</label>
+      <textarea class="ft" id="edit-steps" style="min-height:100px"></textarea>
+    </div>
+    <div class="fg">
+      <label class="fl">Verify Metric</label>
+      <input class="fi" id="edit-verify" type="text">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span id="toast-msg"></span></div>
+
+<script>
+/* ═════════════════════════════════════════════
+   STATE
+═════════════════════════════════════════════ */
+let selectedTool = null;
+let uploadedFiles = [];
+let pendingTasks  = [];   // tasks in review step
+let allTasks      = [];   // published tasks
+let uploads       = [];   // upload history
+let editingIdx    = null;
+
+const TOOL_META = {
+  matomo:  { name:'Matomo',          icon:'📊', c:'var(--m)', g:'var(--mg)', b:'var(--mb)', tag:'tag-m' },
+  gsc:     { name:'Search Console',  icon:'🌐', c:'var(--s)', g:'var(--sg)', b:'var(--sb)', tag:'tag-s' },
+  ahrefs:  { name:'Ahrefs',          icon:'📡', c:'var(--a)', g:'var(--ag)', b:'var(--ab)', tag:'tag-a' },
+  ga4:     { name:'GA4',             icon:'🔍', c:'var(--g)', g:'var(--gg)', b:'var(--gb)', tag:'tag-g' },
+  clarity: { name:'Clarity',         icon:'👁', c:'var(--c)', g:'var(--cg)', b:'var(--cb)', tag:'tag-c' },
+};
+
+/* ═════════════════════════════════════════════
+   TOOL TEMPLATES — fields per tool
+═════════════════════════════════════════════ */
+const TEMPLATES = {
+
+  matomo: {
+    reportName: 'Matomo Report', period: 'Last 7 days',
+    sections: [
+      {
+        id:'bounce', title:'Bounce Rate Issues', badge:'Traffic Behavior',
+        icon:'📈',
+        fields:[
+          { id:'page', label:'Page URL or Name', type:'text', placeholder:'/bitcoin-price-prediction' },
+          { id:'bounce_rate', label:'Current Bounce Rate (%)', type:'number', placeholder:'84' },
+          { id:'visits', label:'Monthly Visits', type:'number', placeholder:'28000' },
+          { id:'avg_time', label:'Avg Time on Page (seconds)', type:'number', placeholder:'12' },
+          { id:'benchmark', label:'Benchmark / Normal Bounce Rate for this page type (%)', type:'number', placeholder:'55' },
+        ],
+        taskGen: (v) => {
+          if(!v.page||!v.bounce_rate) return null;
+          const gap = v.bounce_rate - (v.benchmark||60);
+          const pri = gap>25?'critical':gap>15?'high':'normal';
+          return {
+            title:`${v.page} — High Bounce Rate Fix`,
+            evidence:{ metric:v.bounce_rate+'%', label:'Bounce Rate', extra:[
+              v.visits?{val:Number(v.visits).toLocaleString(),key:'Monthly Visits'}:null,
+              v.avg_time?{val:v.avg_time+'s',key:'Avg Time on Page'}:null,
+              v.benchmark?{val:v.benchmark+'%',key:'Benchmark'}:null,
+            ].filter(Boolean)},
+            impact:`Bounce ${v.bounce_rate}% is ${gap>0?gap+' points above':'within'} benchmark. ${v.visits?'At '+Number(v.visits).toLocaleString()+' monthly visits, a 20-point improvement = '+Math.round(v.visits*0.2).toLocaleString()+' more engaged readers/month.':''}`,
+            steps:[
+              'Ensure headline/intro answers the visitor\'s intent immediately — no fluff intro',
+              'Add live price widget or key data above the fold (first 200px)',
+              'Check mobile layout — if hero image pushes content below fold, reduce image height',
+              'Add 3–5 internal links to related articles in the first 200 words',
+              'Add related articles section at the bottom of the page',
+            ],
+            verify:`Matomo: Bounce rate on ${v.page} drops below ${Math.min(60,(v.benchmark||60))}% within 3 weeks. Check every Friday.`,
+            priority: pri, team:'Content', url: v.page,
+          };
+        }
+      },
+      {
+        id:'funnel', title:'Funnel Drop-off', badge:'Conversions',
+        icon:'🎯',
+        fields:[
+          { id:'funnel_name', label:'Funnel / Goal Name', type:'text', placeholder:'Registration Funnel' },
+          { id:'step_name', label:'Step Where Most Users Drop Off', type:'text', placeholder:'Step 2 — Email Field' },
+          { id:'drop_pct', label:'Drop-off % at that Step', type:'number', placeholder:'62' },
+          { id:'weekly_lost', label:'Users Lost Per Week at this Step', type:'number', placeholder:'500' },
+        ],
+        taskGen: (v) => {
+          if(!v.funnel_name||!v.drop_pct) return null;
+          const pri = v.drop_pct>50?'critical':v.drop_pct>30?'high':'normal';
+          return {
+            title:`${v.funnel_name} — ${v.step_name||'Step'} Drop-off Fix`,
+            evidence:{ metric:v.drop_pct+'%', label:`Drop at ${v.step_name||'Step'}`, extra:[
+              v.weekly_lost?{val:Number(v.weekly_lost).toLocaleString(),key:'Users Lost/Week'}:null,
+            ].filter(Boolean)},
+            impact:`${v.drop_pct}% of users abandon at ${v.step_name||'this step'}. ${v.weekly_lost?'That\'s '+Number(v.weekly_lost).toLocaleString()+' lost users/week. A 20-point improvement = +'+Math.round(v.weekly_lost*0.2).toLocaleString()+' completions/week.':''}`,
+            steps:[
+              'Remove unnecessary fields from this step — each extra field loses ~8% of users',
+              'Add social login (Google/Apple) as primary option to reduce friction',
+              'Add a progress indicator showing how many steps remain',
+              'Display a trust signal ("Join 500,000 crypto readers") near the CTA button',
+              'Test: make the CTA button colour higher contrast',
+            ],
+            verify:`Matomo funnel: Drop-off at ${v.step_name||'step'} reduces below ${Math.max(20,v.drop_pct-20)}% within 3 weeks.`,
+            priority: pri, team:'UX / UI', url: v.funnel_name,
+          };
+        }
+      },
+      {
+        id:'traffic', title:'Traffic Source Anomaly', badge:'Traffic',
+        icon:'📉',
+        fields:[
+          { id:'source', label:'Traffic Source with Issue', type:'select', options:['Organic Search','Direct','Referral','Social','Email','Paid'], placeholder:'' },
+          { id:'change_pct', label:'% Change vs Last Week (use - for drop)', type:'number', placeholder:'-35' },
+          { id:'visits_lost', label:'Visits Lost', type:'number', placeholder:'4200' },
+        ],
+        taskGen: (v) => {
+          if(!v.source||!v.change_pct) return null;
+          const isDown = v.change_pct < 0;
+          const pri = Math.abs(v.change_pct)>30?'critical':Math.abs(v.change_pct)>15?'high':'normal';
+          return {
+            title:`${v.source} Traffic ${isDown?'Drop':'Spike'} — Investigate & Fix`,
+            evidence:{ metric:v.change_pct+'%', label:`${v.source} Change`, extra:[
+              v.visits_lost?{val:Number(Math.abs(v.visits_lost)).toLocaleString(),key:isDown?'Visits Lost':'Visits Gained'}:null,
+            ].filter(Boolean)},
+            impact:`${v.source} traffic changed by ${v.change_pct}% week-on-week.${isDown?' This needs investigation today to prevent compounding loss.':' Investigate the source to replicate.'}`,
+            steps:[
+              isDown?`Cross-check Matomo with GA4 — confirm the drop is real, not a tracking issue`:`Document what drove the spike before it fades`,
+              isDown&&v.source==='Organic Search'?'Check GSC for ranking drops or manual actions':'Check referral sources for any new/lost partnerships',
+              isDown?'Check if a specific page or group of pages lost traffic or a technical issue occurred':'Identify the top traffic-sending page/campaign',
+              'Create a follow-up check for next Monday report to confirm trend direction',
+            ],
+            verify:`Matomo ${v.source} traffic stabilises or recovers within 2 weeks. If not, escalate.`,
+            priority: pri, team:'Digital Marketing', url: 'Traffic Sources Report',
+          };
+        }
+      },
+      {
+        id:'low_engagement', title:'Low Engagement Pages', badge:'Content',
+        icon:'📖',
+        fields:[
+          { id:'page_count', label:'Number of Pages with Low Engagement', type:'number', placeholder:'5' },
+          { id:'avg_time_low', label:'Avg Time on Page (seconds)', type:'number', placeholder:'12' },
+          { id:'min_visits', label:'Minimum Visits Each Page Has', type:'number', placeholder:'1000' },
+        ],
+        taskGen: (v) => {
+          if(!v.page_count||!v.avg_time_low) return null;
+          const pri = v.avg_time_low<20?'high':'normal';
+          return {
+            title:`${v.page_count} Low-Engagement Pages — Content Refresh`,
+            evidence:{ metric:v.avg_time_low+'s', label:'Avg Time on Page', extra:[
+              {val:v.page_count,key:'Pages Affected'},
+              v.min_visits?{val:Number(v.min_visits).toLocaleString()+'+',key:'Visits Each'}:null,
+            ].filter(Boolean)},
+            impact:`${v.page_count} pages with ${v.min_visits?Number(v.min_visits).toLocaleString()+'+':''} visits each averaging only ${v.avg_time_low}s. Google reads low time-on-page as poor content quality, hurting rankings.`,
+            steps:[
+              'Pull the exact page URLs from Matomo → Behavior → Pages, sort by avg time asc',
+              'For each page: check the title, intro and first 200 words — do they match what the visitor searched for?',
+              'Update outdated stats/dates in the content — add 2026 context',
+              'Add a "Key Takeaway" box near the top with 3 bullet points summarising the article',
+              'Add related article links at the bottom of each page',
+            ],
+            verify:`Matomo: avg time on refreshed pages improves to 60s+ within 3 weeks.`,
+            priority: pri, team:'Content', url: `${v.page_count} pages (see Matomo report)`,
+          };
+        }
+      },
+    ]
+  },
+
+  gsc: {
+    reportName: 'GSC Report', period: 'Last 28 days',
+    sections: [
+      {
+        id:'low_ctr', title:'Low CTR Keywords / Pages', badge:'SEO',
+        icon:'🎯',
+        fields:[
+          { id:'page', label:'Page URL', type:'text', placeholder:'/bitcoin-price-prediction' },
+          { id:'keyword', label:'Main Target Keyword', type:'text', placeholder:'bitcoin price prediction 2026' },
+          { id:'impressions', label:'Monthly Impressions', type:'number', placeholder:'85000' },
+          { id:'ctr', label:'Current CTR (%)', type:'number', placeholder:'1.8' },
+          { id:'position', label:'Current Avg Position', type:'number', placeholder:'4' },
+        ],
+        taskGen: (v) => {
+          if(!v.page||!v.ctr) return null;
+          const target = v.position<=3?6:v.position<=5?5:4;
+          const gap = target - v.ctr;
+          const pri = gap>3?'critical':gap>1.5?'high':'normal';
+          const extraVisits = v.impressions?Math.round(v.impressions*(target-v.ctr)/100):null;
+          return {
+            title:`${v.page} — Low CTR Fix (${v.ctr}% → ${target}%+)`,
+            evidence:{ metric:v.ctr+'%', label:'Current CTR', extra:[
+              v.impressions?{val:Number(v.impressions).toLocaleString(),key:'Impressions/mo'}:null,
+              v.position?{val:'#'+v.position,key:'Ranking'}:null,
+              extraVisits?{val:'+'+extraVisits.toLocaleString(),key:'Extra Visits if Fixed'}:null,
+            ].filter(Boolean)},
+            impact:`CTR ${v.ctr}% vs expected ${target}% for position #${v.position||'?'}. ${extraVisits?'Fixing this = +'+extraVisits.toLocaleString()+' visits/month from same traffic.':''}`,
+            steps:[
+              `Rewrite title tag to include year, number, and a question: "${v.keyword?v.keyword.charAt(0).toUpperCase()+v.keyword.slice(1)+' — Expert Prediction':'Target Keyword — Year Prediction'}"`,
+              'Add current data point in meta description (price, %, or key stat) — makes it scan-worthy',
+              'Add a power word: "Revealed", "Breaking", "Confirmed", "Expert" — avoid clickbait',
+              'Check competitors in position 1–3 — what do their titles have that yours doesn\'t?',
+              'After publishing: wait 14 days, then check GSC for CTR change on this page',
+            ],
+            verify:`GSC: CTR on ${v.page} reaches ${target}%+ within 4 weeks.`,
+            priority: pri, team:'Digital Marketing', url: v.page,
+          };
+        }
+      },
+      {
+        id:'not_indexed', title:'Pages Not Indexed', badge:'Technical',
+        icon:'🚫',
+        fields:[
+          { id:'not_indexed_count', label:'Number of Pages Not Indexed', type:'number', placeholder:'47' },
+          { id:'section', label:'Section / URL Pattern Affected', type:'text', placeholder:'/learn/* or /news/crypto/*' },
+          { id:'reason', label:'GSC Reason Code', type:'select', options:['Crawled — not indexed','Discovered — not crawled','Page with redirect','Excluded by noindex','Duplicate','Blocked by robots.txt'], placeholder:'' },
+        ],
+        taskGen: (v) => {
+          if(!v.not_indexed_count) return null;
+          const pri = v.not_indexed_count>20?'critical':v.not_indexed_count>5?'high':'normal';
+          const fixes = {
+            'Crawled — not indexed': ['Improve thin content — pages need 600+ words of unique value','Add internal links to these pages from high-traffic pages','Remove near-duplicate content or canonicalise'],
+            'Discovered — not crawled': ['Add the URL section to sitemap.xml','Increase internal links pointing to this section — helps crawl budget','Submit sitemap in GSC after update'],
+            'Blocked by robots.txt': ['Check robots.txt for accidental block rules','Remove or fix the disallow rule for this URL pattern','Re-submit in GSC after fix'],
+            'Excluded by noindex': ['Audit pages for accidental noindex meta tags','Remove noindex from pages that should be indexed','Re-request indexing in GSC after fix'],
+          };
+          const steps = (fixes[v.reason]||['Check GSC coverage report for specific error details','Fix the identified issue per the GSC documentation','Re-request indexing via GSC URL Inspection tool','Monitor Coverage report for status change to Indexed']).concat(['Monitor Coverage report until pages show as Indexed']);
+          return {
+            title:`${v.not_indexed_count} Pages Not Indexed — Fix ${v.reason||'Coverage Error'}`,
+            evidence:{ metric:v.not_indexed_count, label:'Pages Not Indexed', extra:[
+              v.section?{val:v.section,key:'URL Pattern'}:null,
+              v.reason?{val:v.reason,key:'GSC Reason'}:null,
+              {val:'0',key:'Organic Traffic Now'},
+            ].filter(Boolean)},
+            impact:`${v.not_indexed_count} pages getting zero Google traffic because they aren't indexed. Even if each page gets 100 visits/month when indexed, that's ${v.not_indexed_count*100}+ new visits/month.`,
+            steps,
+            verify:`GSC Coverage: all ${v.not_indexed_count} pages show as "Indexed" within 4 weeks.`,
+            priority: pri, team:'Development', url: v.section||'Multiple pages',
+          };
+        }
+      },
+      {
+        id:'ranking_drop', title:'Keyword Ranking Drop', badge:'SEO',
+        icon:'📉',
+        fields:[
+          { id:'keyword_drop', label:'Keyword That Dropped', type:'text', placeholder:'bitcoin price prediction' },
+          { id:'old_pos', label:'Previous Position', type:'number', placeholder:'3' },
+          { id:'new_pos', label:'Current Position', type:'number', placeholder:'9' },
+          { id:'monthly_volume', label:'Monthly Search Volume', type:'number', placeholder:'45000' },
+        ],
+        taskGen: (v) => {
+          if(!v.keyword_drop||!v.old_pos||!v.new_pos) return null;
+          const fall = v.new_pos - v.old_pos;
+          const pri = fall>5?'critical':fall>3?'high':'normal';
+          return {
+            title:`"${v.keyword_drop}" Ranking Dropped #${v.old_pos} → #${v.new_pos}`,
+            evidence:{ metric:`#${v.old_pos}→#${v.new_pos}`, label:'Position Change', extra:[
+              {val:'-'+fall,key:'Positions Lost'},
+              v.monthly_volume?{val:Number(v.monthly_volume).toLocaleString(),key:'Monthly Volume'}:null,
+              v.monthly_volume?{val:'~'+Math.round(v.monthly_volume*(0.31-(v.new_pos-1)*0.025)).toLocaleString(),key:'Est. Traffic Now'}:null,
+            ].filter(Boolean)},
+            impact:`Dropped ${fall} positions for "${v.keyword_drop}" (${v.monthly_volume?Number(v.monthly_volume).toLocaleString()+' searches/mo':'high-volume'}). Each position lost = significant traffic drop at this volume.`,
+            steps:[
+              'Open the ranking page and compare word count vs current top 3 — are they longer?',
+              'Check if a Google core update happened near the drop date (check Google Update history)',
+              'Add fresh content to the page — update year references, add new predictions/data',
+              'Check internal links — are enough high-authority pages linking to this one?',
+              'Check Core Web Vitals for this specific page in GSC or GA4',
+            ],
+            verify:`GSC: "${v.keyword_drop}" returns to position #${Math.ceil(v.old_pos*1.2)} or better within 6 weeks.`,
+            priority: pri, team:'Digital Marketing', url: v.keyword_drop,
+          };
+        }
+      },
+    ]
+  },
+
+  ahrefs: {
+    reportName: 'Ahrefs Report', period: 'Last 30 days',
+    sections: [
+      {
+        id:'traffic_drop', title:'Page Lost Organic Traffic', badge:'SEO Traffic',
+        icon:'📉',
+        fields:[
+          { id:'page', label:'Page URL', type:'text', placeholder:'/ethereum-price-prediction' },
+          { id:'traffic_before', label:'Traffic Last Month', type:'number', placeholder:'22000' },
+          { id:'traffic_now', label:'Traffic This Month', type:'number', placeholder:'14000' },
+          { id:'top_keyword', label:'Main Ranking Keyword', type:'text', placeholder:'ethereum price prediction 2026' },
+        ],
+        taskGen: (v) => {
+          if(!v.page||!v.traffic_before||!v.traffic_now) return null;
+          const lost = v.traffic_before - v.traffic_now;
+          const pct = Math.round(lost/v.traffic_before*100);
+          const pri = pct>30?'critical':pct>15?'high':'normal';
+          return {
+            title:`${v.page} — Lost ${pct}% Organic Traffic`,
+            evidence:{ metric:pct+'%', label:'Traffic Lost', extra:[
+              {val:Number(v.traffic_before).toLocaleString(),key:'Last Month'},
+              {val:Number(v.traffic_now).toLocaleString(),key:'This Month'},
+              {val:'-'+Number(lost).toLocaleString(),key:'Visits Lost'},
+            ].filter(Boolean)},
+            impact:`${v.page} lost ${Number(lost).toLocaleString()} organic visits this month (-${pct}%). At this trajectory, total loss could reach ${Number(lost*3).toLocaleString()} visits/quarter.`,
+            steps:[
+              'Check Ahrefs: which keywords dropped in position for this page?',
+              'Compare page content to top 3 competitors — word count, structure, freshness',
+              'Update the article: add new 2026 data, refresh the price targets, update the date',
+              'Add or improve internal links from high-traffic pages to this page',
+              'Check page speed with PageSpeed Insights — a slow page after a Google update = ranking drop',
+            ],
+            verify:`Ahrefs: ${v.page} traffic recovers to ${Math.round(v.traffic_before*0.85).toLocaleString()}+ within 6 weeks.`,
+            priority: pri, team:'Content', url: v.page,
+          };
+        }
+      },
+      {
+        id:'content_gap', title:'Content Gap — Missing Article', badge:'Content Opportunity',
+        icon:'📝',
+        fields:[
+          { id:'keyword_gap', label:'Keyword Coinpedia is Missing', type:'text', placeholder:'solana price prediction 2026' },
+          { id:'gap_volume', label:'Monthly Search Volume', type:'number', placeholder:'45000' },
+          { id:'competitor', label:'Competitor Ranking for It', type:'text', placeholder:'coindesk.com at #3' },
+          { id:'difficulty', label:'Keyword Difficulty (Ahrefs KD)', type:'number', placeholder:'38' },
+        ],
+        taskGen: (v) => {
+          if(!v.keyword_gap||!v.gap_volume) return null;
+          const pri = v.gap_volume>30000?'high':v.gap_volume>10000?'normal':'normal';
+          return {
+            title:`Content Gap: Write "${v.keyword_gap}" Article`,
+            evidence:{ metric:Number(v.gap_volume).toLocaleString(), label:'Monthly Volume', extra:[
+              v.competitor?{val:v.competitor,key:'Competitor Rank'}:null,
+              v.difficulty?{val:v.difficulty+'/100',key:'Difficulty'}:null,
+              {val:'0',key:'Coinpedia Rank'},
+            ].filter(Boolean)},
+            impact:`"${v.keyword_gap}" has ${Number(v.gap_volume).toLocaleString()} monthly searches. ${v.competitor?v.competitor+' already ranks — Coinpedia has zero visibility.':''} At position #5, expected traffic: ~${Math.round(v.gap_volume*0.045).toLocaleString()} visits/month.`,
+            steps:[
+              `Research: read top 5 ranking pages for "${v.keyword_gap}" — list the topics they all cover`,
+              'Write 2,000+ word article covering: current price, prediction table (Bull/Base/Bear), technical analysis, expert views',
+              'Add structured FAQ schema: "Will [coin] reach $X?", "What is [coin] price prediction for 2026?"',
+              `Add internal links from all /${v.keyword_gap.split(' ')[0]}-news pages to this new article`,
+              'Submit URL to GSC for indexing immediately after publish',
+            ],
+            verify:`Ahrefs: "${v.keyword_gap}" appears in top 20 within 6 weeks, top 10 within 12 weeks.`,
+            priority: pri, team:'Content', url: `New page: /${v.keyword_gap.replace(/\s+/g,'-')}`,
+          };
+        }
+      },
+      {
+        id:'internal_links', title:'Page Needs More Internal Links', badge:'SEO',
+        icon:'🔗',
+        fields:[
+          { id:'target_page', label:'Page That Needs More Links', type:'text', placeholder:'/xrp-price-prediction' },
+          { id:'current_internal', label:'Current Internal Backlinks (Ahrefs)', type:'number', placeholder:'8' },
+          { id:'competitor_internal', label:'Competitor Internal Links to Similar Page', type:'number', placeholder:'45' },
+          { id:'current_position', label:'Current Position for Main Keyword', type:'number', placeholder:'6' },
+        ],
+        taskGen: (v) => {
+          if(!v.target_page||!v.current_internal) return null;
+          const gap = (v.competitor_internal||30) - v.current_internal;
+          const pri = gap>20?'high':'normal';
+          return {
+            title:`${v.target_page} — Internal Link Building`,
+            evidence:{ metric:v.current_internal, label:'Current Internal Links', extra:[
+              v.competitor_internal?{val:v.competitor_internal,key:'Competitor Links'}:null,
+              {val:'-'+gap,key:'Link Gap'},
+              v.current_position?{val:'#'+v.current_position,key:'Current Position'}:null,
+            ].filter(Boolean)},
+            impact:`${v.target_page} has only ${v.current_internal} internal links vs competitor's ${v.competitor_internal||'many more'}. More internal links = more PageRank flow = better rankings.`,
+            steps:[
+              `In Matomo/GA4, find all pages in same category (e.g. all /altcoin-news pages)`,
+              `Find mentions of the coin name in those pages — add "anchor text" links pointing to ${v.target_page}`,
+              'Update the category hub page (e.g. /altcoins) to include this page in the list',
+              'Add a "Related: [page title]" callout box within 2-3 similar articles',
+              'Check Ahrefs Internal Backlinks after 2 weeks to confirm improvement',
+            ],
+            verify:`Ahrefs: Internal backlinks to ${v.target_page} increase by 20+ within 3 weeks. Position improves by 2+ spots.`,
+            priority: pri, team:'Digital Marketing', url: v.target_page,
+          };
+        }
+      },
+    ]
+  },
+
+  ga4: {
+    reportName: 'GA4 Report', period: 'Last 28 days',
+    sections: [
+      {
+        id:'cwv', title:'Core Web Vitals Failure', badge:'Technical Performance',
+        icon:'⚡',
+        fields:[
+          { id:'page', label:'Failing Page URL', type:'text', placeholder:'/bitcoin-price' },
+          { id:'metric_type', label:'Failing Metric', type:'select', options:['LCP (Largest Contentful Paint)','CLS (Cumulative Layout Shift)','FID / INP (Interaction Delay)'], placeholder:'' },
+          { id:'current_value', label:'Current Value', type:'text', placeholder:'3.8s or 0.24' },
+          { id:'target_value', label:'Target Value (Good threshold)', type:'text', placeholder:'2.5s or 0.1' },
+          { id:'page_visits', label:'Monthly Visits to this Page', type:'number', placeholder:'18000' },
+        ],
+        taskGen: (v) => {
+          if(!v.page||!v.metric_type||!v.current_value) return null;
+          const isLCP = v.metric_type.includes('LCP');
+          const isCLS = v.metric_type.includes('CLS');
+          const pri = 'high';
+          return {
+            title:`${v.page} — Core Web Vitals: ${v.metric_type.split(' ')[0]} Fix`,
+            evidence:{ metric:v.current_value, label:v.metric_type.split('(')[0].trim(), extra:[
+              {val:v.target_value||'Good',key:'Target'},
+              v.page_visits?{val:Number(v.page_visits).toLocaleString(),key:'Monthly Visits'}:null,
+              {val:'Fail',key:'CWV Status'},
+            ].filter(Boolean)},
+            impact:`Failing Core Web Vitals is a confirmed Google ranking signal. ${v.page_visits?Number(v.page_visits).toLocaleString()+'-visit page at risk of ranking drop.':''} Fix = better rankings + better user experience.`,
+            steps: isLCP ? [
+              `Use PageSpeed Insights on ${v.page} → identify the LCP element (usually hero image or above-fold widget)`,
+              'Compress and convert hero image to WebP format — target under 150KB',
+              'Add loading="eager" to the LCP image and preload hint in <head>',
+              'Defer all non-critical JavaScript with defer or async attribute',
+              'Test after each change with PageSpeed Insights until LCP shows green',
+            ] : isCLS ? [
+              `Use PageSpeed Insights on ${v.page} → identify which element causes layout shift`,
+              'Set explicit width and height attributes on ALL images and video embeds',
+              'Reserve space for ad slots before they load — add min-height CSS',
+              'Avoid inserting content above existing content after page load',
+              'Test: CLS should be below 0.1 on both Mobile and Desktop',
+            ] : [
+              'Identify the slow interactive element using Chrome DevTools → Performance tab',
+              'Reduce or remove heavy JavaScript that runs on first interaction',
+              'Use code splitting — load heavy modules only when needed',
+              'Consider replacing a heavy JS widget with a lightweight alternative',
+              'Test FID/INP with PageSpeed Insights after each change',
+            ],
+            verify:`GA4 Core Web Vitals: ${v.page} status changes from "Poor/Needs Improvement" to "Good". ${v.metric_type.split(' ')[0]} below ${v.target_value||'threshold'}.`,
+            priority: pri, team:'Development', url: v.page,
+          };
+        }
+      },
+      {
+        id:'channel_drop', title:'Traffic Channel Drop', badge:'Acquisition',
+        icon:'📊',
+        fields:[
+          { id:'channel', label:'Channel That Dropped', type:'select', options:['Organic Search','Direct','Social','Referral','Email','Paid Search','Organic Social'], placeholder:'' },
+          { id:'sessions_before', label:'Sessions Last Period', type:'number', placeholder:'12000' },
+          { id:'sessions_now', label:'Sessions This Period', type:'number', placeholder:'7800' },
+          { id:'top_landing', label:'Top Landing Page for this Channel', type:'text', placeholder:'/bitcoin-news' },
+        ],
+        taskGen: (v) => {
+          if(!v.channel||!v.sessions_before||!v.sessions_now) return null;
+          const drop = v.sessions_before - v.sessions_now;
+          const pct  = Math.round(drop/v.sessions_before*100);
+          const pri  = pct>30?'critical':pct>15?'high':'normal';
+          return {
+            title:`${v.channel} Channel Down ${pct}% — Investigate & Recover`,
+            evidence:{ metric:'-'+pct+'%', label:`${v.channel} Change`, extra:[
+              {val:Number(v.sessions_before).toLocaleString(),key:'Before'},
+              {val:Number(v.sessions_now).toLocaleString(),key:'Now'},
+              {val:'-'+Number(drop).toLocaleString(),key:'Sessions Lost'},
+            ].filter(Boolean)},
+            impact:`${v.channel} sessions dropped by ${Number(drop).toLocaleString()} (-${pct}%). This needs diagnosis today to prevent further loss.`,
+            steps:[
+              'First: confirm in Matomo — if both tools show same drop, it\'s real traffic loss, not tracking',
+              v.channel==='Organic Search'?'Check GSC for ranking drops, manual actions, or coverage errors':'Check if source links/campaigns are still active',
+              v.channel==='Direct'?'Check if any direct-traffic sources (newsletters, bookmarks) changed':'Look for technical issues — redirects, 404s, broken tracking',
+              `Segment GA4 by landing page — is the drop concentrated on ${v.top_landing||'specific pages'} or site-wide?`,
+              'Document findings and create follow-up tasks for specific fixes identified',
+            ],
+            verify:`GA4: ${v.channel} sessions recover to ${Math.round(v.sessions_before*0.85).toLocaleString()}+ within 4 weeks.`,
+            priority: pri, team:'Digital Marketing', url: v.top_landing||'Multiple pages',
+          };
+        }
+      },
+      {
+        id:'mobile_engagement', title:'Mobile Engagement Problem', badge:'UX',
+        icon:'📱',
+        fields:[
+          { id:'mobile_bounce', label:'Mobile Bounce Rate (%)', type:'number', placeholder:'78' },
+          { id:'desktop_bounce', label:'Desktop Bounce Rate (%)', type:'number', placeholder:'52' },
+          { id:'mobile_pct', label:'% of Traffic That is Mobile', type:'number', placeholder:'62' },
+          { id:'mobile_time', label:'Mobile Avg Session Duration (seconds)', type:'number', placeholder:'28' },
+        ],
+        taskGen: (v) => {
+          if(!v.mobile_bounce||!v.desktop_bounce) return null;
+          const gap = v.mobile_bounce - v.desktop_bounce;
+          const pri = gap>20?'critical':gap>12?'high':'normal';
+          return {
+            title:`Mobile Experience Fix — Bounce Gap ${gap} Points Above Desktop`,
+            evidence:{ metric:v.mobile_bounce+'%', label:'Mobile Bounce Rate', extra:[
+              {val:v.desktop_bounce+'%',key:'Desktop Bounce'},
+              {val:'+'+gap,key:'Mobile vs Desktop Gap'},
+              v.mobile_pct?{val:v.mobile_pct+'%',key:'Traffic is Mobile'}:null,
+            ].filter(Boolean)},
+            impact:`Mobile bounce is ${gap} points higher than desktop. ${v.mobile_pct?v.mobile_pct+'% of traffic is mobile — this is your primary user experience problem.':''}`,
+            steps:[
+              'Use Clarity to view mobile heatmaps on top 5 landing pages — look for dead clicks or content below fold',
+              'Reduce hero image size on mobile — the image likely pushes content below the fold',
+              'Check font sizes on mobile — body text should be 16px+ for readability',
+              'Ensure all buttons/CTAs are thumb-sized (min 44x44px touch target)',
+              'Test with Google Mobile-Friendly Test on top 5 landing pages',
+            ],
+            verify:`GA4: Mobile bounce rate drops below ${Math.max(55,v.mobile_bounce-15)}% within 4 weeks. Mobile / desktop gap narrows below 15 points.`,
+            priority: pri, team:'UX / UI', url: 'All mobile landing pages',
+          };
+        }
+      },
+    ]
+  },
+
+  clarity: {
+    reportName: 'Clarity Report', period: 'Last 7 days',
+    sections: [
+      {
+        id:'dead_clicks', title:'Dead Clicks — Broken / Misleading Elements', badge:'UX',
+        icon:'💀',
+        fields:[
+          { id:'page', label:'Page With Dead Clicks', type:'text', placeholder:'coinpedia.org (homepage)' },
+          { id:'dead_count', label:'Dead Clicks Per Week', type:'number', placeholder:'340' },
+          { id:'element', label:'Element Being Dead-Clicked', type:'text', placeholder:'Price ticker widget' },
+          { id:'device', label:'Mostly On Which Device', type:'select', options:['Mobile','Desktop','Both'], placeholder:'' },
+        ],
+        taskGen: (v) => {
+          if(!v.page||!v.dead_count) return null;
+          const pri = v.dead_count>200?'critical':v.dead_count>80?'high':'normal';
+          return {
+            title:`${v.page} — Dead Click Fix: ${v.element||'Element'}`,
+            evidence:{ metric:v.dead_count, label:'Dead Clicks/Week', extra:[
+              v.element?{val:v.element,key:'Element'}:null,
+              v.device?{val:v.device,key:'Device'}:null,
+              {val:'0',key:'Successful Actions'},
+            ].filter(Boolean)},
+            impact:`${v.dead_count} users/week clicking on "${v.element||'an element'}" that does nothing. Each dead click = a frustrated user about to leave. Fixing this directly reduces bounce rate.`,
+            steps:[
+              v.element?`Make "${v.element}" a clickable link — users clearly expect it to be interactive`:'Identify the exact element from Clarity heatmap (screenshot attached)',
+              `On ${v.device==='Mobile'?'mobile':'all devices'}: ensure tap/click areas are large enough (min 44x44px)`,
+              'If the element shouldn\'t be clickable — change its visual style so it looks clearly non-interactive',
+              'After fix: check Clarity dead clicks on this page drops below 30/week within 2 weeks',
+            ],
+            verify:`Clarity: Dead clicks on ${v.page} drop below ${Math.max(20,Math.round(v.dead_count*0.1))}/week within 2 weeks.`,
+            priority: pri, team:'UX / UI', url: v.page,
+          };
+        }
+      },
+      {
+        id:'rage_clicks', title:'Rage Clicks — Frustrated Users', badge:'UX',
+        icon:'😡',
+        fields:[
+          { id:'rage_page', label:'Page With Rage Clicks', type:'text', placeholder:'/register' },
+          { id:'rage_count', label:'Rage Clicks Per Week', type:'number', placeholder:'120' },
+          { id:'rage_element', label:'Element Being Rage-Clicked', type:'text', placeholder:'Submit button' },
+          { id:'rage_pct', label:'% of Sessions with Rage Clicks on this Page', type:'number', placeholder:'18' },
+        ],
+        taskGen: (v) => {
+          if(!v.rage_page||!v.rage_count) return null;
+          const pri = v.rage_count>100?'critical':v.rage_count>40?'high':'normal';
+          return {
+            title:`${v.rage_page} — Rage Click Fix: ${v.rage_element||'Broken Element'}`,
+            evidence:{ metric:v.rage_count, label:'Rage Clicks/Week', extra:[
+              v.rage_element?{val:v.rage_element,key:'Element'}:null,
+              v.rage_pct?{val:v.rage_pct+'%',key:'Sessions Affected'}:null,
+              {val:'Frustration',key:'Signal Type'},
+            ].filter(Boolean)},
+            impact:`${v.rage_count} rage clicks/week on "${v.rage_element||'element'}" means users are repeatedly clicking in frustration. This often signals a broken form, slow response, or confusing UI.`,
+            steps:[
+              `Watch 5 Clarity session recordings filtered to rage-click sessions on ${v.rage_page}`,
+              v.rage_element?.toLowerCase().includes('button')?'Check if the button has a loading state — without it, users click multiple times thinking it\'s broken':'Identify if the element is responding too slowly or not at all',
+              'Add visual feedback: loading spinner, disabled state after click, or confirmation message',
+              'Check if the element works correctly on slow connections (Chrome DevTools → Slow 3G)',
+              'Test across iOS Safari and Android Chrome — these are most common rage-click environments',
+            ],
+            verify:`Clarity: Rage clicks on ${v.rage_page} drop below ${Math.max(10,Math.round(v.rage_count*0.15))}/week within 2 weeks.`,
+            priority: pri, team:'UX / UI', url: v.rage_page,
+          };
+        }
+      },
+      {
+        id:'scroll', title:'Low Scroll Depth — Content Not Seen', badge:'UX Content',
+        icon:'📜',
+        fields:[
+          { id:'scroll_page', label:'Page With Low Scroll Depth', type:'text', placeholder:'/bitcoin-price-prediction' },
+          { id:'avg_scroll', label:'Average Scroll Depth (%)', type:'number', placeholder:'38' },
+          { id:'key_content_at', label:'Where Key Content Sits (% scroll)', type:'number', placeholder:'65' },
+          { id:'scroll_visits', label:'Monthly Visits to Page', type:'number', placeholder:'85000' },
+        ],
+        taskGen: (v) => {
+          if(!v.scroll_page||!v.avg_scroll) return null;
+          const hidden = v.key_content_at&&v.key_content_at>v.avg_scroll;
+          const pri = v.avg_scroll<40?'high':'normal';
+          return {
+            title:`${v.scroll_page} — Scroll Depth Fix (${v.avg_scroll}% avg)`,
+            evidence:{ metric:v.avg_scroll+'%', label:'Avg Scroll Depth', extra:[
+              v.key_content_at?{val:v.key_content_at+'%',key:'Key Content At'}:null,
+              hidden?{val:'Hidden',key:'Key Content Status'}:null,
+              v.scroll_visits?{val:Number(v.scroll_visits).toLocaleString(),key:'Monthly Visits'}:null,
+            ].filter(Boolean)},
+            impact:`Only ${v.avg_scroll}% of users scroll to the average depth on this page.${hidden?' Key content sits at ${v.key_content_at}% — invisible to most visitors.':''} ${v.scroll_visits?Math.round(v.scroll_visits*(1-v.avg_scroll/100)).toLocaleString()+' monthly visitors never see the content below fold.':''}`,
+            steps:[
+              hidden?`Move key content (price prediction table, key data) from ${v.key_content_at}% position to above 30% scroll`:'Restructure the page to lead with the most valuable information',
+              'Add a "Key Takeaways" box in the first 200 words — gives readers a reason to scroll',
+              'Break up long text with subheadings every 200–300 words — visual "stepping stones" encourage scrolling',
+              'Add an anchor link table of contents near the top with section links',
+              'Test: the 3 most important elements should be visible without scrolling on mobile',
+            ],
+            verify:`Clarity: Average scroll depth on ${v.scroll_page} improves to ${Math.min(70,v.avg_scroll+20)}%+ within 3 weeks.`,
+            priority: pri, team:'UX / UI', url: v.scroll_page,
+          };
+        }
+      },
+      {
+        id:'heatmap_insight', title:'Heatmap Finding', badge:'UX Insight',
+        icon:'🗺️',
+        fields:[
+          { id:'hm_page', label:'Page Analysed', type:'text', placeholder:'/homepage' },
+          { id:'hm_finding', label:'What the Heatmap Shows (describe)', type:'textarea', placeholder:'Users on mobile are clicking the logo instead of the navigation menu. The hamburger menu icon is too small at 20x20px.' },
+          { id:'hm_affected', label:'How Many Users Affected (est.)', type:'text', placeholder:'~400/week' },
+        ],
+        taskGen: (v) => {
+          if(!v.hm_page||!v.hm_finding) return null;
+          return {
+            title:`${v.hm_page} — Heatmap UX Fix`,
+            evidence:{ metric:'Heatmap', label:'Source: Clarity', extra:[
+              v.hm_affected?{val:v.hm_affected,key:'Users Affected'}:null,
+              {val:'Visual',key:'Evidence Type'},
+            ].filter(Boolean)},
+            impact:`Clarity heatmap finding on ${v.hm_page}: ${v.hm_finding.substring(0,120)}${v.hm_finding.length>120?'...':''}`,
+            steps:[
+              'Review the Clarity heatmap screenshot from this upload',
+              'Identify the specific element or pattern causing confusion',
+              'Design fix: adjust element size, placement, or visual treatment',
+              'Implement fix and monitor with Clarity for 2 weeks',
+              'Compare before/after click pattern screenshots',
+            ],
+            verify:`Clarity: heatmap on ${v.hm_page} shows improved click distribution. Dead/rage clicks on affected area drop by 50%+.`,
+            priority: 'normal', team:'UX / UI', url: v.hm_page,
+          };
+        }
+      },
+    ]
+  },
+
+};
+
+/* ═════════════════════════════════════════════
+   FORM VALUES — stored per section
+═════════════════════════════════════════════ */
+let formValues = {};
+
+/* ═════════════════════════════════════════════
+   STEP 1: SELECT TOOL
+═════════════════════════════════════════════ */
+function selectTool(tool, el) {
+  selectedTool = tool;
+  document.querySelectorAll('.tool-pick-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('btn-step1').disabled = false;
+  document.getElementById('btn-step1').style.background = TOOL_META[tool].c;
+}
+
+/* ═════════════════════════════════════════════
+   STEP NAVIGATION
+═════════════════════════════════════════════ */
+function goStep(n) {
+  for(let i=1;i<=5;i++) {
+    const el = document.getElementById('step-'+i);
+    if(el) el.style.display = i===n?'block':'none';
+    const wz = document.getElementById('wz'+i);
+    if(wz) {
+      wz.classList.remove('active','done');
+      if(i<n) wz.classList.add('done');
+      if(i===n) wz.classList.add('active');
+    }
+  }
+  if(n===3) renderTemplateForm();
+}
+
+/* ═════════════════════════════════════════════
+   STEP 2: FILE UPLOAD
+═════════════════════════════════════════════ */
+function onFiles(input) {
+  const files = Array.from(input.files);
+  uploadedFiles = [...uploadedFiles, ...files];
+  renderFileList();
+  document.getElementById('btn-step2').disabled = uploadedFiles.length===0;
+}
+function dzDrag(e) { e.preventDefault(); document.getElementById('dropzone').classList.add('drag') }
+function dzLeave() { document.getElementById('dropzone').classList.remove('drag') }
+function dzDrop(e) {
+  e.preventDefault(); dzLeave();
+  const files = Array.from(e.dataTransfer.files);
+  uploadedFiles = [...uploadedFiles, ...files];
+  renderFileList();
+  document.getElementById('btn-step2').disabled = false;
+}
+function removeFile(idx) {
+  uploadedFiles.splice(idx,1);
+  renderFileList();
+  document.getElementById('btn-step2').disabled = uploadedFiles.length===0;
+}
+function renderFileList() {
+  const el = document.getElementById('file-list');
+  if(!uploadedFiles.length) { el.innerHTML=''; return; }
+  const extIcon = (n) => { const e=n.split('.').pop().toUpperCase(); return {CSV:'🟢',XLSX:'🟢',XLS:'🟢',PNG:'🔵',JPG:'🔵',JPEG:'🔵',PDF:'🔴'}[e]||'⚪'; };
+  const extBg   = (n) => { const e=n.split('.').pop().toUpperCase(); return {CSV:['var(--normg)','var(--norm)'],XLSX:['var(--normg)','var(--norm)'],PNG:['var(--cg)','var(--c)'],JPG:['var(--cg)','var(--c)'],PDF:['var(--critg)','var(--crit)']}[e]||['var(--bg4)','var(--t2)']; };
+  el.innerHTML = uploadedFiles.map((f,i) => {
+    const [bg,color] = extBg(f.name); const ext = f.name.split('.').pop().toUpperCase();
+    return `<div class="file-preview">
+      <div class="fp-icon" style="background:${bg};color:${color}">${ext}</div>
+      <div class="fp-name">${f.name}</div>
+      <div class="fp-size">${fmtSize(f.size)}</div>
+      <button class="fp-remove" onclick="removeFile(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+function fmtSize(b) { return b>1048576?((b/1048576).toFixed(1)+' MB'):(Math.round(b/1024)+' KB') }
+
+/* ═════════════════════════════════════════════
+   STEP 3: TEMPLATE FORM
+═════════════════════════════════════════════ */
+function renderTemplateForm() {
+  if(!selectedTool) return;
+  const tpl = TEMPLATES[selectedTool];
+  const tm  = TOOL_META[selectedTool];
+  formValues = {};
+
+  document.getElementById('form-title').textContent = `Fill in what the ${tm.name} report shows`;
+
+  const container = document.getElementById('template-form-container');
+  container.innerHTML = '';
+
+  // Report metadata
+  container.innerHTML += `
+    <div style="margin-bottom:16px;padding:14px;background:var(--bg2);border:1px solid var(--e1);border-radius:var(--r2)">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:10px">Report Info</div>
+      <div class="fg2">
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl" style="--tc:${tm.c}">Report Name</label>
+          <input class="fi" style="--tc:${tm.c}" type="text" id="meta-reportname" value="${tpl.reportName}" oninput="updatePreview()">
+        </div>
+        <div class="fg" style="margin-bottom:0">
+          <label class="fl">Period Covered</label>
+          <input class="fi" type="text" id="meta-period" value="${tpl.period}" oninput="updatePreview()">
+        </div>
+      </div>
+    </div>`;
+
+  // Visibility strip
+  container.innerHTML += `
+    <div style="margin-bottom:14px">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:8px">Tasks Visible To</div>
+      <div class="vis-strip">
+        <div class="vis-item on" data-v="employee" id="vis-employee" onclick="this.classList.toggle('on')">👤 Employee</div>
+        <div class="vis-item on" data-v="client" id="vis-client" onclick="this.classList.toggle('on')">🏢 Client</div>
+        <div class="vis-item on" data-v="team" id="vis-team" onclick="this.classList.toggle('on')">👥 Assigned Team</div>
+      </div>
+    </div>`;
+
+  // Sections
+  tpl.sections.forEach((sec, si) => {
+    formValues[sec.id] = {};
+    const fieldsHtml = sec.fields.map(f => {
+      const key = `${sec.id}_${f.id}`;
+      if(f.type==='select') {
+        const opts = f.options.map(o => `<option value="${o}">${o}</option>`).join('');
+        return `<div class="fg"><label class="fl" style="--tc:${tm.c}">${f.label}</label><select class="fs" style="--tc:${tm.c}" id="${key}" onchange="setVal('${sec.id}','${f.id}',this.value);updatePreview()"><option value="">— Select —</option>${opts}</select></div>`;
+      } else if(f.type==='textarea') {
+        return `<div class="fg"><label class="fl" style="--tc:${tm.c}">${f.label}</label><textarea class="ft" style="--tc:${tm.c}" id="${key}" placeholder="${f.placeholder||''}" oninput="setVal('${sec.id}','${f.id}',this.value);updatePreview()"></textarea></div>`;
+      } else {
+        return `<div class="fg"><label class="fl" style="--tc:${tm.c}">${f.label}</label><input class="fi" style="--tc:${tm.c}" type="${f.type}" id="${key}" placeholder="${f.placeholder||''}" oninput="setVal('${sec.id}','${f.id}',this.value);updatePreview()"></div>`;
+      }
+    }).join('');
+
+    container.innerHTML += `
+    <div class="form-step" id="fsec-${sec.id}">
+      <div class="fs-head" onclick="toggleFsec('${sec.id}',this)" ${si===0?'class="fs-head open"':''}>
+        <div class="fs-num">${si+1}</div>
+        <div style="font-size:16px">${sec.icon}</div>
+        <div class="fs-title">${sec.title}</div>
+        <div class="fs-badge">${sec.badge}</div>
+        <div class="fs-arrow">▾</div>
+      </div>
+      <div class="fs-body ${si===0?'open':''}" id="fsbody-${sec.id}">${fieldsHtml}</div>
+    </div>`;
+  });
+
+  if(tpl.sections.length>0) {
+    const firstHead = container.querySelector('.fs-head');
+    if(firstHead) firstHead.classList.add('open');
+    const firstBody = container.querySelector('.fs-body');
+    if(firstBody) firstBody.classList.add('open');
+  }
+}
+
+function toggleFsec(id, el) {
+  const body = document.getElementById('fsbody-'+id);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  el.classList.toggle('open', !isOpen);
+}
+
+function setVal(secId, fieldId, val) {
+  if(!formValues[secId]) formValues[secId] = {};
+  formValues[secId][fieldId] = val;
+}
+
+/* ═════════════════════════════════════════════
+   LIVE PREVIEW
+═════════════════════════════════════════════ */
+function updatePreview() {
+  if(!selectedTool) return;
+  const tpl = TEMPLATES[selectedTool];
+  const previews = [];
+
+  tpl.sections.forEach(sec => {
+    const v = formValues[sec.id]||{};
+    const task = sec.taskGen(v);
+    if(task) previews.push({ ...task, source:selectedTool, secId:sec.id });
+  });
+
+  const area = document.getElementById('preview-area');
+  if(!previews.length) {
+    area.innerHTML = `<div class="preview-empty"><div style="font-size:28px">📋</div><div>Fill in findings on the left — tasks appear here</div></div>`;
+    return;
+  }
+
+  area.innerHTML = previews.map((t,i) => miniTaskCard(t,i)).join('');
+}
+
+function miniTaskCard(t,i) {
+  const tm = TOOL_META[t.source];
+  return `<div style="padding:12px 14px;background:var(--bg3);border:1px solid var(--e1);border-radius:var(--r);margin-bottom:8px;border-left:3px solid ${tm.c}">
+    <div style="font-family:var(--fh);font-size:12px;font-weight:700;margin-bottom:4px">${t.title}</div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap">
+      <span class="pri ${t.priority}">${t.priority}</span>
+      <span class="team-tag">${t.team}</span>
+      <span class="tag ${tm.tag}">${tm.icon} ${tm.name}</span>
+    </div>
+    <div style="font-family:var(--fm);font-size:10px;color:var(--t3);margin-top:5px">
+      ${t.evidence?.metric} ${t.evidence?.label}
+    </div>
+  </div>`;
+}
+
+/* ═════════════════════════════════════════════
+   BUILD & REVIEW TASKS
+═════════════════════════════════════════════ */
+function buildTasks() {
+  if(!selectedTool) return;
+  const tpl = TEMPLATES[selectedTool];
+  pendingTasks = [];
+
+  const vis = [];
+  if(document.getElementById('vis-employee')?.classList.contains('on')) vis.push('Employee');
+  if(document.getElementById('vis-client')?.classList.contains('on')) vis.push('Client');
+  if(document.getElementById('vis-team')?.classList.contains('on')) vis.push('Team');
+
+  const reportName = document.getElementById('meta-reportname')?.value || tpl.reportName;
+  const period = document.getElementById('meta-period')?.value || tpl.period;
+
+  tpl.sections.forEach(sec => {
+    const v = formValues[sec.id]||{};
+    const task = sec.taskGen(v);
+    if(task) {
+      pendingTasks.push({
+        ...task,
+        id: 'task-'+Date.now()+'-'+Math.random().toString(36).substr(2,6),
+        source: selectedTool,
+        reportName, period,
+        visibility: vis,
+        status: 'open',
+        createdAt: new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}),
+        uploadedFiles: uploadedFiles.map(f=>f.name),
+      });
+    }
+  });
+
+  if(!pendingTasks.length) {
+    showToast('⚠️ Fill in at least one section to generate tasks');
+    return;
+  }
+
+  renderReviewTasks();
+  goStep(4);
+}
+
+function renderReviewTasks() {
+  const el = document.getElementById('review-tasks-list');
+  if(!el) return;
+  el.innerHTML = pendingTasks.map((t,i) => fullTaskCard(t, i, true)).join('');
+}
+
+/* ═════════════════════════════════════════════
+   FULL TASK CARD
+═════════════════════════════════════════════ */
+function fullTaskCard(t, i, isReview=false) {
+  const tm = TOOL_META[t.source];
+  const lcMap = {critical:'var(--crit)',high:'var(--high)',normal:'var(--norm)'};
+  const lc = lcMap[t.priority]||'var(--m)';
+
+  const evExtras = (t.evidence?.extra||[]).map(e=>`
+    <div class="ev-item"><div class="ev-val" style="color:${tm.c}">${e.val}</div><div class="ev-key">${e.key}</div></div>`).join('');
+
+  const steps = (t.steps||[]).map((s,si)=>`
+    <div class="step-item">
+      <div class="step-n" style="background:${tm.g};color:${tm.c}">${si+1}</div>
+      <span>${s}</span>
+    </div>`).join('');
+
+  const visIcons = (t.visibility||['Employee']).map(v=>({Employee:'👤',Client:'🏢',Team:'👥'}[v]||v)).join(' ');
+
+  const footerBtns = isReview
+    ? `<button class="btn btn-ghost btn-xs" onclick="editTask(${i})">✎ Edit</button>
+       <button class="btn btn-danger btn-xs" onclick="removeTask(${i})">✕ Remove</button>
+       <span style="margin-left:auto;font-family:var(--fm);font-size:9px;color:var(--t3)">${t.reportName} · ${t.period}</span>`
+    : `<select class="fs" style="font-size:10px;padding:4px 8px;width:auto" onchange="updateTaskStatus('${t.id}',this.value)">
+         <option ${t.status==='open'?'selected':''} value="open">Open</option>
+         <option ${t.status==='inprog'?'selected':''} value="inprog">In Progress</option>
+         <option ${t.status==='done'?'selected':''} value="done">Done ✓</option>
+       </select>
+       <button class="btn btn-ghost btn-xs" onclick="editTaskById('${t.id}')">✎ Edit</button>
+       <div class="vis" style="margin-left:auto">${visIcons} ${(t.visibility||[]).join(' · ')}</div>`;
+
+  return `
+  <div class="task-card" style="--lc:${lc}" id="tcard-${t.id||i}">
+    <div class="tc-head">
+      <div class="tc-icon" style="background:${tm.g}">${tm.icon}</div>
+      <div class="tc-body">
+        <div class="tc-title">${t.title}</div>
+        <div class="tc-meta">${t.url||''}</div>
+        <div class="tc-tags">
+          <span class="pri ${t.priority}">${t.priority}</span>
+          <span class="tag ${tm.tag}">${tm.icon} ${tm.name}</span>
+          <span class="team-tag">${t.team}</span>
+          <span class="sts ${t.status||'open'}"><span class="sts-dot"></span>${{open:'Open',inprog:'In Progress',done:'Done'}[t.status]||'Open'}</span>
+        </div>
+      </div>
+    </div>
+    <div class="tc-evidence">
+      <div class="ev-label">📊 Evidence from ${t.reportName||'Report'}</div>
+      <div class="ev-stats">
+        <div class="ev-item">
+          <div class="ev-val" style="font-size:20px;color:${lc}">${t.evidence?.metric||'—'}</div>
+          <div class="ev-key">${t.evidence?.label||''}</div>
+        </div>
+        ${evExtras}
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--t2);font-style:italic">${t.impact||''}</div>
+    </div>
+    <div class="tc-steps">
+      <div class="step-label">✅ Action Steps</div>
+      ${steps}
+    </div>
+    <div class="tc-verify">🎯 Verify: ${t.verify||'Check in next report'}</div>
+    <div class="tc-footer">${footerBtns}</div>
+  </div>`;
+}
+
+/* ═════════════════════════════════════════════
+   TASK MANAGEMENT
+═════════════════════════════════════════════ */
+function removeTask(i) {
+  pendingTasks.splice(i,1);
+  renderReviewTasks();
+  showToast('Task removed');
+}
+
+function editTask(i) {
+  editingIdx = i;
+  const t = pendingTasks[i];
+  populateEditModal(t);
+  openModal('edit-modal');
+}
+
+function editTaskById(id) {
+  editingIdx = allTasks.findIndex(t=>t.id===id);
+  if(editingIdx<0) return;
+  populateEditModal(allTasks[editingIdx]);
+  openModal('edit-modal');
+}
+
+function populateEditModal(t) {
+  document.getElementById('edit-title').value = t.title||'';
+  document.getElementById('edit-priority').value = t.priority||'normal';
+  document.getElementById('edit-team').value = t.team||'Digital Marketing';
+  document.getElementById('edit-steps').value = (t.steps||[]).join('\n');
+  document.getElementById('edit-verify').value = t.verify||'';
+  const visItems = document.querySelectorAll('#edit-modal .vis-item');
+  visItems.forEach(v => {
+    v.classList.toggle('on', (t.visibility||[]).includes({employee:'Employee',client:'Client',team:'Team'}[v.dataset.v]));
+  });
+}
+
+function saveEdit() {
+  const isReview = editingIdx !== null && editingIdx < pendingTasks.length && pendingTasks.length > 0;
+  const arr = isReview ? pendingTasks : allTasks;
+  if(editingIdx === null || !arr[editingIdx]) { closeModal('edit-modal'); return; }
+
+  const vis = [];
+  document.querySelectorAll('#edit-modal .vis-item.on').forEach(v => {
+    vis.push({employee:'Employee',client:'Client',team:'Team'}[v.dataset.v]);
+  });
+
+  arr[editingIdx].title    = document.getElementById('edit-title').value;
+  arr[editingIdx].priority = document.getElementById('edit-priority').value;
+  arr[editingIdx].team     = document.getElementById('edit-team').value;
+  arr[editingIdx].steps    = document.getElementById('edit-steps').value.split('\n').filter(Boolean);
+  arr[editingIdx].verify   = document.getElementById('edit-verify').value;
+  arr[editingIdx].visibility = vis;
+
+  closeModal('edit-modal');
+  if(isReview) renderReviewTasks();
+  else renderAllTaskLists();
+  showToast('✅ Task updated');
+}
+
+function updateTaskStatus(id, val) {
+  const t = allTasks.find(t=>t.id===id);
+  if(t) { t.status = val; updateCounts(); renderAllTaskLists(); }
+}
+
+/* ═════════════════════════════════════════════
+   PUBLISH
+═════════════════════════════════════════════ */
+function publishTasks() {
+  allTasks = [...pendingTasks, ...allTasks];
+
+  // Upload history
+  uploads.unshift({
+    tool: selectedTool,
+    reportName: pendingTasks[0]?.reportName||'Report',
+    period: pendingTasks[0]?.period||'',
+    taskCount: pendingTasks.length,
+    files: uploadedFiles.map(f=>f.name),
+    date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}),
+    critCount: pendingTasks.filter(t=>t.priority==='critical').length,
+  });
+
+  // Summary for step 5
+  document.getElementById('sb-count').textContent = pendingTasks.length;
+  document.getElementById('sb-crit').textContent  = pendingTasks.filter(t=>t.priority==='critical').length;
+  document.getElementById('sb-high').textContent  = pendingTasks.filter(t=>t.priority==='high').length;
+
+  renderAllTaskLists();
+  updateCounts();
+  renderHistoryList();
+
+  goStep(5);
+  showToast(`🎉 ${pendingTasks.length} tasks published!`);
+}
+
+/* ═════════════════════════════════════════════
+   RENDER TASK LISTS
+═════════════════════════════════════════════ */
+function renderAllTaskLists() {
+  renderList('list-all',        allTasks);
+  renderList('list-critical',   allTasks.filter(t=>t.priority==='critical'));
+  renderList('list-open',       allTasks.filter(t=>t.status==='open'||t.status==='inprog'));
+  renderList('list-done',       allTasks.filter(t=>t.status==='done'));
+  renderList('list-matomo',     allTasks.filter(t=>t.source==='matomo'));
+  renderList('list-gsc',        allTasks.filter(t=>t.source==='gsc'));
+  renderList('list-ahrefs',     allTasks.filter(t=>t.source==='ahrefs'));
+  renderList('list-ga4',        allTasks.filter(t=>t.source==='ga4'));
+  renderList('list-clarity',    allTasks.filter(t=>t.source==='clarity'));
+  renderList('list-client',     allTasks.filter(t=>(t.visibility||[]).includes('Client')));
+
+  document.getElementById('all-tasks-subtitle').textContent = `${allTasks.length} task${allTasks.length!==1?'s':''} from ${[...new Set(allTasks.map(t=>t.reportName))].length} report${[...new Set(allTasks.map(t=>t.reportName))].length!==1?'s':''}`;
+}
+
+function renderList(id, tasks) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(!tasks.length) {
+    el.innerHTML=`<div class="empty"><div class="empty-ico">📭</div><div class="empty-title">No tasks here yet</div><div class="empty-sub">Upload a report to generate fix tasks</div></div>`;
+    return;
+  }
+  el.innerHTML = tasks.map((t,i)=>fullTaskCard(t,i,false)).join('');
+}
+
+/* ═════════════════════════════════════════════
+   UPDATE SIDEBAR COUNTS
+═════════════════════════════════════════════ */
+function updateCounts() {
+  document.getElementById('all-count').textContent   = allTasks.length;
+  document.getElementById('crit-count').textContent  = allTasks.filter(t=>t.priority==='critical').length;
+  document.getElementById('open-count').textContent  = allTasks.filter(t=>t.status==='open'||t.status==='inprog').length;
+  document.getElementById('done-count').textContent  = allTasks.filter(t=>t.status==='done').length;
+  document.getElementById('hist-count').textContent  = uploads.length;
+  document.getElementById('cnt-m').textContent = allTasks.filter(t=>t.source==='matomo').length;
+  document.getElementById('cnt-s').textContent = allTasks.filter(t=>t.source==='gsc').length;
+  document.getElementById('cnt-a').textContent = allTasks.filter(t=>t.source==='ahrefs').length;
+  document.getElementById('cnt-g').textContent = allTasks.filter(t=>t.source==='ga4').length;
+  document.getElementById('cnt-c').textContent = allTasks.filter(t=>t.source==='clarity').length;
+  document.getElementById('tb-tasks').textContent = allTasks.length+' task'+(allTasks.length!==1?'s':'')+' generated';
+}
+
+/* ═════════════════════════════════════════════
+   HISTORY
+═════════════════════════════════════════════ */
+function renderHistoryList() {
+  const el = document.getElementById('history-list');
+  if(!uploads.length) { el.innerHTML=`<div class="empty"><div class="empty-ico">📭</div><div class="empty-title">No uploads yet</div></div>`; return; }
+  const tm = (t) => TOOL_META[t]||TOOL_META.matomo;
+  el.innerHTML = uploads.map((u,i) => `
+    <div class="hist-row" onclick="showToast('Opening upload ${i+1}...')">
+      <div class="hist-icon" style="background:${tm(u.tool).g}">${tm(u.tool).icon}</div>
+      <div class="hist-body">
+        <div class="hist-name">${u.reportName} — ${u.period}</div>
+        <div class="hist-meta">${u.date} · ${tm(u.tool).name} · ${u.files.join(', ').substring(0,50)}</div>
+      </div>
+      <div class="hist-count" style="background:${tm(u.tool).g};color:${tm(u.tool).c}">${u.taskCount} tasks</div>
+      ${u.critCount?`<div class="hist-count" style="background:var(--critg);color:var(--crit)">${u.critCount} critical</div>`:''}
+    </div>`).join('');
+}
+
+/* ═════════════════════════════════════════════
+   RESET UPLOAD FLOW
+═════════════════════════════════════════════ */
+function resetUpload() {
+  selectedTool = null;
+  uploadedFiles = [];
+  pendingTasks = [];
+  formValues = {};
+  document.querySelectorAll('.tool-pick-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('btn-step1').disabled = true;
+  document.getElementById('btn-step2').disabled = true;
+  document.getElementById('file-list').innerHTML = '';
+  document.getElementById('template-form-container').innerHTML = '';
+  document.getElementById('review-tasks-list').innerHTML = '';
+  goStep(1);
+}
+
+/* ═════════════════════════════════════════════
+   NAVIGATION
+═════════════════════════════════════════════ */
+const PAGE_TITLES = {
+  upload: 'Upload Report → Generate Fix Tasks',
+  history: 'Upload History',
+  'tasks-all': 'All Fix Tasks',
+  'tasks-critical': '🔴 Critical Tasks',
+  'tasks-open': 'Open Tasks',
+  'tasks-done': 'Completed Tasks',
+  'tasks-matomo': 'Tasks from Matomo',
+  'tasks-gsc': 'Tasks from GSC',
+  'tasks-ahrefs': 'Tasks from Ahrefs',
+  'tasks-ga4': 'Tasks from GA4',
+  'tasks-clarity': 'Tasks from Clarity',
+  'client-view': '👁 Client View',
+};
+
+function go(id, el) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  const pg = document.getElementById('pg-'+id);
+  if(pg) pg.classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  if(el) el.classList.add('on');
+  document.getElementById('tb-title').textContent = PAGE_TITLES[id]||id;
+  if(id.startsWith('tasks')||id==='client-view') renderAllTaskLists();
+  if(id==='history') renderHistoryList();
+}
+
+/* ═════════════════════════════════════════════
+   MODAL
+═════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open') }
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+function closeMoBg(e,id) { if(e.target.id===id) closeModal(id) }
+
+/* ═════════════════════════════════════════════
+   TOAST
+═════════════════════════════════════════════ */
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('on');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>t.classList.remove('on'), 3500);
+}
+</script>
+</body>
+</html>
