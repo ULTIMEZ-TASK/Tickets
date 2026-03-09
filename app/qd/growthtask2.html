@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coinpedia — Behavior & User Journey Issues</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Geist+Mono:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══ TOKENS ══════════════════════════════ */
+:root {
+  --bg:   #06080f;
+  --s1:   #0a0d18;
+  --s2:   #0f1322;
+  --s3:   #141a2c;
+  --s4:   #1a2236;
+  --s5:   #202840;
+
+  --g0: rgba(255,255,255,.03);
+  --g1: rgba(255,255,255,.06);
+  --g2: rgba(255,255,255,.10);
+  --g3: rgba(255,255,255,.16);
+  --g4: rgba(255,255,255,.24);
+
+  /* Behavior accent — warm violet */
+  --ac:    #c084fc;
+  --ac2:   #a855f7;
+  --acg:   rgba(192,132,252,.10);
+  --acb:   rgba(192,132,252,.22);
+  --acsb:  rgba(192,132,252,.06);
+
+  /* Sub-issue colours */
+  --bounce-c: #f472b6; --bounce-g: rgba(244,114,182,.10);
+  --exit-c:   #fb923c; --exit-g:   rgba(251,146,60,.10);
+  --funnel-c: #facc15; --funnel-g: rgba(250,204,21,.10);
+  --cross-c:  #34d399; --cross-g:  rgba(52,211,153,.10);
+  --record-c: #60a5fa; --record-g: rgba(96,165,250,.10);
+  --heat-c:   #f87171; --heat-g:   rgba(248,113,113,.10);
+
+  /* Priority */
+  --crit: #fc8181; --critg: rgba(252,129,129,.11);
+  --high: #fbbf24; --highg: rgba(251,191,36,.10);
+  --norm: #4ade80; --normg: rgba(74,222,128,.09);
+
+  --t1: #eef0ff;
+  --t2: #7b8ab8;
+  --t3: #38435e;
+
+  --fh: 'Bricolage Grotesque', sans-serif;
+  --fs: 'Instrument Serif', serif;
+  --fm: 'Geist Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth }
+
+body {
+  background: var(--bg);
+  color: var(--t1);
+  font-family: var(--fh);
+  font-size: 13px;
+  line-height: 1.65;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 3px }
+::-webkit-scrollbar-thumb { background: var(--s5); border-radius: 3px }
+
+/* ═══ LAYOUT ════════════════════════════════ */
+.shell { display: flex; min-height: 100vh }
+
+/* SIDEBAR */
+.side {
+  width: 232px; flex-shrink: 0;
+  background: var(--s1);
+  border-right: 1px solid var(--g1);
+  position: fixed; top: 0; left: 0; bottom: 0;
+  display: flex; flex-direction: column;
+  z-index: 300;
+}
+
+.side-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--g0);
+}
+.logo-row { display: flex; align-items: center; gap: 10px }
+.logo-gem {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--ac), #7c3aed);
+  display: grid; place-items: center;
+  font-size: 16px;
+}
+.logo-name { font-size: 14px; font-weight: 700; letter-spacing: -.2px }
+.logo-sub  { font-family: var(--fm); font-size: 9px; color: var(--t3); letter-spacing: 1.5px; text-transform: uppercase; margin-top: 1px }
+
+.side-meta {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--g0);
+}
+.meta-label { font-family: var(--fm); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t3); margin-bottom: 8px }
+.meta-stat {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.ms-name { font-size: 11px; color: var(--t2) }
+.ms-val  { font-family: var(--fm); font-size: 11px; font-weight: 700 }
+.ms-val.red  { color: var(--crit) }
+.ms-val.yel  { color: var(--high) }
+.ms-val.grn  { color: var(--norm) }
+.ms-val.pur  { color: var(--ac) }
+
+.side-nav { padding: 8px 8px; flex: 1; overflow-y: auto }
+.snl {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--t3);
+  padding: 10px 8px 4px;
+}
+.sni {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px; border-radius: 8px; margin-bottom: 1px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--t2); border: 1px solid transparent;
+  transition: all .13s; position: relative;
+}
+.sni:hover { background: var(--s3); color: var(--t1) }
+.sni.on    { background: var(--s3); color: var(--t1); border-color: var(--g2) }
+.sni.on::before {
+  content: ''; position: absolute; left: 0; top: 25%; bottom: 25%;
+  width: 2px; border-radius: 2px; background: var(--ac);
+}
+.sni-ico { font-size: 13px; width: 18px; text-align: center; flex-shrink: 0 }
+.sni-badge {
+  margin-left: auto; font-family: var(--fm); font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 10px;
+  background: var(--s4); color: var(--t3);
+}
+.sni-badge.r { background: var(--critg); color: var(--crit) }
+.sni-badge.y { background: var(--highg); color: var(--high) }
+.sni-badge.p { background: var(--acg);   color: var(--ac)   }
+
+.side-foot {
+  padding: 12px 14px; border-top: 1px solid var(--g0);
+  display: flex; align-items: center; gap: 9px;
+}
+.av {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--ac), #7c3aed);
+  display: grid; place-items: center;
+  font-family: var(--fh); font-size: 11px; font-weight: 800; color: #fff;
+}
+
+/* TOPBAR */
+.topbar {
+  position: fixed; top: 0; left: 232px; right: 0; height: 48px;
+  background: rgba(6,8,15,.85); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--g1);
+  display: flex; align-items: center; padding: 0 22px; gap: 10px;
+  z-index: 200;
+}
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--fm); font-size: 11px; flex: 1;
+}
+.bc { color: var(--t3); cursor: pointer; transition: color .12s; user-select: none }
+.bc:hover, .bc.on { color: var(--t1) }
+.bc-sep { color: var(--t3) }
+.tb-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--fm); font-size: 10px; color: var(--t2);
+  background: var(--s3); border: 1px solid var(--g2);
+  padding: 3px 10px; border-radius: 20px;
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ac); animation: blink 2s infinite }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* MAIN */
+.main { margin-left: 232px; padding-top: 48px }
+.pg { display: none; animation: fadein .18s ease }
+.pg.on { display: block }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* ═══ BUTTONS ══════════════════════════════ */
+.btn {
+  font-family: var(--fh); font-size: 12px; font-weight: 600;
+  padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all .14s;
+}
+.btn-ac  { background: var(--ac); color: #0a0010 }
+.btn-ac:hover  { filter: brightness(1.1); transform: translateY(-1px) }
+.btn-ghost { background: transparent; border: 1px solid var(--g2); color: var(--t2) }
+.btn-ghost:hover { background: var(--s3); color: var(--t1) }
+.btn-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--fm); font-size: 10px; font-weight: 600;
+  padding: 5px 12px; border-radius: 6px;
+  border: 1px solid var(--g2); color: var(--t2);
+  background: transparent; cursor: pointer; transition: all .13s;
+  margin-bottom: 18px;
+}
+.btn-back:hover { background: var(--s3); color: var(--t1) }
+
+/* ═══ PAGE 1 — DISCOVER ════════════════════ */
+#pg-discover { padding: 30px 26px 60px }
+
+.discover-hero {
+  margin-bottom: 32px;
+  padding: 28px 30px;
+  background: var(--s1);
+  border: 1px solid var(--g1);
+  border-radius: 20px;
+  position: relative; overflow: hidden;
+}
+.discover-hero::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--ac), #7c3aed, var(--bounce-c));
+}
+.dh-eyebrow {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--ac); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.dh-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--ac) }
+.dh-title {
+  font-size: 28px; font-weight: 800; letter-spacing: -.8px;
+  line-height: 1.15; margin-bottom: 8px;
+}
+.dh-title em { font-family: var(--fs); font-style: italic; color: var(--ac) }
+.dh-sub { font-size: 13px; color: var(--t2); max-width: 540px; line-height: 1.6 }
+
+.dh-stats {
+  display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;
+}
+.dhs {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 16px; background: var(--s2);
+  border: 1px solid var(--g1); border-radius: 10px;
+}
+.dhs-val { font-family: var(--fh); font-size: 22px; font-weight: 800; letter-spacing: -1px }
+.dhs-lbl { font-family: var(--fm); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: .5px }
+
+/* ISSUE CATEGORY CARDS */
+.issue-grid {
+  display: grid; gap: 10px;
+}
+
+.issue-card {
+  background: var(--s1); border: 1px solid var(--g1);
+  border-radius: 14px; overflow: hidden; cursor: pointer;
+  transition: all .2s; position: relative;
+}
+.issue-card:hover { border-color: var(--ic, var(--ac)); transform: translateX(4px); box-shadow: 0 16px 48px rgba(0,0,0,.5) }
+.issue-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--ic, var(--ac));
+}
+.ic-inner {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px 16px 20px;
+}
+.ic-ico {
+  width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 20px;
+}
+.ic-body { flex: 1; min-width: 0 }
+.ic-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; line-height: 1.3 }
+.ic-sub   { font-family: var(--fm); font-size: 10px; color: var(--t3) }
+.ic-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px }
+.ic-count {
+  font-family: var(--fm); font-size: 13px; font-weight: 700;
+  padding: 3px 12px; border-radius: 20px;
+}
+.ic-arr { font-size: 12px; color: var(--t3); transition: transform .2s }
+.issue-card:hover .ic-arr { transform: translateX(4px) }
+
+/* ═══ PAGE 2 — SOPs ══════════════════════════ */
+#pg-sop { padding: 26px 26px 60px }
+
+.sop-hero {
+  display: flex; align-items: flex-start; gap: 14px; margin-bottom: 24px;
+  padding: 22px 24px;
+  background: var(--s1); border: 1px solid var(--g1); border-radius: 14px;
+  position: relative; overflow: hidden;
+}
+.sop-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--ic, var(--ac));
+}
+.sh-ico {
+  width: 50px; height: 50px; border-radius: 13px;
+  display: grid; place-items: center; font-size: 24px; flex-shrink: 0;
+}
+.sh-body h1 { font-size: 20px; font-weight: 800; letter-spacing: -.4px; margin-bottom: 4px }
+.sh-body p  { font-family: var(--fm); font-size: 10px; color: var(--t2); line-height: 1.6 }
+
+.sop-list { display: grid; gap: 10px }
+
+.sop-card {
+  background: var(--s1); border: 1px solid var(--g1);
+  border-radius: 12px; overflow: hidden;
+  transition: border-color .16s;
+}
+.sop-card:hover { border-color: var(--g2) }
+
+.sop-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 18px; cursor: pointer;
+}
+.sop-num {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center;
+  font-family: var(--fm); font-size: 11px; font-weight: 700;
+  background: var(--s3); color: var(--t2);
+  transition: all .14s;
+}
+.sop-card.open .sop-num { background: var(--acg); color: var(--ac) }
+.sop-head-body { flex: 1; min-width: 0 }
+.sop-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; line-height: 1.3 }
+.sop-meta  { font-family: var(--fm); font-size: 9px; color: var(--t3) }
+.sop-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px }
+.sop-task-count {
+  font-family: var(--fm); font-size: 10px; font-weight: 700;
+  padding: 2px 9px; border-radius: 20px;
+}
+.sop-chevron { font-size: 10px; color: var(--t3); transition: transform .22s }
+.sop-card.open .sop-chevron { transform: rotate(180deg) }
+
+.sop-body { display: none; border-top: 1px solid var(--g0) }
+.sop-body.open { display: block }
+
+.sop-what {
+  padding: 16px 18px;
+  background: var(--s2);
+}
+.sop-what-label {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 8px;
+}
+.sop-what-text { font-size: 12px; color: var(--t2); line-height: 1.6 }
+
+.sop-steps-wrap { padding: 14px 18px; background: var(--s1) }
+.sop-steps-label {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 10px;
+}
+.sop-step {
+  display: flex; gap: 10px; padding: 7px 0;
+  border-bottom: 1px solid var(--g0); font-size: 11px; color: var(--t2);
+}
+.sop-step:last-child { border: none }
+.sop-step-n {
+  width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+  display: grid; place-items: center;
+  font-family: var(--fm); font-size: 8px; font-weight: 700;
+  background: var(--s4); color: var(--t2);
+}
+.sop-step-txt { line-height: 1.55 }
+
+.sop-action {
+  padding: 12px 18px; background: var(--s2); border-top: 1px solid var(--g0);
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+.sa-info { font-family: var(--fm); font-size: 10px; color: var(--t3) }
+.sa-info span { color: var(--ac); font-weight: 700 }
+
+/* ═══ PAGE 3 — TASKS ════════════════════════ */
+#pg-tasks { padding: 26px 26px 60px }
+
+.tasks-hero {
+  padding: 20px 22px; margin-bottom: 20px;
+  background: var(--s1); border: 1px solid var(--g1); border-radius: 14px;
+  position: relative; overflow: hidden;
+}
+.tasks-hero::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--ic, var(--ac));
+}
+.th-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px }
+.th-ico { font-size: 22px }
+.th-title { font-size: 18px; font-weight: 800; letter-spacing: -.4px }
+.th-sub   { font-family: var(--fm); font-size: 10px; color: var(--t2); margin-top: 2px }
+.th-stats { display: flex; gap: 10px; flex-wrap: wrap }
+.ths {
+  flex: 1; min-width: 80px; padding: 10px 14px;
+  background: var(--s2); border: 1px solid var(--g1); border-radius: 9px;
+  position: relative; overflow: hidden;
+}
+.ths::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--sc, var(--ac)) }
+.ths-val { font-family: var(--fh); font-size: 20px; font-weight: 800; letter-spacing: -1px; line-height: 1 }
+.ths-lbl { font-family: var(--fm); font-size: 9px; color: var(--t3); text-transform: uppercase; letter-spacing: .4px; margin-top: 2px }
+
+/* FILTERS */
+.filter-row {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.fil {
+  font-family: var(--fm); font-size: 10px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid var(--g2); color: var(--t2);
+  cursor: pointer; transition: all .13s; background: var(--s2);
+  user-select: none;
+}
+.fil:hover { color: var(--t1); border-color: var(--g3) }
+.fil.on    { color: var(--t1); background: var(--s3); border-color: var(--g3) }
+.fil-sep   { width: 1px; height: 20px; background: var(--g1); margin: 0 3px; align-self: center }
+
+/* TASK CARD */
+.tcard {
+  background: var(--s1); border: 1px solid var(--g1);
+  border-radius: 12px; overflow: hidden; margin-bottom: 10px;
+  position: relative; transition: all .18s;
+  animation: tslide .25s ease backwards;
+}
+.tcard:hover { border-color: var(--g2); box-shadow: 0 12px 36px rgba(0,0,0,.4) }
+.tcard::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--lc, var(--ac));
+}
+@keyframes tslide { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:none} }
+
+/* card head (always visible) */
+.tc-head {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px 12px 18px; cursor: pointer;
+}
+.tc-category-ico {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 17px;
+}
+.tc-main { flex: 1; min-width: 0 }
+.tc-title {
+  font-size: 13px; font-weight: 700; line-height: 1.3;
+  margin-bottom: 4px;
+}
+.tc-url   {
+  font-family: var(--fm); font-size: 10px; color: var(--t3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 7px;
+}
+.tc-tags  { display: flex; gap: 4px; flex-wrap: wrap; align-items: center }
+.tc-right { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px }
+.chevron  { font-size: 10px; color: var(--t3); transition: transform .2s; margin-top: 4px }
+.tcard.open .chevron { transform: rotate(180deg) }
+
+/* tags */
+.tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 4px;
+  font-family: var(--fm); font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .3px;
+}
+.tag-cat  { background: var(--acg); color: var(--ac); border: 1px solid var(--acb) }
+
+.pri {
+  padding: 2px 8px; border-radius: 4px;
+  font-family: var(--fm); font-size: 9px; font-weight: 700;
+  text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.pri.critical { background: var(--critg); color: var(--crit); border: 1px solid rgba(252,129,129,.25) }
+.pri.high     { background: var(--highg); color: var(--high); border: 1px solid rgba(251,191,36,.2)  }
+.pri.normal   { background: var(--normg); color: var(--norm); border: 1px solid rgba(74,222,128,.2)  }
+
+.team {
+  padding: 2px 8px; border-radius: 4px;
+  font-family: var(--fm); font-size: 9px; font-weight: 600;
+  background: var(--s3); color: var(--t2); border: 1px solid var(--g1);
+}
+
+.sts {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 20px;
+  font-family: var(--fm); font-size: 9px; font-weight: 700;
+}
+.sts-d { width: 5px; height: 5px; border-radius: 50% }
+.sts.open  { background: var(--s3); color: var(--t2) }
+.sts.open .sts-d  { background: var(--t3) }
+.sts.prog  { background: rgba(251,191,36,.09); color: var(--high) }
+.sts.prog .sts-d  { background: var(--high); animation: blink 1.5s infinite }
+.sts.done  { background: var(--normg); color: var(--norm) }
+.sts.done .sts-d  { background: var(--norm) }
+
+/* card body (expanded) */
+.tc-body { display: none; padding: 0 16px 14px 18px }
+.tc-body.on { display: block }
+
+.ev-box {
+  background: var(--s2); border: 1px solid var(--g1);
+  border-radius: 9px; padding: 13px 14px; margin-bottom: 10px;
+}
+.ev-lbl {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 9px;
+}
+.ev-numbers { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 8px }
+.ev-num { display: flex; flex-direction: column; font-family: var(--fm) }
+.ev-val { font-size: 17px; font-weight: 700; line-height: 1 }
+.ev-key { font-size: 9px; color: var(--t3); margin-top: 2px; text-transform: uppercase; letter-spacing: .5px }
+.ev-impact {
+  font-size: 11px; color: var(--t2); font-style: italic;
+  padding-top: 9px; border-top: 1px solid var(--g0); line-height: 1.55;
+}
+
+.steps-box { margin-bottom: 10px }
+.steps-lbl {
+  font-family: var(--fm); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--t3); margin-bottom: 8px;
+}
+.step {
+  display: flex; gap: 9px; padding: 6px 0;
+  border-bottom: 1px solid var(--g0); font-size: 11px; color: var(--t2);
+}
+.step:last-child { border: none }
+.step-n {
+  width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+  display: grid; place-items: center;
+  font-family: var(--fm); font-size: 8px; font-weight: 700;
+  background: var(--s3); color: var(--t2);
+}
+.step-txt { line-height: 1.55 }
+
+.verify-box {
+  font-family: var(--fm); font-size: 10px; line-height: 1.5;
+  padding: 9px 13px; border-radius: 8px;
+  background: var(--normg); color: var(--norm);
+  border: 1px solid rgba(74,222,128,.18); margin-bottom: 10px;
+}
+
+.tc-footer {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+  padding: 9px 14px; background: var(--s2); border-top: 1px solid var(--g0);
+}
+.tc-footer select {
+  font-family: var(--fm); font-size: 10px;
+  background: var(--s3); border: 1px solid var(--g2);
+  border-radius: 6px; color: var(--t1); padding: 4px 8px;
+  outline: none; cursor: pointer;
+}
+.ic-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--fh); font-size: 10px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--g2); background: transparent; color: var(--t2);
+  cursor: pointer; transition: all .13s;
+}
+.ic-btn:hover { background: var(--s3); color: var(--t1) }
+.src-chip { margin-left: auto; font-family: var(--fm); font-size: 9px; color: var(--t3) }
+
+/* EMPTY STATE */
+.empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 56px 20px; gap: 10px; color: var(--t3); text-align: center;
+}
+.empty-ico   { font-size: 42px }
+.empty-title { font-size: 15px; font-weight: 700; color: var(--t2) }
+.empty-sub   { font-family: var(--fm); font-size: 10px; max-width: 240px; line-height: 1.6 }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 18px; right: 18px;
+  background: var(--s2); border: 1px solid var(--g2);
+  border-radius: 11px; padding: 10px 16px;
+  font-size: 12px; font-weight: 600;
+  box-shadow: 0 18px 50px rgba(0,0,0,.6); z-index: 9999;
+  transform: translateY(60px); opacity: 0;
+  transition: all .34s cubic-bezier(.34,1.56,.64,1);
+  display: flex; align-items: center; gap: 7px;
+}
+.toast.on { transform: translateY(0); opacity: 1 }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ░░ SIDEBAR ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<aside class="side">
+  <div class="side-logo">
+    <div class="logo-row">
+      <div class="logo-gem">🧭</div>
+      <div>
+        <div class="logo-name">Coinpedia</div>
+        <div class="logo-sub">Behavior Tracker</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-meta">
+    <div class="meta-label">This Week's Summary</div>
+    <div class="meta-stat"><span class="ms-name">Total Issues</span><span class="ms-val pur" id="sm-total">0</span></div>
+    <div class="meta-stat"><span class="ms-name">Critical</span><span class="ms-val red" id="sm-crit">0</span></div>
+    <div class="meta-stat"><span class="ms-name">High Priority</span><span class="ms-val yel" id="sm-high">0</span></div>
+    <div class="meta-stat"><span class="ms-name">In Progress</span><span class="ms-val grn" id="sm-prog">0</span></div>
+  </div>
+
+  <nav class="side-nav">
+    <div class="snl">Navigation</div>
+    <div class="sni on" id="nav-discover" onclick="goDiscover(this)">
+      <span class="sni-ico">🗂</span>Discover Issues
+      <span class="sni-badge p" id="nb-total">6</span>
+    </div>
+
+    <div class="snl">Issue Types</div>
+    <div class="sni" id="nav-bounce"  onclick="jumpSop('bounce',this)">
+      <span class="sni-ico">📈</span>Bounce Rate
+      <span class="sni-badge r" id="nb-bounce">0</span>
+    </div>
+    <div class="sni" id="nav-exit"    onclick="jumpSop('exit',this)">
+      <span class="sni-ico">🚪</span>Exit Pages
+      <span class="sni-badge" id="nb-exit">0</span>
+    </div>
+    <div class="sni" id="nav-funnel"  onclick="jumpSop('funnel',this)">
+      <span class="sni-ico">🎯</span>Funnel Drop-off
+      <span class="sni-badge r" id="nb-funnel">0</span>
+    </div>
+    <div class="sni" id="nav-cross"   onclick="jumpSop('cross',this)">
+      <span class="sni-ico">🔗</span>Cross-Subdomain
+      <span class="sni-badge" id="nb-cross">0</span>
+    </div>
+    <div class="sni" id="nav-record"  onclick="jumpSop('record',this)">
+      <span class="sni-ico">🎬</span>Session Recordings
+      <span class="sni-badge" id="nb-record">0</span>
+    </div>
+    <div class="sni" id="nav-heat"    onclick="jumpSop('heat',this)">
+      <span class="sni-ico">🗺</span>Heatmap CTAs
+      <span class="sni-badge" id="nb-heat">0</span>
+    </div>
+
+    <div class="snl">By Priority</div>
+    <div class="sni" onclick="filterGlobal('critical',this)">
+      <span class="sni-ico">🔴</span>Critical
+      <span class="sni-badge r" id="nb-crit">0</span>
+    </div>
+    <div class="sni" onclick="filterGlobal('high',this)">
+      <span class="sni-ico">🟡</span>High Priority
+      <span class="sni-badge y" id="nb-high2">0</span>
+    </div>
+    <div class="sni" onclick="filterGlobal('done',this)">
+      <span class="sni-ico">✓</span>Completed
+      <span class="sni-badge" id="nb-done">0</span>
+    </div>
+  </nav>
+
+  <div class="side-foot">
+    <div class="av">AN</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:11px;font-weight:600">Analyst Team</div>
+      <div style="font-family:var(--fm);font-size:9px;color:var(--t3)">coinpedia.org</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ░░ TOPBAR ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<header class="topbar">
+  <div class="breadcrumb">
+    <span class="bc on" id="bc1" onclick="goDiscover()">Behavior & User Journey</span>
+    <span class="bc-sep" id="bcsep1" style="display:none">›</span>
+    <span class="bc"     id="bc2"   style="display:none"></span>
+    <span class="bc-sep" id="bcsep2" style="display:none">›</span>
+    <span class="bc"     id="bc3"   style="display:none"></span>
+  </div>
+  <div class="tb-pill"><div class="dot"></div><span id="tb-txt">6 issue types · select to explore</span></div>
+</header>
+
+<!-- ░░ MAIN ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+<main class="main">
+
+<!-- ════ PAGE 1: DISCOVER ════════════════════ -->
+<div class="pg on" id="pg-discover">
+  <div class="discover-hero">
+    <div class="dh-eyebrow">Coinpedia Analytics · Week 09 — Feb 2026</div>
+    <div class="dh-title">
+      Behavior &amp; <em>User Journey</em><br>Issue Discovery
+    </div>
+    <div class="dh-sub">
+      6 categories of behavioral issues detected across Matomo, GA4, and Clarity data.
+      Click any category to see the Standard Operating Procedure — then drill into specific fix tasks.
+    </div>
+    <div class="dh-stats">
+      <div class="dhs"><div class="dhs-val" style="color:var(--crit)" id="stat-crit">0</div><div class="dhs-lbl">Critical Issues</div></div>
+      <div class="dhs"><div class="dhs-val" style="color:var(--high)" id="stat-high">0</div><div class="dhs-lbl">High Priority</div></div>
+      <div class="dhs"><div class="dhs-val" style="color:var(--ac)"   id="stat-total">0</div><div class="dhs-lbl">Total Tasks</div></div>
+      <div class="dhs"><div class="dhs-val" style="color:var(--norm)" id="stat-prog">0</div><div class="dhs-lbl">In Progress</div></div>
+    </div>
+  </div>
+
+  <div class="issue-grid" id="issue-grid"><!-- rendered by JS --></div>
+</div>
+
+<!-- ════ PAGE 2: SOPs ════════════════════════ -->
+<div class="pg" id="pg-sop">
+  <button class="btn-back" onclick="goDiscover()">← Back to Discover Issues</button>
+  <div class="sop-hero" id="sop-hero">
+    <div class="sh-ico" id="sh-ico"></div>
+    <div class="sh-body">
+      <h1 id="sh-title"></h1>
+      <p  id="sh-sub"></p>
+    </div>
+  </div>
+  <div class="sop-list" id="sop-list"><!-- rendered by JS --></div>
+</div>
+
+<!-- ════ PAGE 3: TASKS ═══════════════════════ -->
+<div class="pg" id="pg-tasks">
+  <button class="btn-back" id="tasks-back" onclick="goSop()">← Back to SOPs</button>
+  <div class="tasks-hero">
+    <div class="th-top">
+      <div class="th-ico" id="th-ico"></div>
+      <div>
+        <div class="th-title" id="th-title"></div>
+        <div class="th-sub"   id="th-sub"></div>
+      </div>
+    </div>
+    <div class="th-stats" id="th-stats"></div>
+  </div>
+  <div class="filter-row">
+    <div class="fil on" onclick="applyFilter('all',this)">All</div>
+    <div class="fil" onclick="applyFilter('critical',this)">🔴 Critical</div>
+    <div class="fil" onclick="applyFilter('high',this)">🟡 High</div>
+    <div class="fil" onclick="applyFilter('normal',this)">🟢 Normal</div>
+    <div class="fil-sep"></div>
+    <div class="fil" onclick="applyFilter('open',this)">Open</div>
+    <div class="fil" onclick="applyFilter('prog',this)">In Progress</div>
+    <div class="fil" onclick="applyFilter('done',this)">Done ✓</div>
+  </div>
+  <div id="tasks-list"><!-- rendered by JS --></div>
+</div>
+
+</main>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg">✓ Updated</span></div>
+
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+
+const ISSUE_TYPES = [
+  {
+    id: 'bounce',
+    icon: '📈',
+    title: 'Pages with Bounce Rate > 70% + High Organic Traffic',
+    sub: 'Matomo · Behavior → Pages report',
+    color: 'var(--bounce-c)', bg: 'var(--bounce-g)',
+    what: 'Identify pages where visitors arrive from Google, see the page, and immediately leave without interacting. Bounce rate > 70% on pages with 500+ monthly organic visits signals a content-intent mismatch or broken UX. These pages are also losing Google ranking signals (dwell time).',
+    sop: [
+      'Open Matomo → Behavior → Pages → sort by Bounce Rate (descending)',
+      'Apply filter: Visits > 500/month AND Bounce Rate > 70%',
+      'Export top 20 pages as CSV — these are your fix targets',
+      'For each page: open on mobile and identify what\'s visible in the first screen',
+      'Check Clarity heatmap for each page — find where users stop scrolling',
+      'Classify each issue: content-intent mismatch, missing data widget, or UX/load problem',
+      'Create one fix task per page with specific bounce %, visit count, and action',
+    ],
+  },
+  {
+    id: 'exit',
+    icon: '🚪',
+    title: 'Exit Pages That Shouldn\'t Be Exit Pages',
+    sub: 'Matomo · Behavior → Exit Pages report',
+    color: 'var(--exit-c)', bg: 'var(--exit-g)',
+    what: 'Exit rate measures how often a page is the last page in a session. Terminal pages (thank you, confirmation) having high exit rates is fine. But content pages, price pages, and news articles with exit rate > 60% are losing users who had more to explore. Unlike bounce rate, a high exit rate with low bounce rate means users read the page — but found no next step.',
+    sop: [
+      'Matomo → Behavior → Exit Pages → sort by Exits (descending)',
+      'Flag any non-terminal page with exit rate > 60% (non-terminal = not a "thank you" or "order confirmation" page)',
+      'Check each flagged page: does it have a clear next-step CTA? Internal links? Related content?',
+      'Cross-reference with Clarity scroll depth — are users reaching the bottom of the page?',
+      'If users scroll to the bottom but still exit: the page has no compelling next action',
+      'Create fix task: add CTA, related article links, or newsletter signup at page end',
+    ],
+  },
+  {
+    id: 'funnel',
+    icon: '🎯',
+    title: 'Funnel Drop-off Points (Registration, Upgrade)',
+    sub: 'Matomo · Goals → Funnels report + Clarity recordings',
+    color: 'var(--funnel-c)', bg: 'var(--funnel-g)',
+    what: 'Funnel drop-off analysis shows exactly which step in a multi-step journey loses the most users. For Coinpedia, key funnels include: Registration (4 steps), Newsletter signup (3 steps), and Premium upgrade (3 steps). Any step with >40% drop-off is a critical fix — each percentage point recovered = real new users per week.',
+    sop: [
+      'Matomo → Goals → Funnels → open each configured goal funnel',
+      'Identify the step with the highest drop-off percentage',
+      'Calculate: how many users are lost per week at this step?',
+      'Open Clarity → Recordings → filter to this funnel page → Bounced = Yes',
+      'Watch 5 session recordings on this step — identify the friction pattern',
+      'Common causes: too many form fields, no social login, no progress indicator, confusing error messages',
+      'Create fix task with: drop-off %, users lost/week, friction type, and specific fix',
+    ],
+  },
+  {
+    id: 'cross',
+    icon: '🔗',
+    title: 'Cross-Subdomain Journey Breaks',
+    sub: 'Matomo · Acquisition → Referrers report',
+    color: 'var(--cross-c)', bg: 'var(--cross-g)',
+    what: 'When a user navigates from coinpedia.org to academy.coinpedia.org (or any other subdomain), they should remain in the same tracked session. If cross-domain tracking isn\'t configured, Matomo will start a new session and incorrectly attribute the source as "Direct" — inflating direct traffic and hiding the real original channel that brought the user.',
+    sop: [
+      'Matomo → Acquisition → Referrers → filter for any *.coinpedia.org domain',
+      'If any subdomain appears as a traffic referrer, cross-domain tracking is broken',
+      'Test live: navigate from coinpedia.org → academy.coinpedia.org, check Matomo real-time',
+      'If session resets, implement cross-domain tracking in Matomo config (setDomains parameter)',
+      'Add the subdomain to referral exclusion list as a backup',
+      'Verify fix: same test should show continuous session and original source preserved',
+    ],
+  },
+  {
+    id: 'record',
+    icon: '🎬',
+    title: 'Session Recordings Showing User Confusion',
+    sub: 'Clarity · Recordings → filter by Rage Clicks / Dead Clicks',
+    color: 'var(--record-c)', bg: 'var(--record-g)',
+    what: 'Session recordings are the most direct window into user confusion. Clarity automatically flags sessions with rage clicks (repeated frustrated clicking) and dead clicks (clicking on non-interactive elements). Watching 10 recordings per week on high-traffic pages reveals patterns that surveys and analytics can never show.',
+    sop: [
+      'Clarity → Recordings → filter: Rage Clicks ≥ 1 OR Dead Clicks ≥ 2',
+      'Sort by session duration descending — longer confused sessions show more complex problems',
+      'Watch minimum 10 recordings per week across top 5 landing pages',
+      'For each recording: note the URL, the element causing confusion, and the device type',
+      'Look for patterns: if the same element causes confusion in 3+ recordings = create a fix task',
+      'Screenshot the confusion moment from Clarity and attach to the fix task as evidence',
+      'Create fix task with: element name, recording count showing confusion, device type, and fix type',
+    ],
+  },
+  {
+    id: 'heat',
+    icon: '🗺',
+    title: 'Heatmaps Showing Missed CTAs',
+    sub: 'Clarity · Heatmaps → Click map for key pages',
+    color: 'var(--heat-c)', bg: 'var(--heat-g)',
+    what: 'Click heatmaps reveal the gap between where users actually click vs where you want them to click. If the primary CTA (conversion action) is in the bottom 20% of click density, it\'s being systematically ignored. This is a layout or visual hierarchy problem — not a content problem.',
+    sop: [
+      'Clarity → Heatmaps → open top 5 pages by traffic',
+      'Switch to Click map view',
+      'Identify where the primary CTA (Register, Buy, Subscribe, See Price) sits on the page',
+      'Check the CTA\'s click density percentage vs total page clicks',
+      'If CTA click share < 8%: it\'s being missed by design',
+      'Check scroll depth: can most users even see the CTA without scrolling?',
+      'Create fix task: CTA position, visual weight, contrast, or copy issue — specify which',
+    ],
+  },
+];
+
+/* ── ALL TASKS ──────────────────────────── */
+const TASKS = [
+
+  /* ── BOUNCE RATE ─────────────────── */
+  {
+    id: 'B001', type: 'bounce',
+    title: '/ethereum-price — Bounce Rate 84% Fix',
+    url: 'coinpedia.org/ethereum-price',
+    priority: 'critical', team: 'Content', status: 'inprog',
+    source: 'Matomo Weekly — Week 09 · 27 Feb 2026',
+    lc: 'var(--bounce-c)',
+    evidence: {
+      metric: '84%', label: 'Bounce Rate', color: 'var(--bounce-c)',
+      stats: [
+        { val: '28,000', key: 'Monthly Visits' },
+        { val: '12s',    key: 'Avg Time on Page' },
+        { val: '55%',    key: 'Benchmark Rate' },
+        { val: '+29pts', key: 'Above Benchmark' },
+      ]
+    },
+    impact: 'At 28,000 monthly visits, a 20-point bounce improvement = 5,600 more engaged readers/month. Poor dwell time is also suppressing Google rankings for "/ethereum price" keywords.',
+    steps: [
+      'Add live ETH price widget + 24h chart above the fold — visitors arrive specifically for the price; give it instantly',
+      'Rewrite intro paragraph: replace generic "Ethereum is a blockchain…" with "ETH is trading at $X today, up Y% — here\'s what\'s moving the market"',
+      'Add internal links to /ethereum-news and /ethereum-price-prediction within the first 200 words',
+      'Add price history table (1W, 1M, 1Y) — Clarity scroll heatmap shows this is the most-scrolled-to section',
+      'Check page load on mobile: hero image must be WebP, under 100KB, LCP under 2.5s',
+    ],
+    verify: '✅ Matomo: /ethereum-price bounce rate below 60% within 3 weeks. Check every Monday in the weekly Matomo report.',
+  },
+  {
+    id: 'B002', type: 'bounce',
+    title: '/xrp-price — Bounce Rate 79% Fix',
+    url: 'coinpedia.org/xrp-price',
+    priority: 'high', team: 'Content', status: 'open',
+    source: 'Matomo Weekly — Week 09 · 27 Feb 2026',
+    lc: 'var(--bounce-c)',
+    evidence: {
+      metric: '79%', label: 'Bounce Rate', color: 'var(--bounce-c)',
+      stats: [
+        { val: '19,400', key: 'Monthly Visits' },
+        { val: '18s',    key: 'Avg Time on Page' },
+        { val: '55%',    key: 'Benchmark Rate' },
+      ]
+    },
+    impact: 'Same structural problem as ETH page — no live data above fold. At 19,400 visits, 20-point fix = 3,880 more engaged readers/month.',
+    steps: [
+      'Add live XRP price widget above the fold — use the same reusable component as ETH and BTC pages',
+      'Rewrite intro to lead with today\'s XRP price and 24h change (not XRP history)',
+      'Add XRP price history table and "Is XRP a good investment in 2026?" FAQ section',
+      'Internal link from /xrp-news hub page to /xrp-price with keyword anchor text',
+    ],
+    verify: '✅ Matomo: /xrp-price bounce rate below 60% within 3 weeks.',
+  },
+  {
+    id: 'B003', type: 'bounce',
+    title: '/solana-price — Bounce Rate 76% Fix',
+    url: 'coinpedia.org/solana-price',
+    priority: 'high', team: 'Content', status: 'open',
+    source: 'Matomo Weekly — Week 09 · 27 Feb 2026',
+    lc: 'var(--bounce-c)',
+    evidence: {
+      metric: '76%', label: 'Bounce Rate', color: 'var(--bounce-c)',
+      stats: [
+        { val: '14,200', key: 'Monthly Visits' },
+        { val: '21s',    key: 'Avg Time on Page' },
+        { val: '55%',    key: 'Benchmark Rate' },
+      ]
+    },
+    impact: 'Third price page with the same pattern. No live widget = instant bounce. 14,200 monthly visits underperforming.',
+    steps: [
+      'Add live SOL price widget (same component used on BTC/ETH pages)',
+      'Add Solana 24h % change and market cap stats above the fold',
+      'Add "Top Solana News Today" section auto-pulling last 3 SOL news articles',
+      'Add SOL price vs BTC price ratio — unique angle that attracts traders',
+    ],
+    verify: '✅ Matomo: /solana-price bounce rate below 60% within 3 weeks.',
+  },
+  {
+    id: 'B004', type: 'bounce',
+    title: '/bitcoin-news — Bounce Rate 72% (Should Be 45%)',
+    url: 'coinpedia.org/bitcoin-news',
+    priority: 'normal', team: 'Content', status: 'open',
+    source: 'Matomo Weekly — Week 09 · 27 Feb 2026',
+    lc: 'var(--bounce-c)',
+    evidence: {
+      metric: '72%', label: 'Bounce Rate', color: 'var(--bounce-c)',
+      stats: [
+        { val: '38,000', key: 'Monthly Visits' },
+        { val: '24s',    key: 'Avg Time on Page' },
+        { val: '45%',    key: 'Benchmark (News Hub)' },
+      ]
+    },
+    impact: 'News hub pages should have lower bounce (users should click into articles). 72% suggests the article list or layout isn\'t compelling enough to click into.',
+    steps: [
+      'Update featured/pinned articles — stale featured articles kill click-through',
+      'Add article preview text (2-line excerpt) below each headline — reduces friction to click',
+      'Add "Trending Now" sidebar with 5 most-read articles today',
+      'Reduce ad density in the top half of the page — ads above the fold increase bounce',
+    ],
+    verify: '✅ Matomo: /bitcoin-news bounce rate below 52% within 4 weeks.',
+  },
+
+  /* ── EXIT PAGES ─────────────────── */
+  {
+    id: 'E001', type: 'exit',
+    title: '/learn/crypto-basics — Exit Rate 68% (Good Read, No Next Step)',
+    url: 'coinpedia.org/learn/crypto-basics',
+    priority: 'normal', team: 'Content', status: 'open',
+    source: 'Matomo Behavior — Feb 2026 · 22 Feb 2026',
+    lc: 'var(--exit-c)',
+    evidence: {
+      metric: '68%', label: 'Exit Rate', color: 'var(--exit-c)',
+      stats: [
+        { val: '8,400',  key: 'Monthly Visits' },
+        { val: '3min 2s', key: 'Avg Session Duration' },
+        { val: '0',      key: 'Next-Step CTAs on Page' },
+      ]
+    },
+    impact: 'Users read this guide for 3+ minutes (excellent engagement) but 68% leave Coinpedia entirely. The content is working — the next-step architecture is broken. This page should convert readers into deeper site users.',
+    steps: [
+      'Add "What to Read Next" section at the bottom: 3 related guide links with preview text',
+      'Add inline CTA mid-page: "Ready to track crypto prices live? See our live price page →"',
+      'Add email newsletter signup box after the last section: "Get daily crypto briefings"',
+      'Add 5 internal links within the article body to related price pages and guides',
+    ],
+    verify: '✅ Matomo: /learn/crypto-basics exit rate drops below 50% within 3 weeks. Next-page session rate increases.',
+  },
+  {
+    id: 'E002', type: 'exit',
+    title: '/prices — Mobile Exit Rate 55% (Pagination Breaks Flow)',
+    url: 'coinpedia.org/prices',
+    priority: 'high', team: 'Development', status: 'open',
+    source: 'Matomo + Clarity — Feb 2026 · 22 Feb 2026',
+    lc: 'var(--exit-c)',
+    evidence: {
+      metric: '55%', label: 'Mobile Exit Rate', color: 'var(--exit-c)',
+      stats: [
+        { val: '38,000', key: 'Monthly Visits' },
+        { val: 'Mobile', key: 'Primarily Affected' },
+        { val: 'Page reload to top', key: 'Pagination Behaviour' },
+      ]
+    },
+    impact: 'Prices page pagination reloads the page to the top on mobile. Users lose their scroll position and exit in frustration. Classic mobile UX failure.',
+    steps: [
+      'Replace pagination with infinite scroll or a "Load 20 more" button (no full page reload)',
+      'If pagination must be kept: preserve scroll position on page load after navigation',
+      'Add sticky search bar so users can find a specific coin without scrolling back to top',
+      'Test specifically on iOS Safari and Android Chrome — both handle scroll position differently',
+    ],
+    verify: '✅ Matomo: /prices mobile exit rate drops below 38% within 3 weeks.',
+  },
+  {
+    id: 'E003', type: 'exit',
+    title: '/ethereum-news — Exit Rate 63% After First Article View',
+    url: 'coinpedia.org/ethereum-news',
+    priority: 'normal', team: 'Content', status: 'open',
+    source: 'Matomo Behavior — Feb 2026 · 22 Feb 2026',
+    lc: 'var(--exit-c)',
+    evidence: {
+      metric: '63%', label: 'Exit Rate', color: 'var(--exit-c)',
+      stats: [
+        { val: '22,000', key: 'Monthly Visits' },
+        { val: '1',      key: 'Avg Pages per Session' },
+        { val: 'No CTA', key: 'End-of-Article State' },
+      ]
+    },
+    impact: 'ETH news readers read one article and leave. No "you might also like" or next-article flow. Each exiting user is a missed internal pageview and missed conversion opportunity.',
+    steps: [
+      'Add "You might also like" section at the end of every ETH news article: 3 related articles',
+      'Add "Latest ETH News" widget in the article sidebar (desktop) and below the article (mobile)',
+      'Add a "Track ETH Price" sticky bar at the bottom of the article on mobile',
+      'A/B test: "Continue Reading" auto-scroll into the next article (same category)',
+    ],
+    verify: '✅ Matomo: average pages per session on /ethereum-news increases from 1 to 1.8+ within 4 weeks.',
+  },
+
+  /* ── FUNNEL DROP-OFF ─────────────── */
+  {
+    id: 'F001', type: 'funnel',
+    title: 'Registration — Step 2 Email Field 62% Drop-off',
+    url: 'coinpedia.org/register (Step 2 of 4)',
+    priority: 'critical', team: 'UX / UI', status: 'open',
+    source: 'Matomo Funnel Analysis — Q1 2026 · 17 Feb 2026',
+    lc: 'var(--funnel-c)',
+    evidence: {
+      metric: '62%', label: 'Drop at Step 2', color: 'var(--funnel-c)',
+      stats: [
+        { val: '~500',  key: 'Users Lost / Week' },
+        { val: 'Step 2', key: 'Funnel Stage' },
+        { val: '+100',  key: 'New Members/Week if Fixed' },
+      ]
+    },
+    impact: '62% of users who start registration abandon at the email/password step. 500 users lost every week. Fixing drop-off from 62% to 40% = +100 new registered members per week, every week.',
+    steps: [
+      'Merge First + Last Name fields into one "Full Name" field — removes one input from view',
+      'Add Google and Apple social login as the primary CTA above the manual form — removes email friction entirely',
+      'Add progress indicator: "Step 2 of 3 — you\'re almost done!" to reduce perceived effort',
+      'Remove all optional fields from Step 2 — move them to a profile completion step after signup',
+      'Add social proof near the CTA button: "Join 520,000 crypto traders already on Coinpedia"',
+    ],
+    verify: '✅ Matomo funnel: Registration Step 2 drop-off reduces from 62% to below 40% within 3 weeks.',
+  },
+  {
+    id: 'F002', type: 'funnel',
+    title: 'Newsletter — Step 3 Confirmation Email 71% Drop-off',
+    url: 'coinpedia.org/newsletter (Step 3 of 3)',
+    priority: 'high', team: 'UX / UI', status: 'open',
+    source: 'Matomo Funnel Analysis — Q1 2026 · 17 Feb 2026',
+    lc: 'var(--funnel-c)',
+    evidence: {
+      metric: '71%', label: 'Drop at Confirmation', color: 'var(--funnel-c)',
+      stats: [
+        { val: '~320', key: 'Subscribers Lost / Week' },
+        { val: 'Step 3', key: 'Funnel Stage' },
+        { val: 'Spam?', key: 'Likely Cause' },
+      ]
+    },
+    impact: '71% of users who enter their email never confirm it — 320 lost subscribers/week. Most likely: confirmation email is going to spam, or the confirmation screen doesn\'t clearly tell users what to do next.',
+    steps: [
+      'Add a clear "Check your email — confirmation sent to [email]" screen immediately after form submit',
+      'Display "Check your spam/junk folder" instruction prominently on the confirmation page',
+      'Add a "Resend confirmation email" button on the confirmation page',
+      'Test the confirmation email\'s spam score at Mail-Tester.com — target score 9.0+/10',
+      'Consider switching to single opt-in with an unsubscribe footer (removes the confirmation step entirely)',
+    ],
+    verify: '✅ Matomo: Newsletter confirmation completion improves from 29% to 50%+ within 2 weeks.',
+  },
+  {
+    id: 'F003', type: 'funnel',
+    title: 'Premium Upgrade — Step 2 Payment Page 58% Drop-off',
+    url: 'coinpedia.org/premium/checkout (Step 2)',
+    priority: 'critical', team: 'UX / UI', status: 'open',
+    source: 'Matomo Funnel Analysis — Q1 2026 · 17 Feb 2026',
+    lc: 'var(--funnel-c)',
+    evidence: {
+      metric: '58%', label: 'Drop at Payment', color: 'var(--funnel-c)',
+      stats: [
+        { val: '~85',   key: 'Lost Conversions / Week' },
+        { val: 'Step 2', key: 'Funnel Stage' },
+        { val: '£X / week', key: 'Revenue Lost' },
+      ]
+    },
+    impact: '58% of users who click "Upgrade to Premium" abandon at the payment page. This is the highest-value funnel on the site — each recovered conversion = direct revenue.',
+    steps: [
+      'Watch 10 Clarity session recordings of users who reached the payment page but didn\'t convert',
+      'Check: is the payment form causing confusion? (Too many fields, no PayPal/Apple Pay option?)',
+      'Add trusted payment logos (Visa, Mastercard, Stripe) prominently — builds trust at the payment step',
+      'Add money-back guarantee copy near the payment button: "30-day money-back, no questions asked"',
+      'Add live chat support option on this page specifically — high-intent users often need a last nudge',
+    ],
+    verify: '✅ Matomo funnel: Premium Step 2 drop-off reduces from 58% to below 35% within 4 weeks.',
+  },
+
+  /* ── CROSS-SUBDOMAIN ─────────────── */
+  {
+    id: 'C001', type: 'cross',
+    title: 'academy.coinpedia.org — Sessions Misattributed as Direct Traffic',
+    url: 'academy.coinpedia.org ↔ coinpedia.org',
+    priority: 'normal', team: 'Development', status: 'open',
+    source: 'Matomo Referral Report — Feb 2026 · 22 Feb 2026',
+    lc: 'var(--cross-c)',
+    evidence: {
+      metric: '~2,100', label: 'Sessions Misattributed/mo', color: 'var(--cross-c)',
+      stats: [
+        { val: '"Direct"',   key: 'Misattributed As' },
+        { val: 'Organic',    key: 'True Source (est.)' },
+        { val: 'Tracking gap', key: 'Root Cause' },
+      ]
+    },
+    impact: '~2,100 sessions/month from academy subdomain are counted as "Direct" instead of their true organic/social source. This inflates Direct traffic, hides channel performance, and makes ROI decisions based on wrong data.',
+    steps: [
+      'Confirm the issue: Matomo → Acquisition → Referrers → check if academy.coinpedia.org appears as a source',
+      'If yes, cross-domain tracking is not configured — sessions restart at the subdomain boundary',
+      'Add cross-domain tracking to the Matomo JS tag: tracker.setDomains(["*.coinpedia.org"])',
+      'Test: navigate Google → coinpedia.org → academy.coinpedia.org — Matomo real-time should show "Organic / Google" throughout',
+      'Alternatively: add academy.coinpedia.org to the referral exclusion list in Matomo settings',
+    ],
+    verify: '✅ Matomo: academy.coinpedia.org no longer appears as a referral source. Direct traffic count reduces accordingly.',
+  },
+  {
+    id: 'C002', type: 'cross',
+    title: 'blog.coinpedia.org — Cross-Domain Session Break Inflating Direct',
+    url: 'blog.coinpedia.org ↔ coinpedia.org',
+    priority: 'normal', team: 'Development', status: 'open',
+    source: 'Matomo Referral Report — Feb 2026 · 22 Feb 2026',
+    lc: 'var(--cross-c)',
+    evidence: {
+      metric: '~850', label: 'Sessions Misattributed/mo', color: 'var(--cross-c)',
+      stats: [
+        { val: '"Direct"',  key: 'Misattributed As' },
+        { val: 'Social',    key: 'True Source (est.)' },
+      ]
+    },
+    impact: '~850 blog sessions/month are losing their original source attribution when users navigate to the main site.',
+    steps: [
+      'Apply the same cross-domain tracking fix as academy subdomain: tracker.setDomains(["*.coinpedia.org"])',
+      'Verify both subdomains use the same Matomo site ID — different site IDs will never share sessions',
+      'Test with Matomo Tag Manager Debugger to confirm sessions persist across the boundary',
+    ],
+    verify: '✅ Matomo: blog.coinpedia.org sessions correctly attributed to their original source.',
+  },
+
+  /* ── SESSION RECORDINGS ───────────── */
+  {
+    id: 'R001', type: 'record',
+    title: 'Registration Page — 7 of 10 Recordings Show Submit Button Freezing',
+    url: 'coinpedia.org/register',
+    priority: 'critical', team: 'Development', status: 'open',
+    source: 'Clarity Session Recordings — Feb W4 · 24 Feb 2026',
+    lc: 'var(--record-c)',
+    evidence: {
+      metric: '7 / 10', label: 'Recordings Show Confusion', color: 'var(--record-c)',
+      stats: [
+        { val: '140 / week', key: 'Rage Clicks on Submit' },
+        { val: '2–4s',       key: 'Button Freeze Duration' },
+        { val: 'Mobile',     key: 'Primarily Affected' },
+      ]
+    },
+    impact: '22% of all registration sessions have rage clicks on the submit button. The button provides no visual feedback for 2–4 seconds, users click 2–5 more times then abandon. Directly killing registration completions.',
+    steps: [
+      'Watch 10 Clarity recordings on /register filtered to Rage Clicks ≥ 1 to confirm the pattern',
+      'Add a loading spinner inside the submit button on first click — disable button immediately after click',
+      'Change button state: first click → text changes to "Creating your account…" + spinner + greyed-out',
+      'Check server response time for the registration API endpoint — must be under 800ms',
+      'Test on slow 3G connection using Chrome DevTools throttling — feedback must be visible within 200ms',
+    ],
+    verify: '✅ Clarity: rage clicks on /register submit button drop below 20/week within 2 weeks. Matomo funnel Step 4 completion improves.',
+  },
+  {
+    id: 'R002', type: 'record',
+    title: 'Search Bar — 6 of 10 Recordings Show "No Results" Rage Clicks',
+    url: 'coinpedia.org (site search)',
+    priority: 'high', team: 'Development', status: 'open',
+    source: 'Clarity Session Recordings — Feb W4 · 24 Feb 2026',
+    lc: 'var(--record-c)',
+    evidence: {
+      metric: '6 / 10', label: 'Recordings Show Frustration', color: 'var(--record-c)',
+      stats: [
+        { val: '95 / week', key: 'Rage Clicks on Search' },
+        { val: '"No results"', key: 'Primary Trigger' },
+        { val: 'Desktop',    key: 'Primarily Affected' },
+      ]
+    },
+    impact: 'Users searching for crypto terms and hitting "No results found" — then rage-clicking the search bar. High-intent users leaving with nothing. Every rage-click session here is a missed content opportunity.',
+    steps: [
+      'Export top 20 "no results" search queries from Clarity or site search analytics — these are content gaps',
+      'For each query: create a redirect to the nearest relevant existing page or create the content',
+      'Add "Did you mean [X]?" fuzzy-match suggestions when exact search returns nothing',
+      'Add "Popular searches" and "Trending coins today" to the empty search state',
+      'Consider adding auto-complete with coin names — prevents no-results queries from happening',
+    ],
+    verify: '✅ Clarity: search-related rage clicks drop below 20/week. Site search zero-results rate drops below 10%.',
+  },
+  {
+    id: 'R003', type: 'record',
+    title: 'Mobile Navigation — 5 of 10 Recordings Show Menu Not Opening',
+    url: 'coinpedia.org (mobile header)',
+    priority: 'high', team: 'Development', status: 'open',
+    source: 'Clarity Session Recordings — Feb W4 · 24 Feb 2026',
+    lc: 'var(--record-c)',
+    evidence: {
+      metric: '5 / 10', label: 'Mobile Recordings Affected', color: 'var(--record-c)',
+      stats: [
+        { val: '220 / week', key: 'Failed Menu Taps' },
+        { val: '32px',       key: 'Current Tap Target' },
+        { val: '44px min',   key: 'Required Size' },
+      ]
+    },
+    impact: '220 mobile users/week failing to open the navigation menu. The hamburger icon tap target is 32×32px — below the 44×44px minimum. Users tap, nothing happens, they tap again, tap the wrong thing, then exit.',
+    steps: [
+      'Confirm in Clarity: filter mobile recordings → identify hamburger menu dead-click pattern',
+      'Increase hamburger menu tap target to minimum 44×44px (use padding, not just icon size)',
+      'Test the fix on the most common mobile screen sizes: iPhone 14 (390px), Samsung S24 (360px)',
+      'Consider replacing hamburger with a bottom navigation bar for mobile — higher discoverability',
+    ],
+    verify: '✅ Clarity: mobile navigation dead clicks drop below 30/week. Mobile bounce rate improves by 5+ points.',
+  },
+
+  /* ── HEATMAP CTAs ────────────────── */
+  {
+    id: 'H001', type: 'heat',
+    title: 'Homepage — Primary CTA Getting Only 3% of Clicks',
+    url: 'coinpedia.org (homepage)',
+    priority: 'high', team: 'UX / UI', status: 'open',
+    source: 'Clarity Click Heatmap — Feb W4 · 24 Feb 2026',
+    lc: 'var(--heat-c)',
+    evidence: {
+      metric: '3%', label: 'CTA Click Share', color: 'var(--heat-c)',
+      stats: [
+        { val: '22%',       key: 'Logo Click Share' },
+        { val: 'Below fold', key: 'CTA Position' },
+        { val: '52,000',    key: 'Monthly Homepage Visits' },
+      ]
+    },
+    impact: '22% of all homepage clicks go to the logo (which returns to homepage — zero conversion value). Primary CTA gets 3%. Users are navigating aimlessly because the CTA is not visible above the fold.',
+    steps: [
+      'Move the primary CTA ("Track Live Prices" or "Get Started") above the fold — visible on first load without scrolling',
+      'Increase CTA button size: minimum 160px wide, 48px tall on desktop',
+      'Increase contrast: CTA should be the highest-contrast element in the viewport',
+      'A/B test: purple button (brand) vs white button — check which gets more click share in Clarity after 2 weeks',
+      'Watch 5 Clarity recordings of new homepage visitors — observe where their cursor goes first',
+    ],
+    verify: '✅ Clarity: main CTA click share increases from 3% to 12%+ within 3 weeks.',
+  },
+  {
+    id: 'H002', type: 'heat',
+    title: '/bitcoin-price-prediction — Prediction Table Getting Only 8% of Clicks',
+    url: 'coinpedia.org/bitcoin-price-prediction',
+    priority: 'normal', team: 'UX / UI', status: 'open',
+    source: 'Clarity Click Heatmap — Feb W4 · 24 Feb 2026',
+    lc: 'var(--heat-c)',
+    evidence: {
+      metric: '8%', label: 'Table Click Share', color: 'var(--heat-c)',
+      stats: [
+        { val: '65%',    key: 'Table Scroll Position' },
+        { val: '38%',    key: 'Avg User Scroll Depth' },
+        { val: '85,000', key: 'Monthly Visits' },
+      ]
+    },
+    impact: 'The price prediction table — the core reason users visit this page — is at 65% scroll but average scroll depth is only 38%. 52,700 users/month never even see the table.',
+    steps: [
+      'Move the BTC price prediction table from 65% scroll position to within the first 25% of the page',
+      'Add a "Jump to predictions ↓" anchor link in the first paragraph',
+      'Add a compact "Quick prediction" summary box in the hero section (Bull/Base/Bear in 3 lines)',
+      'Add subheadings every 200–250 words to create visual stepping stones that encourage scrolling',
+    ],
+    verify: '✅ Clarity: avg scroll depth on /bitcoin-price-prediction improves from 38% to 60%+. Table click share rises above 22%.',
+  },
+  {
+    id: 'H003', type: 'heat',
+    title: '/register — "Continue with Google" CTA Getting Only 12% of Clicks',
+    url: 'coinpedia.org/register',
+    priority: 'high', team: 'UX / UI', status: 'inprog',
+    source: 'Clarity Click Heatmap — Feb W4 · 24 Feb 2026',
+    lc: 'var(--heat-c)',
+    evidence: {
+      metric: '12%', label: '"Google" Button Click Share', color: 'var(--heat-c)',
+      stats: [
+        { val: '68%',   key: 'Manual Form Attempts' },
+        { val: '20%',   key: 'Manual Form Completion' },
+        { val: '78%',   key: 'Google Login Completion' },
+      ]
+    },
+    impact: 'Users who use "Continue with Google" complete registration at 78% vs 20% for manual form. But only 12% click Google. Moving it to the dominant position would 3–4× conversion rate.',
+    steps: [
+      'Move "Continue with Google" button to the top of the form — above all manual input fields',
+      'Make it full-width and full-height (same visual weight as the most important action on the page)',
+      'Add "or" divider below Google button before showing the manual form',
+      'Add Apple login alongside Google — Apple users have a high conversion rate',
+      'Remove "Continue with Google" text — replace with the standard Google branded button format',
+    ],
+    verify: '✅ Clarity: Google login button click share increases from 12% to 45%+. Matomo registration completion rate improves.',
+  },
+
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let currentType   = null;   // active issue type id
+let currentFilter = 'all';  // active filter
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+(function init() {
+  buildDiscoverGrid();
+  updateSidebarCounts();
+})();
+
+/* ══════════════════════════════════════════
+   BUILD DISCOVER GRID
+══════════════════════════════════════════ */
+function buildDiscoverGrid() {
+  const grid = document.getElementById('issue-grid');
+  grid.innerHTML = ISSUE_TYPES.map(it => {
+    const tasks = TASKS.filter(t => t.type === it.id);
+    const crits = tasks.filter(t => t.priority === 'critical').length;
+    const highs = tasks.filter(t => t.priority === 'high').length;
+    return `
+    <div class="issue-card" style="--ic:${it.color}" onclick="goSop('${it.id}')">
+      <div class="ic-inner">
+        <div class="ic-ico" style="background:${it.bg}">${it.icon}</div>
+        <div class="ic-body">
+          <div class="ic-title">${it.title}</div>
+          <div class="ic-sub">${it.sub}</div>
+        </div>
+        <div class="ic-right">
+          <div class="ic-count" style="background:${it.bg};color:${it.color}">
+            ${tasks.length} task${tasks.length!==1?'s':''}
+          </div>
+          ${crits ? `<div style="font-family:var(--fm);font-size:9px;color:var(--crit);font-weight:700">${crits} critical</div>` : ''}
+          <div class="ic-arr">→</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+function showPage(id) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+  document.getElementById('pg-' + id).classList.add('on');
+}
+
+function goDiscover(el) {
+  showPage('discover');
+  setBreadcrumb(['Behavior & User Journey']);
+  document.getElementById('tb-txt').textContent = '6 issue types · select to explore';
+  setNavActive('nav-discover');
+}
+
+function goSop(typeId, fromNav) {
+  if (typeId) currentType = typeId;
+  const it = ISSUE_TYPES.find(i => i.id === currentType);
+  if (!it) return;
+
+  // render hero
+  document.getElementById('sh-ico').style.cssText = `background:${it.bg};font-size:26px`;
+  document.getElementById('sh-ico').textContent = it.icon;
+  document.getElementById('sh-title').textContent = it.title;
+  document.getElementById('sh-sub').textContent = it.sub;
+  document.getElementById('pg-sop').style.setProperty('--ic', it.color);
+
+  // render sop steps card
+  const tasks = TASKS.filter(t => t.type === currentType);
+  const crits = tasks.filter(t => t.priority === 'critical').length;
+
+  document.getElementById('sop-list').innerHTML = `
+    <div class="sop-card open" id="sop-main">
+      <div class="sop-head" onclick="toggleSop(this)">
+        <div class="sop-num">SOP</div>
+        <div class="sop-head-body">
+          <div class="sop-title">Standard Operating Procedure — What to Check & How</div>
+          <div class="sop-meta">Follow these steps every Monday when analyzing Matomo / Clarity reports</div>
+        </div>
+        <div class="sop-right">
+          <div class="sop-task-count" style="background:${it.bg};color:${it.color}">${tasks.length} tasks generated</div>
+          <div class="sop-chevron">▾</div>
+        </div>
+      </div>
+      <div class="sop-body open">
+        <div class="sop-what">
+          <div class="sop-what-label">📋 What This Issue Is</div>
+          <div class="sop-what-text">${it.what}</div>
+        </div>
+        <div class="sop-steps-wrap">
+          <div class="sop-steps-label">✅ Step-by-Step SOP</div>
+          ${it.sop.map((s,i) => `
+            <div class="sop-step">
+              <div class="sop-step-n">${i+1}</div>
+              <div class="sop-step-txt">${s}</div>
+            </div>`).join('')}
+        </div>
+        <div class="sop-action">
+          <div class="sa-info">
+            <span>${tasks.length} fix tasks</span> generated from this SOP · 
+            ${crits ? `<span style="color:var(--crit)">${crits} critical</span> · ` : ''}
+            Click to see all tasks with evidence and action steps
+          </div>
+          <button class="btn btn-ac btn-sm" onclick="goTasks()">See Fix Tasks →</button>
+        </div>
+      </div>
+    </div>`;
+
+  showPage('sop');
+  setBreadcrumb(['Behavior & User Journey', it.title]);
+  document.getElementById('tb-txt').textContent = `${tasks.length} tasks · click "See Fix Tasks" to view all`;
+  if (fromNav) setNavActive('nav-' + currentType);
+}
+
+function toggleSop(el) {
+  const card = el.closest('.sop-card');
+  card.classList.toggle('open');
+  const body = card.querySelector('.sop-body');
+  body.classList.toggle('open');
+}
+
+function goTasks() {
+  currentFilter = 'all';
+  renderTasksPage();
+  showPage('tasks');
+  const it = ISSUE_TYPES.find(i => i.id === currentType);
+  setBreadcrumb(['Behavior & User Journey', it.title, 'Fix Tasks']);
+  document.getElementById('tb-txt').textContent = TASKS.filter(t => t.type === currentType).length + ' fix tasks';
+  setNavActive('nav-' + currentType);
+}
+
+function jumpSop(typeId, el) {
+  currentType = typeId;
+  goSop(typeId, true);
+}
+
+function filterGlobal(filter, el) {
+  currentType = null;
+  currentFilter = filter;
+  renderAllTasksPage(filter);
+  showPage('tasks');
+  document.getElementById('tasks-back').onclick = () => goDiscover();
+  setBreadcrumb(['Behavior & User Journey', filter.charAt(0).toUpperCase() + filter.slice(1) + ' Tasks']);
+  setNavActive(null);
+  if (el) { document.querySelectorAll('.sni').forEach(n => n.classList.remove('on')); el.classList.add('on') }
+}
+
+function renderAllTasksPage(filter) {
+  let filtered = TASKS;
+  if (filter === 'critical') filtered = TASKS.filter(t => t.priority === 'critical');
+  else if (filter === 'high') filtered = TASKS.filter(t => t.priority === 'high');
+  else if (filter === 'done') filtered = TASKS.filter(t => t.status === 'done');
+
+  const it = { icon: '🧭', color: 'var(--ac)' };
+  renderTasksHero(filtered, filter.charAt(0).toUpperCase()+filter.slice(1)+' Tasks', it);
+  document.getElementById('tasks-list').innerHTML = filtered.length
+    ? filtered.map((t,i) => taskCard(t, i)).join('')
+    : emptyState('No tasks match this filter');
+  filtered.forEach((t,i) => { document.getElementById('tc-' + t.id).style.animationDelay = (i * 0.04) + 's' });
+}
+
+/* ══════════════════════════════════════════
+   RENDER TASKS PAGE
+══════════════════════════════════════════ */
+function renderTasksPage() {
+  const it    = ISSUE_TYPES.find(i => i.id === currentType);
+  const tasks = TASKS.filter(t => t.type === currentType);
+
+  // hero
+  renderTasksHero(tasks, it.title, it);
+
+  // filters reset
+  document.querySelectorAll('.filter-row .fil').forEach(f => f.classList.remove('on'));
+  document.querySelector('.filter-row .fil').classList.add('on');
+
+  // list
+  renderFilteredList(tasks, 'all');
+}
+
+function renderTasksHero(tasks, title, it) {
+  document.getElementById('th-ico').textContent = it.icon || '🧭';
+  document.getElementById('th-title').textContent = title;
+  document.getElementById('th-sub').textContent =
+    `${tasks.length} task${tasks.length!==1?'s':''} · ${tasks.filter(t=>t.priority==='critical').length} critical · ${tasks.filter(t=>t.status==='open').length} open`;
+
+  document.getElementById('pg-tasks').style.setProperty('--ic', it.color || 'var(--ac)');
+
+  const statDefs = [
+    { val: tasks.length,                                   lbl: 'Total Tasks',  c: 'var(--ac)'   },
+    { val: tasks.filter(t=>t.priority==='critical').length, lbl: 'Critical',    c: 'var(--crit)' },
+    { val: tasks.filter(t=>t.priority==='high').length,     lbl: 'High',        c: 'var(--high)' },
+    { val: tasks.filter(t=>t.status==='open').length,       lbl: 'Open',        c: 'var(--t2)'   },
+    { val: tasks.filter(t=>t.status==='prog').length,       lbl: 'In Progress', c: 'var(--norm)' },
+    { val: tasks.filter(t=>t.status==='done').length,       lbl: 'Done',        c: 'var(--norm)' },
+  ];
+  document.getElementById('th-stats').innerHTML = statDefs.map(s => `
+    <div class="ths" style="--sc:${s.c}">
+      <div class="ths-val" style="color:${s.c}">${s.val}</div>
+      <div class="ths-lbl">${s.lbl}</div>
+    </div>`).join('');
+}
+
+function applyFilter(f, el) {
+  document.querySelectorAll('.filter-row .fil').forEach(x => x.classList.remove('on'));
+  el.classList.add('on');
+  currentFilter = f;
+  const tasks = currentType ? TASKS.filter(t => t.type === currentType) : TASKS;
+  renderFilteredList(tasks, f);
+}
+
+function renderFilteredList(tasks, f) {
+  let list = tasks;
+  if (f === 'critical') list = tasks.filter(t => t.priority === 'critical');
+  else if (f === 'high')     list = tasks.filter(t => t.priority === 'high');
+  else if (f === 'normal')   list = tasks.filter(t => t.priority === 'normal');
+  else if (f === 'open')     list = tasks.filter(t => t.status === 'open');
+  else if (f === 'prog')     list = tasks.filter(t => t.status === 'prog');
+  else if (f === 'done')     list = tasks.filter(t => t.status === 'done');
+
+  document.getElementById('tasks-list').innerHTML = list.length
+    ? list.map((t, i) => taskCard(t, i)).join('')
+    : emptyState('No tasks match this filter');
+  list.forEach((t, i) => {
+    const el = document.getElementById('tc-' + t.id);
+    if (el) el.style.animationDelay = (i * 0.04) + 's';
+  });
+}
+
+/* ══════════════════════════════════════════
+   TASK CARD HTML
+══════════════════════════════════════════ */
+function taskCard(t, i) {
+  const it = ISSUE_TYPES.find(x => x.id === t.type);
+  const extras = (t.evidence.stats || []).map(e => `
+    <div class="ev-num">
+      <div class="ev-val" style="color:${t.evidence.color}">${e.val}</div>
+      <div class="ev-key">${e.key}</div>
+    </div>`).join('');
+
+  const steps = (t.steps || []).map((s, si) => `
+    <div class="step">
+      <div class="step-n">${si + 1}</div>
+      <div class="step-txt">${s}</div>
+    </div>`).join('');
+
+  const stsMap = { open: 'Open', prog: 'In Progress', done: 'Done ✓' };
+  const stsLbl = stsMap[t.status] || 'Open';
+
+  return `
+  <div class="tcard" id="tc-${t.id}" style="--lc:${t.lc}">
+    <div class="tc-head" onclick="toggleCard('${t.id}')">
+      <div class="tc-category-ico" style="background:${it.bg}">${it.icon}</div>
+      <div class="tc-main">
+        <div class="tc-title">${t.title}</div>
+        <div class="tc-url">${t.url}</div>
+        <div class="tc-tags">
+          <span class="pri ${t.priority}">${t.priority === 'critical' ? '🔴' : t.priority === 'high' ? '🟡' : '🟢'} ${t.priority}</span>
+          <span class="team">${t.team}</span>
+          <span class="sts ${t.status}"><span class="sts-d"></span>${stsLbl}</span>
+          <span class="tag tag-cat">${it.title.split('(')[0].trim().substring(0,22)}…</span>
+        </div>
+      </div>
+      <div class="tc-right">
+        <div style="font-family:var(--fm);font-size:17px;font-weight:800;line-height:1;color:${t.evidence.color}">${t.evidence.metric}</div>
+        <div style="font-family:var(--fm);font-size:9px;color:var(--t3);text-align:right">${t.evidence.label}</div>
+        <div class="chevron">▾</div>
+      </div>
+    </div>
+
+    <div class="tc-body" id="tcb-${t.id}">
+      <div class="ev-box">
+        <div class="ev-lbl">📊 Evidence from ${t.source}</div>
+        <div class="ev-numbers">
+          <div class="ev-num">
+            <div class="ev-val" style="color:${t.evidence.color};font-size:22px">${t.evidence.metric}</div>
+            <div class="ev-key">${t.evidence.label}</div>
+          </div>
+          ${extras}
+        </div>
+        <div class="ev-impact">${t.impact}</div>
+      </div>
+
+      <div class="steps-box">
+        <div class="steps-lbl">✅ Action Steps</div>
+        ${steps}
+      </div>
+
+      <div class="verify-box">🎯 Verify: ${t.verify}</div>
+
+      <div class="tc-footer">
+        <select onchange="updateStatus('${t.id}', this.value)">
+          <option value="open" ${t.status==='open'?'selected':''}>Open</option>
+          <option value="prog" ${t.status==='prog'?'selected':''}>In Progress</option>
+          <option value="done" ${t.status==='done'?'selected':''}>Done ✓</option>
+        </select>
+        <button class="ic-btn" onclick="showToast('📋 Task ' + '${t.id}' + ' copied to clipboard')">✎ Edit</button>
+        <button class="ic-btn" onclick="showToast('📤 Assigned to ' + '${t.team}')">→ Assign</button>
+        <div class="src-chip">${t.id} · ${t.source.split('·')[1]?.trim() || ''}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function emptyState(msg) {
+  return `<div class="empty">
+    <div class="empty-ico">📭</div>
+    <div class="empty-title">${msg}</div>
+    <div class="empty-sub">Try a different filter or go back and select another issue type</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════
+   INTERACTIONS
+══════════════════════════════════════════ */
+function toggleCard(id) {
+  const card = document.getElementById('tc-' + id);
+  const body = document.getElementById('tcb-' + id);
+  card.classList.toggle('open');
+  body.classList.toggle('on');
+}
+
+function updateStatus(id, val) {
+  const t = TASKS.find(t => t.id === id);
+  if (t) {
+    t.status = val;
+    updateSidebarCounts();
+    showToast(val === 'done' ? '✅ Task marked as done' : val === 'prog' ? '🔄 Task in progress' : '📋 Task reopened');
+  }
+}
+
+/* ══════════════════════════════════════════
+   BREADCRUMB
+══════════════════════════════════════════ */
+function setBreadcrumb(crumbs) {
+  const els = [
+    document.getElementById('bc1'), document.getElementById('bc2'), document.getElementById('bc3'),
+    document.getElementById('bcsep1'), document.getElementById('bcsep2')
+  ];
+  els[0].textContent = crumbs[0] || '';
+  els[1].textContent = crumbs[1] || '';
+  els[2].textContent = crumbs[2] || '';
+  els[3].style.display = crumbs[1] ? 'inline' : 'none';
+  els[4].style.display = crumbs[2] ? 'inline' : 'none';
+  els[1].style.display = crumbs[1] ? 'inline' : 'none';
+  els[2].style.display = crumbs[2] ? 'inline' : 'none';
+  els[0].classList.toggle('on', crumbs.length <= 1);
+}
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+function setNavActive(id) {
+  document.querySelectorAll('.sni').forEach(n => n.classList.remove('on'));
+  if (id) { const el = document.getElementById(id); if (el) el.classList.add('on') }
+}
+
+function updateSidebarCounts() {
+  const total = TASKS.length;
+  const crit  = TASKS.filter(t => t.priority === 'critical').length;
+  const high  = TASKS.filter(t => t.priority === 'high').length;
+  const prog  = TASKS.filter(t => t.status === 'prog').length;
+  const done  = TASKS.filter(t => t.status === 'done').length;
+
+  document.getElementById('sm-total').textContent = total;
+  document.getElementById('sm-crit').textContent  = crit;
+  document.getElementById('sm-high').textContent  = high;
+  document.getElementById('sm-prog').textContent  = prog;
+
+  document.getElementById('stat-crit').textContent  = crit;
+  document.getElementById('stat-high').textContent  = high;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-prog').textContent  = prog;
+
+  document.getElementById('nb-crit').textContent   = crit;
+  document.getElementById('nb-high2').textContent  = high;
+  document.getElementById('nb-done').textContent   = done;
+  document.getElementById('nb-total').textContent  = total;
+  document.getElementById('nb-bounce').textContent  = TASKS.filter(t=>t.type==='bounce').length;
+  document.getElementById('nb-exit').textContent    = TASKS.filter(t=>t.type==='exit').length;
+  document.getElementById('nb-funnel').textContent  = TASKS.filter(t=>t.type==='funnel').length;
+  document.getElementById('nb-cross').textContent   = TASKS.filter(t=>t.type==='cross').length;
+  document.getElementById('nb-record').textContent  = TASKS.filter(t=>t.type==='record').length;
+  document.getElementById('nb-heat').textContent    = TASKS.filter(t=>t.type==='heat').length;
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+let _tt;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  el.classList.add('on');
+  clearTimeout(_tt);
+  _tt = setTimeout(() => el.classList.remove('on'), 3200);
+}
+</script>
+</body>
+</html>
